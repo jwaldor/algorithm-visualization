@@ -126,3 +126,32 @@ function selectionSort(array) {
 }
 
 console.log(selectionSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+
+function insertionSort(array) {
+  let result: Array<number> = [];
+  for (let i = 0; i < array.length; i++) {
+    //find position to insert the element in result
+    //remove the element
+    let found = false;
+    for (let j = 0; j < result.length - 1; j++) {
+      if (result[j] > array[i]) {
+        //put array[i] in result[j]'s place and move result[j] one up
+        const moved = result[j];
+        result[j] = array[i];
+        result.splice(j + 1, 0, moved);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      result.push(array[i]);
+    }
+  }
+  array = result;
+  return result;
+}
+
+console.log(
+  "insertionSort",
+  insertionSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44])
+);
