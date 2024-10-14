@@ -152,6 +152,6 @@ function insertionSort(array) {
 }
 
 console.log(
-  "insertionSort",
+  "insertionSort ",
   insertionSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44])
 );
