@@ -156,3 +156,36 @@ console.log(
   "insertionSort ",
   insertionSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44])
 );
+
+function mergeSort(array) {
+  function splitArray(tosplit) {
+    return [
+      tosplit.slice(0, Math.floor(tosplit.length / 2)),
+      tosplit.slice(Math.floor(tosplit.length / 2), tosplit.length),
+    ];
+  }
+  function combineArrays(arr1, arr2) {
+    while (arr1.length > 0) {
+      for (let i = 0; i < arr2.length; i++) {
+        const elt = arr1.shift();
+        if (elt < arr2[0]) {
+          arr2[0].splice(i, 0, elt);
+        }
+      }
+    }
+  }
+  //handle case where array is just one element
+  if (array.length === 1) {
+    return array;
+  } else {
+    const [arr1, arr2] = splitArray(array);
+
+    const sorted1 = mergeSort(arr1);
+    const sorted2 = mergeSort(arr2);
+
+    //put sorted arrays together
+    return combineArrays(sorted1, sorted2);
+  }
+}
+
+console.log("mergeSort ", mergeSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
