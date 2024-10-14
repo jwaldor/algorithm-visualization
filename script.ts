@@ -157,6 +157,27 @@ console.log(
   insertionSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44])
 );
 
+const testArr1 = [1, 3, 5, 7];
+const testArr2 = [2, 4, 6, 8];
+console.log("Testing combineArrays:");
+console.log("Input arrays:", testArr1, testArr2);
+const combinedArray = combineArrays(testArr1, testArr2);
+console.log("Combined array:", combinedArray);
+
+function combineArrays(arr1, arr2) {
+  while (arr1.length > 0) {
+    let index = 0;
+    const elt = arr1.shift();
+    while (index < arr2.length) {
+      if (elt < arr2[index]) {
+        arr2.splice(index, 0, elt);
+        break;
+      }
+      index++;
+    }
+  }
+  return arr2;
+}
 function mergeSort(array) {
   function splitArray(tosplit) {
     return [
@@ -164,16 +185,9 @@ function mergeSort(array) {
       tosplit.slice(Math.floor(tosplit.length / 2), tosplit.length),
     ];
   }
-  function combineArrays(arr1, arr2) {
-    while (arr1.length > 0) {
-      for (let i = 0; i < arr2.length; i++) {
-        const elt = arr1.shift();
-        if (elt < arr2[0]) {
-          arr2[0].splice(i, 0, elt);
-        }
-      }
-    }
-  }
+
+  // Test combineArrays with two sorted arrays
+
   //handle case where array is just one element
   if (array.length === 1) {
     return array;
