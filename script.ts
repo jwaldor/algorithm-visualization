@@ -88,3 +88,22 @@ function breadthFirstSearch(tree, term, position: Array<any> = []) {
 }
 
 console.log(breadthFirstSearch(tree, 4));
+
+function bubbleSort(array) {
+  let didSort = false;
+  for (let i = 0; i < array.length - 1; i++) {
+    if (array[i + 1] < array[i]) {
+      let moving = array[i];
+      array[i] = array[i + 1];
+      array[i + 1] = moving;
+      didSort = true;
+    }
+  }
+  if (didSort) {
+    return bubbleSort(array);
+  } else {
+    return array;
+  }
+}
+
+console.log(bubbleSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
