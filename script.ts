@@ -88,3 +88,149 @@ function breadthFirstSearch(tree, term, position: Array<any> = []) {
 }
 
 console.log(breadthFirstSearch(tree, 4));
+
+function bubbleSort(array) {
+  let didSort = false;
+  for (let i = 0; i < array.length - 1; i++) {
+    if (array[i + 1] < array[i]) {
+      let moving = array[i];
+      array[i] = array[i + 1];
+      array[i + 1] = moving;
+      didSort = true;
+    }
+  }
+  if (didSort) {
+    return bubbleSort(array);
+  } else {
+    return array;
+  }
+}
+
+console.log(bubbleSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+
+function selectionSort(array) {
+  let result: Array<number> = [];
+  while (array.length > 0) {
+    let smallest = 0;
+    for (let i = 0; i < array.length; i++) {
+      if (array[i] < array[smallest]) {
+        smallest = i;
+        // console.log(array[smallest], i, "here");
+      }
+    }
+    // console.log(array);
+    result.push(array.splice(smallest, 1)[0]);
+  }
+  array = result;
+  return result;
+}
+
+console.log(selectionSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+
+function insertionSort(array) {
+  let result: Array<number> = [];
+  for (let i = 0; i < array.length; i++) {
+    //find position to insert the element in result
+    //remove the element
+    let found = false;
+
+    for (let j = 0; j < result.length; j++) {
+      if (result[j] >= array[i]) {
+        //put array[i] in result[j]'s place and move result[j] one up
+        const moved = result[j];
+        result[j] = array[i];
+        result.splice(j + 1, 0, moved);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      result.push(array[i]);
+    }
+  }
+  array = result;
+  return result;
+}
+
+console.log(
+  "insertionSort ",
+  insertionSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44])
+);
+
+const testArr1 = [1, 3, 5, 7];
+const testArr2 = [2, 4, 6, 8];
+console.log("Testing combineArrays:");
+console.log("Input arrays:", testArr1, testArr2);
+const combinedArray = combineArrays(testArr1, testArr2);
+console.log("Combined array:", combinedArray);
+
+function combineArrays(arr1, arr2) {
+  while (arr1.length > 0) {
+    let index = 0;
+    const elt = arr1.shift();
+    while (index < arr2.length) {
+      if (elt < arr2[index]) {
+        arr2.splice(index, 0, elt);
+        break;
+      }
+      index++;
+    }
+  }
+  return arr2;
+}
+function mergeSort(array) {
+  function splitArray(tosplit) {
+    return [
+      tosplit.slice(0, Math.floor(tosplit.length / 2)),
+      tosplit.slice(Math.floor(tosplit.length / 2), tosplit.length),
+    ];
+  }
+
+  // Test combineArrays with two sorted arrays
+
+  //handle case where array is just one element
+  if (array.length === 1) {
+    return array;
+  } else {
+    const [arr1, arr2] = splitArray(array);
+
+    const sorted1 = mergeSort(arr1);
+    const sorted2 = mergeSort(arr2);
+
+    //put sorted arrays together
+    return combineArrays(sorted1, sorted2);
+  }
+}
+
+console.log("mergeSort ", mergeSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+
+function quickSort(array) {
+  if (array.length <= 1) {
+    return array;
+  }
+  let pivot = 0;
+  let cursor = 1;
+  const l = array.length;
+  console.log("initial", array[pivot]);
+  while (cursor < array.length) {
+    if (array[cursor] <= array[pivot]) {
+      const insert = array[cursor];
+      console.log("before", array, array[pivot]);
+
+      array.splice(cursor, 1);
+      array.splice(pivot, 0, insert);
+      pivot++;
+      cursor++;
+      console.log("after", array, array[pivot]); //pivot, array[pivot], array
+    } else {
+      //   array.splice(pivot + 1, 0, array[cursor]);
+      cursor++;
+    }
+  }
+  //   console.log(array);
+  return quickSort(array.slice(0, pivot))
+    .concat(array[pivot])
+    .concat(quickSort(array.slice(pivot + 1, array.length)));
+}
+
+console.log("quickSort ", quickSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
