@@ -203,3 +203,34 @@ function mergeSort(array) {
 }
 
 console.log("mergeSort ", mergeSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+
+function quickSort(array) {
+  if (array.length <= 1) {
+    return array;
+  }
+  let pivot = 0;
+  let cursor = 1;
+  const l = array.length;
+  console.log("initial", array[pivot]);
+  while (cursor < array.length) {
+    if (array[cursor] <= array[pivot]) {
+      const insert = array[cursor];
+      console.log("before", array, array[pivot]);
+
+      array.splice(cursor, 1);
+      array.splice(pivot, 0, insert);
+      pivot++;
+      cursor++;
+      console.log("after", array, array[pivot]); //pivot, array[pivot], array
+    } else {
+      //   array.splice(pivot + 1, 0, array[cursor]);
+      cursor++;
+    }
+  }
+  //   console.log(array);
+  return quickSort(array.slice(0, pivot))
+    .concat(array[pivot])
+    .concat(quickSort(array.slice(pivot + 1, array.length)));
+}
+
+console.log("quickSort ", quickSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
