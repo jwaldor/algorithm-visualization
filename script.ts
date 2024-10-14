@@ -133,8 +133,9 @@ function insertionSort(array) {
     //find position to insert the element in result
     //remove the element
     let found = false;
-    for (let j = 0; j < result.length - 1; j++) {
-      if (result[j] > array[i]) {
+
+    for (let j = 0; j < result.length; j++) {
+      if (result[j] >= array[i]) {
         //put array[i] in result[j]'s place and move result[j] one up
         const moved = result[j];
         result[j] = array[i];
