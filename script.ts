@@ -107,3 +107,22 @@ function bubbleSort(array) {
 }
 
 console.log(bubbleSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+
+function selectionSort(array) {
+  let result: Array<number> = [];
+  while (array.length > 0) {
+    let smallest = 0;
+    for (let i = 0; i < array.length; i++) {
+      if (array[i] < array[smallest]) {
+        smallest = i;
+        // console.log(array[smallest], i, "here");
+      }
+    }
+    // console.log(array);
+    result.push(array.splice(smallest, 1)[0]);
+  }
+  array = result;
+  return result;
+}
+
+console.log(selectionSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
