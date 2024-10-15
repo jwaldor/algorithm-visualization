@@ -55,9 +55,9 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 async function binarySearch(array:Array<number>, term: number, leading = 0,layer=0,callback:Function,complete:Function) {
     const m = Math.floor((array.length - 1) / 2);
     console.log("callback",array[m],array)
-    await callback({compare:array[m],layer,leading:leading,array:array})
+    await callback({compare:array[m],layer,leading:leading,array:array,index:m})
     if (array.length === 0) {
-        complete({compare:undefined,layer:layer,leading:leading,array:[array[m+leading]]});;
+        complete({compare:undefined,layer:layer,leading:leading,array:[array[m+leading]],index:m+leading});;
     }
     if (array[m] < term) {
       binarySearch(
@@ -72,7 +72,7 @@ async function binarySearch(array:Array<number>, term: number, leading = 0,layer
 
      binarySearch(array.slice(0, m + 1), term, leading,layer+1,callback,complete);
     } else {
-        complete({compare:m+leading,layer:layer,leading:leading+m,array:[array[m]]});
+        complete({compare:m+leading,layer:layer,leading:leading+m,array:[array[m]],index:m+leading});
     }
   }
 
@@ -85,7 +85,7 @@ export default function Page() {
     const [searchTerm, setSearchTerm] = useState<number | null>(5);
     const [executing, setExecuting] = useState<boolean>(false);
     const [found, setFound] = useState<number|undefined>();
-    const [searchSteps,setSearchSteps] = useState<Array<{compare:number,layer:number, leading:number,array:Array<number>}>>([]);
+    const [searchSteps,setSearchSteps] = useState<Array<{compare:number,layer:number, leading:number,array:Array<number>,index:number}>>([]);
 
     // const [circleRefs,setCircleRefs] = useState<null|RefObject<HTMLDivElement>[]>(null)
     // useEffect(()=> {
@@ -101,12 +101,13 @@ export default function Page() {
             // setI(0);
             setFound(undefined);
             setExecuting(true);
-            binarySearch(numbers,searchTerm,0,0,async (props:{compare:number,layer:number, leading:number,array:Array<number>})=>{
+            binarySearch(numbers,searchTerm,0,0,async (props:{compare:number,layer:number, leading:number,array:Array<number>,index:number})=>{
                 setSearchSteps(prevSteps => [...prevSteps, {
                     compare: props.compare,
                     layer: props.layer,
                     leading: props.leading,
-                    array: props.array
+                    array: props.array,
+                    index: props.index
                 }]);
                 console.log("here3", props.compare);
                 // if (numbers[props.i] === searchTerm){
@@ -116,14 +117,15 @@ export default function Page() {
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 console.log("here5",props.compare)
                 
-            },(props:{compare:number,layer:number,leading:number,array:Array<number>})=>{
+            },(props:{compare:number,layer:number,leading:number,array:Array<number>,index:number})=>{
                 if (numbers[props.compare] === searchTerm){
                     setFound(props.compare)
                     setSearchSteps(prevSteps => [...prevSteps, {
                         compare: props.compare,
                         layer: props.layer,
                         leading: props.leading,
-                        array: props.array
+                        array: props.array,
+                        index: props.index
                     }]);
                 }
                 else{
@@ -142,7 +144,7 @@ export default function Page() {
     
     const testBinarySearch = () => {
         binarySearch(testArray, testTerm, 0, 0, 
-            (props: { compare: number, layer: number, leading: number, array: Array<number> }) => {
+            (props: { compare: number, layer: number, leading: number, array: Array<number>,index:number }) => {
                 console.log(`Comparing at index ${props.compare} layer ${props.layer} leading ${props.leading} array ${props.array}`);
             },
             (props: { compare: number | undefined }) => {
@@ -233,7 +235,8 @@ export default function Page() {
                                 <div
                                     key={index}
                                     className={`w-10 h-10 rounded-full ${
-                                        'bg-blue-400  border-blue-600'
+                                        step.index === index - step.leading ? 'bg-yellow-400 border-yellow-600' :
+                                        'bg-blue-400 border-blue-600'
                                     } border-2 flex items-center justify-center text-white text-sm mr-2`}
                                 >
                                     {number}
