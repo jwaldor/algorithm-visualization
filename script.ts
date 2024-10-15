@@ -316,4 +316,63 @@ function djikstra(graph, starting_node) {
   }
 }
 
-djikstra(complexWeightedGraph, "B");
+// djikstra(complexWeightedGraph, "B");
+
+async function binarySearchCallback(
+  array: Array<number>,
+  term: number,
+  leading = 0,
+  layer = 0,
+  callback: Function,
+  complete: Function
+) {
+  const m = Math.floor((array.length - 1) / 2);
+  await callback({ compare: array[m], layer, leading: leading, array: array });
+  if (array.length === 0) {
+    complete({
+      compare: undefined,
+      layer: layer,
+      leading: leading,
+      array: [array[m + leading]],
+    });
+  }
+  if (array[m] < term) {
+    binarySearchCallback(
+      array.slice(m + 1, array.length),
+      term,
+      leading + m + 1,
+      layer + 1,
+      callback,
+      complete
+    );
+  } else if (array[m] > term) {
+    binarySearchCallback(
+      array.slice(0, m + 1),
+      term,
+      leading,
+      layer + 1,
+      callback,
+      complete
+    );
+  } else {
+    complete({
+      compare: m + leading,
+      layer: layer,
+      leading: leading,
+      array: [array[m]],
+    });
+  }
+}
+
+binarySearchCallback(
+  [1, 3, 5, 7, 9, 11, 13, 15],
+  5,
+  0,
+  0,
+  (x) => {
+    console.log("callback", x);
+  },
+  (x) => {
+    console.log("complete", x);
+  }
+);

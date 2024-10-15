@@ -54,14 +54,13 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 
 async function binarySearch(array:Array<number>, term: number, leading = 0,layer=0,callback:Function,complete:Function) {
     const m = Math.floor((array.length - 1) / 2);
-    console.log("callback")
+    console.log("callback",array[m],array)
     await callback({compare:array[m],layer,leading:leading,array:array})
     if (array.length === 0) {
         complete({compare:undefined,layer:layer,leading:leading,array:[array[m+leading]]});;
-      return;
     }
     if (array[m] < term) {
-      return binarySearch(
+      binarySearch(
         array.slice(m + 1, array.length),
         term,
         leading + m + 1,
@@ -71,10 +70,9 @@ async function binarySearch(array:Array<number>, term: number, leading = 0,layer
       );
     } else if (array[m] > term) {
 
-    return binarySearch(array.slice(0, m + 1), term, leading,layer+1,callback,complete);
+     binarySearch(array.slice(0, m + 1), term, leading,layer+1,callback,complete);
     } else {
-        complete({compare:m+leading,layer:layer,leading:leading,array:[array[m]]});
-      return m + leading;
+        complete({compare:m+leading,layer:layer,leading:leading+m,array:[array[m]]});
     }
   }
 
@@ -167,13 +165,14 @@ export default function Page() {
         setNumbers([...numbers, 0]);
     };
 
-    useEffect(()=>{
-        execute()
-    },[numbers,searchTerm])
-    useEffect(()=>{
-        console.log("searchSteps",searchSteps)
-    },[searchSteps])
-
+    // useEffect(()=>{
+    //     console.log("executing")
+    //     execute()
+    // },[numbers,searchTerm])
+    // useEffect(()=>{
+    //     console.log("searchSteps",searchSteps)
+    // },[searchSteps])
+    console.log(searchSteps,"searchSteps")
     return (
         <div>
             <h1>Binary Search</h1>
