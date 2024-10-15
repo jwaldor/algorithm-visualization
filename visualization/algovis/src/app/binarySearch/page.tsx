@@ -54,9 +54,10 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 
 async function binarySearch(array:Array<number>, term: number, leading = 0,layer=0,callback:Function,complete:Function) {
     const m = Math.floor((array.length - 1) / 2);
+    console.log("callback")
     await callback({compare:array[m],layer,leading:leading,array:array})
     if (array.length === 0) {
-        complete({i:undefined});
+        complete({compare:undefined,layer:layer,leading:leading,array:[array[m+leading]]});;
       return;
     }
     if (array[m] < term) {
@@ -72,7 +73,7 @@ async function binarySearch(array:Array<number>, term: number, leading = 0,layer
 
     return binarySearch(array.slice(0, m + 1), term, leading,layer+1,callback,complete);
     } else {
-        complete({i:m+leading});
+        complete({compare:m+leading,layer:layer,leading:leading,array:[array[m+leading]]});
       return m + leading;
     }
   }
@@ -117,12 +118,18 @@ export default function Page() {
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 console.log("here5",props.compare)
                 
-            },(props:{i:number})=>{
-                if (numbers[props.i] === searchTerm){
-                    setFound(props.i)
+            },(props:{compare:number,layer:number,leading:number,array:Array<number>})=>{
+                if (numbers[props.compare] === searchTerm){
+                    setFound(props.compare)
+                    setSearchSteps(prevSteps => [...prevSteps, {
+                        compare: props.compare,
+                        layer: props.layer,
+                        leading: props.leading,
+                        array: props.array
+                    }]);
                 }
                 else{
-                    console.log("here6",props.i)
+                    console.log("here6",props.compare)
                 }
                 setExecuting(false)
             })
@@ -140,9 +147,9 @@ export default function Page() {
             (props: { compare: number, layer: number, leading: number, array: Array<number> }) => {
                 console.log(`Comparing at index ${props.compare} layer ${props.layer} leading ${props.leading} array ${props.array}`);
             },
-            (props: { i: number | undefined }) => {
-                if (props.i !== undefined) {
-                    console.log(`Found ${testTerm} at index ${props.i}`);
+            (props: { compare: number | undefined }) => {
+                if (props.compare !== undefined) {
+                    console.log(`Found ${testTerm} at index ${props.compare}`);
                 } else {
                     console.log(`${testTerm} not found in the array`);
                 }
@@ -212,7 +219,18 @@ export default function Page() {
                     <div key={stepIndex} className="flex flex-row items-center mb-4">
                         <span className="mr-4 font-semibold">Step {stepIndex + 1}:</span>
                         <div className="flex flex-row">
-                            {step.array.map((number, index) => (
+                            {[...Array(step.leading).fill(undefined), ...step.array].map((number, index) => (
+                                
+                                number === undefined ? <div
+                                key={index}
+                                className={`w-10 h-10 rounded-full ${
+                                    index === step.compare ? 'bg-yellow-400 border-yellow-600' :
+                                    number === searchTerm ? 'bg-green-500 border-green-600' :
+                                    'bg-blue-400  border-blue-600'
+                                } border-2 flex items-center justify-center text-white text-sm mr-2 bg-transparent border-none`}
+                            >
+                                {number}
+                            </div> :
                                 <div
                                     key={index}
                                     className={`w-10 h-10 rounded-full ${
