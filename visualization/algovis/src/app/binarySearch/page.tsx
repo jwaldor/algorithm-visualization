@@ -52,14 +52,14 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     </button>
 );
 
-function binarySearch(array:Array<number>, term: number, leading = 0,layer=0,callback:Function,complete:Function) {
+async function binarySearch(array:Array<number>, term: number, leading = 0,layer=0,callback:Function,complete:Function) {
     const m = Math.floor((array.length - 1) / 2);
+    await callback({compare:array[m],layer,leading:leading,array:array})
     if (array.length === 0) {
         complete({i:undefined});
       return;
     }
     if (array[m] < term) {
-    callback({compare:array[m],layer,leading:leading,array:array})
       return binarySearch(
         array.slice(m + 1, array.length),
         term,
@@ -69,11 +69,9 @@ function binarySearch(array:Array<number>, term: number, leading = 0,layer=0,cal
         complete
       );
     } else if (array[m] > term) {
-        callback({compare:array[m],layer,leading:leading,array:array})
 
     return binarySearch(array.slice(0, m + 1), term, leading,layer+1,callback,complete);
     } else {
-        callback({compare:array[m],layer,leading:leading,array:array})
         complete({i:m+leading});
       return m + leading;
     }
@@ -84,10 +82,11 @@ function binarySearch(array:Array<number>, term: number, leading = 0,layer=0,cal
 
 export default function Page() {
     const [compare, setCompare] = useState<number|undefined>(undefined);
-    const [numbers, setNumbers] = useState<number[]>([0,1,1,2]);
-    const [searchTerm, setSearchTerm] = useState<number | null>(7);
+    const [numbers, setNumbers] = useState<number[]>([1,3,5,7,9,11,13,15]);
+    const [searchTerm, setSearchTerm] = useState<number | null>(5);
     const [executing, setExecuting] = useState<boolean>(false);
     const [found, setFound] = useState<number|undefined>();
+    const [searchSteps,setSearchSteps] = useState<Array<{compare:number,layer:number, leading:number,array:Array<number>}>>([]);
 
     // const [circleRefs,setCircleRefs] = useState<null|RefObject<HTMLDivElement>[]>(null)
     // useEffect(()=> {
@@ -104,8 +103,13 @@ export default function Page() {
             setFound(undefined);
             setExecuting(true);
             binarySearch(numbers,searchTerm,0,0,async (props:{compare:number,layer:number, leading:number,array:Array<number>})=>{
-                setCompare(props.compare)
-                console.log("here3",props.compare)
+                setSearchSteps(prevSteps => [...prevSteps, {
+                    compare: props.compare,
+                    layer: props.layer,
+                    leading: props.leading,
+                    array: props.array
+                }]);
+                console.log("here3", props.compare);
                 // if (numbers[props.i] === searchTerm){
                 //     setFound(props.i)
                 //     setExecuting(false)
@@ -119,7 +123,6 @@ export default function Page() {
                 }
                 else{
                     console.log("here6",props.i)
-                    setCompare(undefined)
                 }
                 setExecuting(false)
             })
@@ -130,7 +133,7 @@ export default function Page() {
     };
     // Test call of binary search with a sorted array
     const testArray = [1, 3, 5, 7, 9, 11, 13, 15];
-    const testTerm = 7;
+    const testTerm = 5;
     
     const testBinarySearch = () => {
         binarySearch(testArray, testTerm, 0, 0, 
@@ -148,21 +151,91 @@ export default function Page() {
     };
 
     // Call the test function
-    useEffect(() => {
-        testBinarySearch();
-    }, []);
+    // useEffect(() => {
+    //     testBinarySearch();
+    //     setNumbers([1,3,5,7,9,11,13,15])
+    //     setSearchTerm(5)
+    // }, []);
     const handleAddNumber = () => {
         setNumbers([...numbers, 0]);
     };
 
+    useEffect(()=>{
+        execute()
+    },[numbers,searchTerm])
+    useEffect(()=>{
+        console.log("searchSteps",searchSteps)
+    },[searchSteps])
+
     return (
         <div>
             <h1>Binary Search</h1>
-            
+            <div className="flex flex-row justify-center gap-4 my-4">
+                <div className="flex items-center justify-center mb-4">
+                    <input
+                        type="number"
+                        value={searchTerm !== null ? searchTerm : ''}
+                        onChange={(e) => {
+                            setSearchTerm(Number(e.target.value))
+                            setCompare(undefined)
+                        }}
+                        className="w-16 h-16 text-center text-xl border-2 border-gray-300 rounded-md mr-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="Term"
+                    />
+                    <button
+                        onClick={execute}
+                        className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center"
+                        disabled={executing}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+                {numbers.map((number, index) => (
+                    <div key={index} className="flex flex-row">
+                        <Circle
+                            ref={circleRefs[index]}
+                            entry={index}
+                            array={numbers}
+                            executing={executing}
+                            setNumbers={setNumbers}
+                            found={found}
+                        />
+                    </div>
+                ))}
+                <PlusButton onClick={handleAddNumber} />
+            </div>
+            <div className="mt-8">
+                <h2 className="text-xl font-bold mb-4">Search Steps</h2>
+                {searchSteps.map((step, stepIndex) => (
+                    <div key={stepIndex} className="flex flex-row items-center mb-4">
+                        <span className="mr-4 font-semibold">Step {stepIndex + 1}:</span>
+                        <div className="flex flex-row">
+                            {step.array.map((number, index) => (
+                                <div
+                                    key={index}
+                                    className={`w-10 h-10 rounded-full ${
+                                        index === step.compare ? 'bg-yellow-400 border-yellow-600' :
+                                        number === searchTerm ? 'bg-green-500 border-green-600' :
+                                        'bg-blue-400  border-blue-600'
+                                    } border-2 flex items-center justify-center text-white text-sm mr-2`}
+                                >
+                                    {number}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
+
 
         </div>
     )
 }
+
+//use compare to highlight found item + search focus?
+
 
 // add animations
 // add highlight for currently selected item
