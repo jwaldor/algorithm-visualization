@@ -73,7 +73,7 @@ async function binarySearch(array:Array<number>, term: number, leading = 0,layer
 
     return binarySearch(array.slice(0, m + 1), term, leading,layer+1,callback,complete);
     } else {
-        complete({compare:m+leading,layer:layer,leading:leading,array:[array[m+leading]]});
+        complete({compare:m+leading,layer:layer,leading:leading,array:[array[m]]});
       return m + leading;
     }
   }
@@ -234,8 +234,6 @@ export default function Page() {
                                 <div
                                     key={index}
                                     className={`w-10 h-10 rounded-full ${
-                                        index === step.compare ? 'bg-yellow-400 border-yellow-600' :
-                                        number === searchTerm ? 'bg-green-500 border-green-600' :
                                         'bg-blue-400  border-blue-600'
                                     } border-2 flex items-center justify-center text-white text-sm mr-2`}
                                 >
