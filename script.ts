@@ -32,19 +32,50 @@ console.log(binarySearch([2, 3, 23, 47, 47, 56, 66], 47));
 // Define a tree as a list of lists
 const tree = [
   {
-    value: 1,
+    value: 8,
     children: [
-      { value: 2, children: [{ value: 5, children: [] }] },
-      { value: 3, children: [{ value: 6, children: [] }] },
-      { value: 3, children: [] },
+      {
+        value: 3,
+        children: [
+          { value: 9, children: [] },
+          { value: 2, children: [{ value: 7, children: [] }] },
+        ],
+      },
+      { value: 5, children: [] },
+      {
+        value: 1,
+        children: [
+          { value: 4, children: [] },
+          { value: 6, children: [{ value: 10, children: [] }] },
+        ],
+      },
     ],
   },
   {
-    value: 1,
+    value: 12,
     children: [
-      { value: 2, children: [{ value: 5, children: [] }] },
-      { value: 3, children: [{ value: 6, children: [] }] },
-      { value: 4, children: [] },
+      { value: 15, children: [{ value: 11, children: [] }] },
+      { value: 13, children: [] },
+      {
+        value: 14,
+        children: [
+          { value: 16, children: [{ value: 18, children: [] }] },
+          { value: 17, children: [] },
+        ],
+      },
+    ],
+  },
+  {
+    value: 20,
+    children: [
+      { value: 19, children: [] },
+      {
+        value: 21,
+        children: [
+          { value: 23, children: [] },
+          { value: 22, children: [{ value: 24, children: [] }] },
+        ],
+      },
     ],
   },
 ];
@@ -66,7 +97,7 @@ function depthFirstSearch(tree, term, position: Array<any> = []) {
 }
 
 // Example usage
-console.log(depthFirstSearch(tree, 4));
+console.log("depthFirstSearch", depthFirstSearch(tree, 4));
 
 function breadthFirstSearch(tree, term, position: Array<any> = []) {
   const queue: Array<any> = [];
@@ -215,13 +246,10 @@ function quickSort(array) {
   while (cursor < array.length) {
     if (array[cursor] <= array[pivot]) {
       const insert = array[cursor];
-      console.log("before", array, array[pivot]);
-
       array.splice(cursor, 1);
       array.splice(pivot, 0, insert);
       pivot++;
       cursor++;
-      console.log("after", array, array[pivot]); //pivot, array[pivot], array
     } else {
       //   array.splice(pivot + 1, 0, array[cursor]);
       cursor++;
@@ -234,3 +262,58 @@ function quickSort(array) {
 }
 
 console.log("quickSort ", quickSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+
+// Define a complex weighted graph using an adjacency list
+const complexWeightedGraph = {
+  A: { B: 4, C: 2 },
+  B: { A: 4, C: 1, D: 5 },
+  C: { A: 2, B: 1, D: 8, E: 10 },
+  D: { B: 5, C: 8, E: 2, F: 6 },
+  E: { C: 10, D: 2, F: 3 },
+  F: { D: 6, E: 3 },
+};
+
+function djikstra(graph, starting_node) {
+  const nodes = Object.keys(graph);
+  const unvisited = nodes.reduce((acc, node) => {
+    acc[node] = Infinity;
+    return acc;
+  }, {});
+  unvisited[starting_node] = 0;
+  let current_node: string = "";
+  const visited: Array<string> = [];
+  while (Object.keys(unvisited).length > 0) {
+    //find node with smallest finite distance
+    const unvisitedArray = Object.entries(unvisited).map(([key, value]) => ({
+      [key]: value,
+    }));
+    console.log(unvisitedArray);
+    if (unvisitedArray.length === visited.length) break;
+    let min = Infinity;
+    unvisitedArray
+      //   .filter((arr) => unvisited_keys.filter(key => Object.keys(graph[current_node]).includes(key)))
+      .forEach((elt, _) => {
+        // console.log("elt", elt, a);
+        // console.log(elt, Object.values(elt)[0]);
+        if ((Object.values(elt)[0] as number) <= min) {
+          min = Object.values(elt)[0] as number;
+          console.log(Object.values(elt));
+          current_node = Object.values(elt)[1];
+        }
+      });
+    console.log("min", current_node, min);
+    //update distances of unvisited neighbors
+    const unvisited_neighbors = Object.keys(graph[current_node]).filter(
+      (elt) => !visited.includes(elt)
+    );
+    unvisited_neighbors.forEach((neighbor) => {
+      const newdist = graph[neighbor] + unvisited[current_node];
+      if (newdist < unvisited[neighbor]) {
+        unvisited[neighbor] = newdist;
+      }
+    });
+    visited.push(current_node);
+  }
+}
+
+djikstra(complexWeightedGraph, "B");
