@@ -52,9 +52,11 @@ function linearSearch(array:Array<number>, term: number) {
 
 export default function Page() {
     const [i, setI] = useState(0);
-    const [numbers, setNumbers] = useState<number[]>([0]);
-    const [searchTerm, setSearchTerm] = useState<number | null>(4);
-    const [executing, setExecuting] = useState<boolean>(true);
+    const [numbers, setNumbers] = useState<number[]>([0,1,1,2]);
+    const [searchTerm, setSearchTerm] = useState<number | null>(1);
+    const [executing, setExecuting] = useState<boolean>(false);
+    const [found, setFound] = useState<number|undefined>();
+
     // const [circleRefs,setCircleRefs] = useState<null|RefObject<HTMLDivElement>[]>(null)
     // useEffect(()=> {
     //     const circleRefs =  numbers.map(() => createRef<HTMLDivElement>())
@@ -63,22 +65,26 @@ export default function Page() {
         const circleRefs =  numbers.map(() => createRef<HTMLDivElement>())
     
     const execute = () => {
+        console.log("here",searchTerm,executing)
         if (searchTerm !== null && !executing){
+            console.log("here2")
             setI(0);
             setExecuting(true);
-            algorithmStep();
+            setTimeout(algorithmStep,1000);
         }
             
     };
 
     const algorithmStep = () => {
         if (i < numbers.length && searchTerm !== null) {
+            console.log(numbers[i],searchTerm)
             if (numbers[i] === searchTerm) {
+                console.log("found!")
                 // Found the search term
                 setExecuting(false);
             } else {
                 // Move to the next element
-                setI((prevI) => prevI + 1);
+                setI(i+1);
                 setTimeout(algorithmStep, 1000); // Delay for visualization
             }
         } else {
@@ -132,3 +138,4 @@ export default function Page() {
 
   // add animations
   // add highlight for currently selected item
+  //add set searchTerm entry
