@@ -91,7 +91,7 @@ export default function Page() {
             console.log("here2")
             setI(0);
             setExecuting(true);
-            useSetInterval(algorithmStep,1000);
+            // useSetInterval(algorithmStep,1000);
         }
             
     };
@@ -102,17 +102,20 @@ export default function Page() {
             if (numbers[i] === searchTerm) {
                 console.log("found!")
                 // Found the search term
+                setFound(i)
                 setExecuting(false);
             } else {
                 // Move to the next element
                 setI(i+1);
-                setTimeout(algorithmStep, 1000); // Delay for visualization
+                // setTimeout(algorithmStep, 1000); // Delay for visualization
             }
         } else {
             // Search complete, term not found
             setExecuting(false);
         }
     };
+    useSetInterval(algorithmStep, executing ? 1000 : null);
+
 
     const handleAddNumber = () => {
         setNumbers([...numbers, 0]);
