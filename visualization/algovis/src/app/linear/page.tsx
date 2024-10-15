@@ -5,32 +5,40 @@ import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef 
 interface CircleProps {
     entry: number;
     array: number[];
-    executing: Boolean;
+    executing: boolean;
     setNumbers: React.Dispatch<React.SetStateAction<number[]>>;
+    found: number | undefined;
 }
 
-const Circle = forwardRef<HTMLDivElement, CircleProps>(({ entry, executing, array, setNumbers }, ref) => (
-    <div ref={ref} className="w-20 h-20 rounded-full bg-blue-500 border-4 border-blue-700 grid place-items-center text-white font-bold shadow-md hover:bg-blue-400 transition-colors duration-300">
-        {executing ? (
-            array[entry]
-        ) : (
-            <input
-                // type="number"
-                value={array[entry]}
-                onChange={(e) => {
-                    const newValue = parseInt(e.target.value, 10);
-                    if (!isNaN(newValue)) {
-                        const newArray = [...array];
-                        newArray[entry] = newValue;
-                        setNumbers(newArray);
-                    }
-                }}
-                className="w-full h-full bg-transparent text-center text-white outline-none"
-                style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
-            />
-        )}
-    </div>
-));
+const Circle = forwardRef<HTMLDivElement, CircleProps>(({ entry, executing, array, setNumbers, found }, ref) => {
+    const isFound = found === entry;
+    const baseClasses = "w-20 h-20 rounded-full grid place-items-center text-white font-bold shadow-md transition-all duration-300";
+    const colorClasses = isFound
+        ? "bg-purple-500 border-4 border-purple-700 hover:bg-purple-400"
+        : "bg-blue-500 border-4 border-blue-700 hover:bg-blue-400";
+
+    return (
+        <div ref={ref} className={`${baseClasses} ${colorClasses}`}>
+            {executing ? (
+                array[entry]
+            ) : (
+                <input
+                    value={array[entry]}
+                    onChange={(e) => {
+                        const newValue = parseInt(e.target.value, 10);
+                        if (!isNaN(newValue)) {
+                            const newArray = [...array];
+                            newArray[entry] = newValue;
+                            setNumbers(newArray);
+                        }
+                    }}
+                    className="w-full h-full bg-transparent text-center text-white outline-none"
+                    style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
+                />
+            )}
+        </div>
+    );
+});
 
 const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     <button
@@ -144,6 +152,7 @@ export default function Page() {
                             array={numbers}
                             executing={executing}
                             setNumbers={setNumbers}
+                            found={found}
                         />
                         
                         {executing && searchTerm !== null && index === i && (
@@ -157,9 +166,8 @@ export default function Page() {
             </div>
         </div>
     )
+}
 
-  }
-
-  // add animations
-  // add highlight for currently selected item
-  //add set searchTerm entry
+// add animations
+// add highlight for currently selected item
+//add set searchTerm entry
