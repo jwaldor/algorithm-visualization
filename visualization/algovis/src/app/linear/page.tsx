@@ -61,6 +61,31 @@ export default function Page() {
     //     setCircleRefs(circleRefs)
     // }, [numbers])
         const circleRefs =  numbers.map(() => createRef<HTMLDivElement>())
+    
+    const execute = () => {
+        if (searchTerm !== null && !executing){
+            setI(0);
+            setExecuting(true);
+            algorithmStep();
+        }
+            
+    };
+
+    const algorithmStep = () => {
+        if (i < numbers.length && searchTerm !== null) {
+            if (numbers[i] === searchTerm) {
+                // Found the search term
+                setExecuting(false);
+            } else {
+                // Move to the next element
+                setI((prevI) => prevI + 1);
+                setTimeout(algorithmStep, 1000); // Delay for visualization
+            }
+        } else {
+            // Search complete, term not found
+            setExecuting(false);
+        }
+    };
 
     const handleAddNumber = () => {
         setNumbers([...numbers, 0]);
@@ -70,6 +95,17 @@ export default function Page() {
         <div>
             <h1>Linear</h1>
             <div className="flex flex-col justify-center gap-4 my-4">
+                <div className="flex items-center justify-center mb-4">
+                    <button
+                        onClick={execute}
+                        className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center"
+                        disabled={executing}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
                 {numbers.map((number, index) => (
                     <div key={index} className="flex flex-row">
                         <Circle
@@ -95,3 +131,4 @@ export default function Page() {
   }
 
   // add animations
+  // add highlight for currently selected item
