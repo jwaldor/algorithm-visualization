@@ -2,6 +2,9 @@
 
 import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef } from "react";
 
+
+
+
 interface CircleProps {
     entry: number;
     array: number[];
@@ -49,12 +52,18 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     </button>
 );
 
-function linearSearch(array:Array<number>, term: number) {
+async function linearSearch(array:Array<number>, term: number, callback: Function,complete:Function ) {
+    console.log("linearSearch")
     for (let i = 0; i < array.length; i++) {
+        console.log("here4",i)
+        await callback({i});
+        console.log("linearSearch",i)
       if (array[i] === term) {
+        complete({i})
         return i;
       }
     }
+    complete({i:undefined})
     return;
   }
 
@@ -97,33 +106,54 @@ export default function Page() {
         console.log("here",searchTerm,executing)
         if (searchTerm !== null && !executing){
             console.log("here2")
-            setI(0);
+            // setI(0);
             setFound(undefined);
             setExecuting(true);
+            linearSearch(numbers,searchTerm,async (props:{i:number})=>{
+                setI(props.i)
+                console.log("here3",props.i)
+                // if (numbers[props.i] === searchTerm){
+                //     setFound(props.i)
+                //     setExecuting(false)
+                // }
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                console.log("here5",props.i)
+                
+            },(props:{i:number})=>{
+                if (numbers[props.i] === searchTerm){
+                    setFound(props.i)
+                }
+                else{
+                    console.log("here6",props.i)
+                    setI(undefined)
+                }
+                setExecuting(false)
+            })
+            console.log("done")
             // useSetInterval(algorithmStep,1000);
         }
             
     };
 
-    const algorithmStep = () => {
-        if (i! < numbers.length && searchTerm !== null) {
-            console.log(numbers[i],searchTerm)
-            if (numbers[i] === searchTerm) {
-                console.log("found!")
-                // Found the search term
-                setFound(i)
-                setExecuting(false);
-            } else {
-                // Move to the next element
-                setI(i!+1);
-                // setTimeout(algorithmStep, 1000); // Delay for visualization
-            }
-        } else {
-            // Search complete, term not found
-            setExecuting(false);
-        }
-    };
-    useSetInterval(algorithmStep, executing ? 1000 : null);
+    // const algorithmStep = () => {
+    //     if (i! < numbers.length && searchTerm !== null) {
+    //         console.log(numbers[i],searchTerm)
+    //         if (numbers[i] === searchTerm) {
+    //             console.log("found!")
+    //             // Found the search term
+    //             setFound(i)
+    //             setExecuting(false);
+    //         } else {
+    //             // Move to the next element
+    //             setI(i!+1);
+    //             // setTimeout(algorithmStep, 1000); // Delay for visualization
+    //         }
+    //     } else {
+    //         // Search complete, term not found
+    //         setExecuting(false);
+    //     }
+    // };
+    // useSetInterval(algorithmStep, executing ? 1000 : null);
 
 
     const handleAddNumber = () => {
