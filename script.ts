@@ -21,7 +21,7 @@ function binarySearch(array, term, leading = 0) {
       leading + m + 1
     );
   } else if (array[m] > term) {
-    return binarySearch(array.slice(0, m + 1), term, 0);
+    return binarySearch(array.slice(0, m + 1), term, leading);
   } else {
     return m + leading;
   }
