@@ -1,6 +1,6 @@
 "use client";
 
-import { createRef, useMemo, useState, forwardRef, useEffect, RefObject } from "react";
+import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef } from "react";
 
 interface CircleProps {
     entry: number;
@@ -50,6 +50,27 @@ function linearSearch(array:Array<number>, term: number) {
     return;
   }
 
+
+function useSetInterval(callback: () => void, delay: number | null) {
+    const savedCallback = useRef<() => void>();
+
+    // Remember the latest callback
+    useEffect(() => {
+        savedCallback.current = callback;
+    }, [callback]);
+
+    // Set up the interval
+    useEffect(() => {
+        function tick() {
+            savedCallback.current?.();
+        }
+        if (delay !== null) {
+            const id = setInterval(tick, delay);
+            return () => clearInterval(id);
+        }
+    }, [delay]);
+}
+
 export default function Page() {
     const [i, setI] = useState(0);
     const [numbers, setNumbers] = useState<number[]>([0,1,1,2]);
@@ -70,7 +91,7 @@ export default function Page() {
             console.log("here2")
             setI(0);
             setExecuting(true);
-            setTimeout(algorithmStep,1000);
+            useSetInterval(algorithmStep,1000);
         }
             
     };
