@@ -2,35 +2,46 @@
 
 import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef } from "react";
 
+
+
+
 interface CircleProps {
     entry: number;
     array: number[];
-    executing: Boolean;
+    executing: boolean;
     setNumbers: React.Dispatch<React.SetStateAction<number[]>>;
+    found: number | undefined;
 }
 
-const Circle = forwardRef<HTMLDivElement, CircleProps>(({ entry, executing, array, setNumbers }, ref) => (
-    <div ref={ref} className="w-20 h-20 rounded-full bg-blue-500 border-4 border-blue-700 grid place-items-center text-white font-bold shadow-md hover:bg-blue-400 transition-colors duration-300">
-        {executing ? (
-            array[entry]
-        ) : (
-            <input
-                // type="number"
-                value={array[entry]}
-                onChange={(e) => {
-                    const newValue = parseInt(e.target.value, 10);
-                    if (!isNaN(newValue)) {
-                        const newArray = [...array];
-                        newArray[entry] = newValue;
-                        setNumbers(newArray);
-                    }
-                }}
-                className="w-full h-full bg-transparent text-center text-white outline-none"
-                style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
-            />
-        )}
-    </div>
-));
+const Circle = forwardRef<HTMLDivElement, CircleProps>(({ entry, executing, array, setNumbers, found }, ref) => {
+    const isFound = found === entry;
+    const baseClasses = "w-20 h-20 rounded-full grid place-items-center text-white font-bold shadow-md transition-all duration-300";
+    const colorClasses = isFound
+        ? "bg-purple-500 border-4 border-purple-700 hover:bg-purple-400"
+        : "bg-blue-500 border-4 border-blue-700 hover:bg-blue-400";
+
+    return (
+        <div ref={ref} className={`${baseClasses} ${colorClasses}`}>
+            {executing ? (
+                array[entry]
+            ) : (
+                <input
+                    value={array[entry]}
+                    onChange={(e) => {
+                        const newValue = parseInt(e.target.value, 10);
+                        if (!isNaN(newValue)) {
+                            const newArray = [...array];
+                            newArray[entry] = newValue;
+                            setNumbers(newArray);
+                        }
+                    }}
+                    className="w-full h-full bg-transparent text-center text-white outline-none"
+                    style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
+                />
+            )}
+        </div>
+    );
+});
 
 const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     <button
@@ -41,12 +52,18 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     </button>
 );
 
-function linearSearch(array:Array<number>, term: number) {
+async function linearSearch(array:Array<number>, term: number, callback: Function,complete:Function ) {
+    console.log("linearSearch")
     for (let i = 0; i < array.length; i++) {
+        console.log("here4",i)
+        await callback({i});
+        console.log("linearSearch",i)
       if (array[i] === term) {
+        complete({i})
         return i;
       }
     }
+    complete({i:undefined})
     return;
   }
 
@@ -72,9 +89,9 @@ function useSetInterval(callback: () => void, delay: number | null) {
 }
 
 export default function Page() {
-    const [i, setI] = useState(0);
+    const [i, setI] = useState<number|undefined>(undefined);
     const [numbers, setNumbers] = useState<number[]>([0,1,1,2]);
-    const [searchTerm, setSearchTerm] = useState<number | null>(1);
+    const [searchTerm, setSearchTerm] = useState<number | null>(7);
     const [executing, setExecuting] = useState<boolean>(false);
     const [found, setFound] = useState<number|undefined>();
 
@@ -89,30 +106,55 @@ export default function Page() {
         console.log("here",searchTerm,executing)
         if (searchTerm !== null && !executing){
             console.log("here2")
-            setI(0);
+            // setI(0);
+            setFound(undefined);
             setExecuting(true);
-            useSetInterval(algorithmStep,1000);
+            linearSearch(numbers,searchTerm,async (props:{i:number})=>{
+                setI(props.i)
+                console.log("here3",props.i)
+                // if (numbers[props.i] === searchTerm){
+                //     setFound(props.i)
+                //     setExecuting(false)
+                // }
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                console.log("here5",props.i)
+                
+            },(props:{i:number})=>{
+                if (numbers[props.i] === searchTerm){
+                    setFound(props.i)
+                }
+                else{
+                    console.log("here6",props.i)
+                    setI(undefined)
+                }
+                setExecuting(false)
+            })
+            console.log("done")
+            // useSetInterval(algorithmStep,1000);
         }
             
     };
 
-    const algorithmStep = () => {
-        if (i < numbers.length && searchTerm !== null) {
-            console.log(numbers[i],searchTerm)
-            if (numbers[i] === searchTerm) {
-                console.log("found!")
-                // Found the search term
-                setExecuting(false);
-            } else {
-                // Move to the next element
-                setI(i+1);
-                setTimeout(algorithmStep, 1000); // Delay for visualization
-            }
-        } else {
-            // Search complete, term not found
-            setExecuting(false);
-        }
-    };
+    // const algorithmStep = () => {
+    //     if (i! < numbers.length && searchTerm !== null) {
+    //         console.log(numbers[i],searchTerm)
+    //         if (numbers[i] === searchTerm) {
+    //             console.log("found!")
+    //             // Found the search term
+    //             setFound(i)
+    //             setExecuting(false);
+    //         } else {
+    //             // Move to the next element
+    //             setI(i!+1);
+    //             // setTimeout(algorithmStep, 1000); // Delay for visualization
+    //         }
+    //     } else {
+    //         // Search complete, term not found
+    //         setExecuting(false);
+    //     }
+    // };
+    // useSetInterval(algorithmStep, executing ? 1000 : null);
+
 
     const handleAddNumber = () => {
         setNumbers([...numbers, 0]);
@@ -123,6 +165,16 @@ export default function Page() {
             <h1>Linear</h1>
             <div className="flex flex-col justify-center gap-4 my-4">
                 <div className="flex items-center justify-center mb-4">
+                    <input
+                        type="number"
+                        value={searchTerm !== null ? searchTerm : ''}
+                        onChange={(e) => {
+                            setSearchTerm(Number(e.target.value))
+                            setI(undefined)
+                        }}
+                        className="w-16 h-16 text-center text-xl border-2 border-gray-300 rounded-md mr-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="Term"
+                    />
                     <button
                         onClick={execute}
                         className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center"
@@ -141,10 +193,11 @@ export default function Page() {
                             array={numbers}
                             executing={executing}
                             setNumbers={setNumbers}
+                            found={found}
                         />
                         
-                        {executing && searchTerm !== null && index === i && (
-                            <div className="ml-4 w-20 h-20 rounded-full bg-red-400 border-4 border-red-600 grid place-items-center text-white">
+                        {i !== undefined && searchTerm !== null && index === i && (
+                            <div className={`ml-4 w-20 h-20 rounded-full ${found !== undefined ? 'bg-purple-500 border-purple-600' : 'bg-red-400 border-red-600'} border-4 grid place-items-center text-white`}>
                                 {searchTerm}
                             </div>
                         )}
@@ -154,9 +207,10 @@ export default function Page() {
             </div>
         </div>
     )
+}
 
-  }
-
-  // add animations
-  // add highlight for currently selected item
-  //add set searchTerm entry
+// add animations
+// add highlight for currently selected item
+//add set searchTerm entry
+// add "computer consciousness" area
+//make searcher change color when it finds
