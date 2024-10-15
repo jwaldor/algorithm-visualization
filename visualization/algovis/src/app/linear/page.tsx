@@ -80,9 +80,9 @@ function useSetInterval(callback: () => void, delay: number | null) {
 }
 
 export default function Page() {
-    const [i, setI] = useState(0);
+    const [i, setI] = useState<number|undefined>(undefined);
     const [numbers, setNumbers] = useState<number[]>([0,1,1,2]);
-    const [searchTerm, setSearchTerm] = useState<number | null>(1);
+    const [searchTerm, setSearchTerm] = useState<number | null>(7);
     const [executing, setExecuting] = useState<boolean>(false);
     const [found, setFound] = useState<number|undefined>();
 
@@ -98,6 +98,7 @@ export default function Page() {
         if (searchTerm !== null && !executing){
             console.log("here2")
             setI(0);
+            setFound(undefined);
             setExecuting(true);
             // useSetInterval(algorithmStep,1000);
         }
@@ -105,7 +106,7 @@ export default function Page() {
     };
 
     const algorithmStep = () => {
-        if (i < numbers.length && searchTerm !== null) {
+        if (i! < numbers.length && searchTerm !== null) {
             console.log(numbers[i],searchTerm)
             if (numbers[i] === searchTerm) {
                 console.log("found!")
@@ -114,7 +115,7 @@ export default function Page() {
                 setExecuting(false);
             } else {
                 // Move to the next element
-                setI(i+1);
+                setI(i!+1);
                 // setTimeout(algorithmStep, 1000); // Delay for visualization
             }
         } else {
@@ -134,6 +135,16 @@ export default function Page() {
             <h1>Linear</h1>
             <div className="flex flex-col justify-center gap-4 my-4">
                 <div className="flex items-center justify-center mb-4">
+                    <input
+                        type="number"
+                        value={searchTerm !== null ? searchTerm : ''}
+                        onChange={(e) => {
+                            setSearchTerm(Number(e.target.value))
+                            setI(undefined)
+                        }}
+                        className="w-16 h-16 text-center text-xl border-2 border-gray-300 rounded-md mr-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        placeholder="Term"
+                    />
                     <button
                         onClick={execute}
                         className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center"
@@ -155,8 +166,8 @@ export default function Page() {
                             found={found}
                         />
                         
-                        {executing && searchTerm !== null && index === i && (
-                            <div className="ml-4 w-20 h-20 rounded-full bg-red-400 border-4 border-red-600 grid place-items-center text-white">
+                        {i !== undefined && searchTerm !== null && index === i && (
+                            <div className={`ml-4 w-20 h-20 rounded-full ${found !== undefined ? 'bg-purple-500 border-purple-600' : 'bg-red-400 border-red-600'} border-4 grid place-items-center text-white`}>
                                 {searchTerm}
                             </div>
                         )}
@@ -171,3 +182,5 @@ export default function Page() {
 // add animations
 // add highlight for currently selected item
 //add set searchTerm entry
+// add "computer consciousness" area
+//make searcher change color when it finds
