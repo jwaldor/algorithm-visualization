@@ -169,18 +169,22 @@ const Node: React.FC<{
   let nodeText = node.id;
   let nodeColor = color;
   if (algorithmState.type !== "pre_algorithm"){
-  if (algorithmState.type === 'finding_min_unvisited' || algorithmState.type === 'finished') {
-    nodeText = `${node.id}: ${algorithmState.data.distances[node.id]}`;
-  }
+    if (algorithmState.type === 'finding_min_unvisited' || algorithmState.type === 'finished') {
+      nodeText = `${node.id}: ${algorithmState.data.distances[node.id]}`;
+    }
   
     if (node.id === algorithmState.data.starting_node){
       nodeColor = "green";
     }
-    if (algorithmState.type === 'finding_min_unvisited'){
-      if (algorithmState.data.visited.includes(node.id) && algorithmState.data.starting_node !== node.id){
+    else if (algorithmState.type === 'finding_min_unvisited'){
+      if (!algorithmState.data.visited.includes(node.id) && algorithmState.data.starting_node !== node.id){
         nodeColor = "red";
       }
     }
+    else {
+      nodeColor = "white";
+    }
+
   }
   return (
     <g
