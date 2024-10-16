@@ -206,21 +206,22 @@ export default function Page() {
           if (newPosition === currentPositions.length - 1) {
             console.log("Search complete, clearing interval");
             clearInterval(intervalId);
-            if (prevState.state[1].foundItem){
-              setState({
-                ...prevState,
-                state: ["found", {
-                  position: currentPositions[currentPositions.length-1],
-                }]
-              })
-            }
-            else{
-              setState({
-                ...prevState,
-                state: ["not-found"]
-              })
-            }
-              return {
+            setTimeout(() => {
+              if (prevState.state[1].foundItem) {
+                setState({
+                  ...prevState,
+                  state: ["found", {
+                    position: currentPositions[currentPositions.length-1],
+                  }]
+                });
+              } else {
+                setState({
+                  ...prevState,
+                  state: ["not-found"]
+                });
+              }
+            }, 1000);
+            return {
               ...prevState,
               state: ["searching", {
                 position: newPosition,
