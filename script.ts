@@ -1,4 +1,4 @@
-function linearSearch(array, term) {
+function linearSearch<T extends string | number>(array: T[], term: T) {
   for (let i = 0; i < array.length; i++) {
     if (array[i] === term) {
       return i;
@@ -7,6 +7,8 @@ function linearSearch(array, term) {
   return;
 }
 
+// This will now cause a type error
+console.log(linearSearch([47, 23, 66, "3", 2, 56, 3], 3));
 console.log(linearSearch([47, 23, 66, "3", 2, 56, 3], 3));
 
 function binarySearch(array, term, leading = 0) {
@@ -190,6 +192,13 @@ console.log(
 
 const testArr1 = [1, 3, 5, 7];
 const testArr2 = [2, 4, 6, 8];
+const zippedArray = testArr1.flatMap((value, index) => [
+  value,
+  testArr2[index],
+]);
+
+console.log(zippedArray);
+
 console.log("Testing combineArrays:");
 console.log("Input arrays:", testArr1, testArr2);
 const combinedArray = combineArrays(testArr1, testArr2);
@@ -209,6 +218,23 @@ function combineArrays(arr1, arr2) {
   }
   return arr2;
 }
+
+function mergeSort2(array: number[]): number[] {
+  if (array.length <= 1) return array;
+  const mid = Math.floor(array.length / 2);
+  return merge(mergeSort(array.slice(0, mid)), mergeSort(array.slice(mid)));
+}
+
+function merge(left: number[], right: number[]): number[] {
+  const result: number[] = [];
+  while (left.length && right.length) {
+    result.push(left[0] <= right[0] ? left.shift()! : right.shift()!);
+  }
+  return [...result, ...left, ...right];
+}
+
+console.log("mergeSort ", mergeSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+
 function mergeSort(array) {
   function splitArray(tosplit) {
     return [
@@ -234,6 +260,37 @@ function mergeSort(array) {
 }
 
 console.log("mergeSort ", mergeSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+
+// // quick sort is:
+// // if you have <=1 thing, just return it
+// // pick a pivot (first element, middle element, etc...)
+// // sort everything to either side of the pivot (exclude the pivot)
+// // call the function on either side
+
+// // Simple idiomatic quicksort implementation
+// function quickSort(arr: number[]): number[] {
+//   if (arr.length <= 1) {
+//     return arr;
+//   }
+
+//   const pivot = arr[Math.floor(arr.length / 2)];
+//   const [left, middle, right] = arr.reduce<[number[], number[], number[]]>(
+//     ([l, m, r], x) => {
+//       if (x < pivot) l.push(x);
+//       else if (x === pivot) m.push(x);
+//       else r.push(x);
+//       return [l, m, r];
+//     },
+//     [[], [], []]
+//   );
+
+//   return [...quickSort(left), ...middle, ...quickSort(right)];
+// }
+
+// Test the quickSort function
+const unsortedArray = [3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44];
+console.log("Unsorted array:", unsortedArray);
+console.log("Sorted array:", quickSort(unsortedArray));
 
 function quickSort(array) {
   if (array.length <= 1) {
