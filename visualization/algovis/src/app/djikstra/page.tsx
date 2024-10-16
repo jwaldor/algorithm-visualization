@@ -227,16 +227,29 @@ const Graph: React.FC<GraphProps> = ({ graph }) => {
   return (
     <svg ref={svgRef} width={width} height={height}>
       {links.map((link, index) => (
-        <line
-          key={index}
-          x1={(link.source as Node).x}
-          y1={(link.source as Node).y}
-          x2={(link.target as Node).x}
-          y2={(link.target as Node).y}
-          stroke="#999"
-          strokeOpacity={0.6}
-          strokeWidth={2}
-        />
+        <g key={index}>
+          <line
+            x1={(link.source as Node).x}
+            y1={(link.source as Node).y}
+            x2={(link.target as Node).x}
+            y2={(link.target as Node).y}
+            stroke="#999"
+            strokeOpacity={0.6}
+            strokeWidth={2}
+          />
+          <text
+            x={(((link.source as Node).x || 0) + ((link.target as Node).x || 0)) / 2}
+            y={(((link.source as Node).y || 0) + ((link.target as Node).y || 0)) / 2}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fill="#666"
+            fontSize="12px"
+            fontWeight="bold"
+            dy="-5"
+          >
+            {link.value}
+          </text>
+        </g>
       ))}
       {nodes.map((node) => (
         <g
