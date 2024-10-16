@@ -148,12 +148,22 @@ function djikstra(graph: Record<string, Record<string, number>>, starting_node: 
 
 
 //visualization process:
+//show distance for each node on graph?
+//graph component takes a Record that displays what is on each graph node
 
 
+
+type ExecutionSnapshot = 
+  | { type: 'finding_min_unvisited'; data: {distances:Record<string,number>,visited:Array<string>,wait_time:number} }
+  | { type: 'pre_minimize_neighbors'; data:{current_node:string,unvisited_neighbors:Array<string>} }
+  | { type: 'minimize_neighbors_step'; data: {current_node:string,neighbor:string,distances:Record<string,number>,newdist:number,edge_length:number} }
+  | { type: 'finished'; data: {distances:Record<string,number>} }
 
 export default function Page() {
+  
+    function update(payload: ExecutionSnapshot){
 
-
+    }
     
     return (
         <div className="p-8">
