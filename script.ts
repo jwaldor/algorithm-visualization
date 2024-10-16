@@ -332,22 +332,22 @@ const complexWeightedGraph = {
 
 function djikstra(graph, starting_node) {
   const nodes = Object.keys(graph);
-  const unvisited = nodes.reduce((acc, node) => {
+  const distances = nodes.reduce((acc, node) => {
     acc[node] = Infinity;
     return acc;
   }, {});
-  unvisited[starting_node] = 0;
+  distances[starting_node] = 0;
   let current_node: string = "";
   const visited: Array<string> = [];
-  while (Object.keys(unvisited).length > 0) {
+  while (Object.keys(distances).length > 0) {
     //find node with smallest finite distance
-    const unvisitedArray = Object.entries(unvisited).map(([key, value]) => ({
+    const distancesArray = Object.entries(distances).map(([key, value]) => ({
       [key]: value,
     }));
-    console.log(unvisitedArray);
-    if (unvisitedArray.length === visited.length) break;
+    console.log(distancesArray);
+    if (distancesArray.length === visited.length) break;
     let min = Infinity;
-    unvisitedArray
+    distancesArray
       //   .filter((arr) => unvisited_keys.filter(key => Object.keys(graph[current_node]).includes(key)))
       .forEach((elt, _) => {
         // console.log("elt", elt, a);
@@ -366,14 +366,14 @@ function djikstra(graph, starting_node) {
       (elt) => !visited.includes(elt)
     );
     unvisited_neighbors.forEach((neighbor) => {
-      const newdist = graph[neighbor] + unvisited[current_node];
-      if (newdist < unvisited[neighbor]) {
-        unvisited[neighbor] = newdist;
+      const newdist = graph[neighbor] + distances[current_node];
+      if (newdist < distances[neighbor]) {
+        distances[neighbor] = newdist;
       }
     });
     visited.push(current_node);
   }
-  return unvisited;
+  return distances;
 }
 
 djikstra(complexWeightedGraph, "B");
