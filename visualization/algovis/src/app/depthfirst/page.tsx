@@ -216,12 +216,7 @@ export default function Page() {
         return prevState;
       });
     }, 1000);
-
     // Clear the interval when the component unmounts
-    return () => {
-      console.log("Clearing interval");
-      clearInterval(intervalId);
-    };
     }
     }
 
@@ -261,6 +256,8 @@ export default function Page() {
         //additional:
           //add input for search term
           //allow you to modify tree
+
+          //problem with how I'm doing setInterval? should be cleaning up/useSetInterval?
 
     const getCurrentlyHighlightedValue = () => {
 
