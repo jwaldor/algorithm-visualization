@@ -339,36 +339,49 @@ function djikstra(graph, starting_node) {
   distances[starting_node] = 0;
   let current_node: string = "";
   const visited: Array<string> = [];
-  while (Object.keys(distances).length > 0) {
+  while (visited.length < nodes.length) {
     //find node with smallest finite distance
     const distancesArray = Object.entries(distances).map(([key, value]) => ({
       [key]: value,
     }));
-    console.log(distancesArray);
-    if (distancesArray.length === visited.length) break;
+    console.log(
+      "distancesArray",
+      distancesArray.filter((arr) => !visited.includes(Object.keys(arr)[0]))
+    );
     let min = Infinity;
     distancesArray
-      //   .filter((arr) => unvisited_keys.filter(key => Object.keys(graph[current_node]).includes(key)))
+      .filter((arr) => !visited.includes(Object.keys(arr)[0]))
       .forEach((elt, _) => {
         // console.log("elt", elt, a);
         // console.log(elt, Object.values(elt)[0]);
         if ((Object.values(elt)[0] as number) <= min) {
           min = Object.values(elt)[0] as number;
-          console.log(Object.values(elt));
-          console.log(Object.keys(elt));
           current_node = Object.keys(elt)[0];
-          console.log("set current_node", current_node);
         }
       });
-    console.log("min", current_node, min);
+    // console.log("min", current_node, min);
     //update distances of unvisited neighbors
     const unvisited_neighbors = Object.keys(graph[current_node]).filter(
-      (elt) => !visited.includes(elt)
+      (elt) => {
+        console.log("elt", elt, visited);
+        return !visited.includes(elt);
+      }
     );
+    console.log("unvisited_neighbors", unvisited_neighbors);
     unvisited_neighbors.forEach((neighbor) => {
-      const newdist = graph[neighbor] + distances[current_node];
+      const newdist = graph[current_node][neighbor] + distances[current_node];
+      console.log(
+        "graphneighbor",
+        current_node,
+        neighbor,
+        graph[current_node][neighbor],
+        distances[current_node],
+        newdist
+      );
+
       if (newdist < distances[neighbor]) {
         distances[neighbor] = newdist;
+        console.log("updated", neighbor, newdist);
       }
     });
     visited.push(current_node);
@@ -376,7 +389,7 @@ function djikstra(graph, starting_node) {
   return distances;
 }
 
-djikstra(complexWeightedGraph, "B");
+console.log("Djikstra", djikstra(complexWeightedGraph, "B"));
 
 async function binarySearchCallback(
   array: Array<number>,
