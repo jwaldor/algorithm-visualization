@@ -154,9 +154,23 @@ interface Link extends d3.SimulationLinkDatum<Node> {
 interface GraphProps {
   graph: Record<string, Record<string, number>>;
   nodeColors: Record<string, string>;
+  algorithmState: AlgorithmSnapshot;
 }
 
-const Node: React.FC<{ node: Node; color: string; onDragStart: (event: any, node: Node) => void; onDragged: (event: any, node: Node) => void; onDragEnd: (event: any, node: Node) => void }> = ({ node, color, onDragStart, onDragged, onDragEnd }) => {
+const Node: React.FC<{ 
+  node: Node; 
+  color: string; 
+  onDragStart: (event: any, node: Node) => void; 
+  onDragged: (event: any, node: Node) => void; 
+  onDragEnd: (event: any, node: Node) => void;
+  algorithmState: AlgorithmSnapshot;
+}> = ({ node, color, onDragStart, onDragged, onDragEnd, algorithmState }) => {
+  // You can use algorithmState here to modify the node's appearance
+  let nodeText = node.id;
+  if (algorithmState.type === 'finding_min_unvisited' || algorithmState.type === 'finished') {
+    nodeText = `${node.id}: ${algorithmState.data.distances[node.id]}`;
+  }
+
   return (
     <g
       transform={`translate(${node.x},${node.y})`}
@@ -165,21 +179,21 @@ const Node: React.FC<{ node: Node; color: string; onDragStart: (event: any, node
       onMouseUp={(e) => onDragEnd(e, node)}
       onMouseLeave={(e) => onDragEnd(e, node)}
     >
-      <circle r="15" fill={color} stroke="black" strokeWidth="2" />
+      <circle r="35" fill={color} stroke="black" strokeWidth="3" />
       <text
         textAnchor="middle"
         dominantBaseline="central"
         fill="black"
-        fontSize="16px"
+        fontSize="20px"
         fontWeight="bold"
       >
-        {node.id}
+        {nodeText}
       </text>
     </g>
   );
 };
 
-const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
+const Graph: React.FC<GraphProps> = ({ graph, nodeColors, algorithmState }) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
   const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
@@ -207,8 +221,8 @@ const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
       setHaveRun(true);
 
     simulationRef.current = d3.forceSimulation(nodesData)
-      .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(100))
-      .force('charge', d3.forceManyBody().strength(-300))
+      .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(200))
+      .force('charge', d3.forceManyBody().strength(-500))
       .force('center', d3.forceCenter(width / 2, height / 2));
 
     simulationRef.current.on('tick', () => {
@@ -218,8 +232,8 @@ const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
   } else {
     console.log("restarting simulation")
     simulationRef.current = d3.forceSimulation(nodesData)
-      .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(100))
-      .force('charge', d3.forceManyBody().strength(-300))
+      .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(200))
+      .force('charge', d3.forceManyBody().strength(-500))
       .force('center', d3.forceCenter(width / 2, height / 2));
 
       
@@ -286,6 +300,7 @@ const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
           onDragStart={dragStart}
           onDragged={dragged}
           onDragEnd={dragEnd}
+          algorithmState={algorithmState}
         />
       ))}
     </svg>
@@ -296,6 +311,14 @@ export default function Page() {
   // const svgRef = useRef<SVGSVGElement>(null);
   const [algorithmState, setAlgorithmState] = useState<AlgorithmSnapshot>({type:"pre_algorithm"});
   const [nodeColors, setNodeColors] = useState<Record<string, string>>({});
+
+  //set node colors based on algorithm state
+  useEffect(() => {
+    if (algorithmState.type === "finding_min_unvisited"){
+      // setNodeColors(algorithmState.data.distances)
+    }
+  },[algorithmState])
+
   const complexWeightedGraph = {
     A: { B: 4, C: 2 },
     B: { A: 4, C: 1, D: 5 },
@@ -351,7 +374,11 @@ export default function Page() {
   return (
     <div className="p-8">
       {/* <svg ref={svgRef}></svg> */}
-      <Graph graph={complexWeightedGraph} nodeColors={nodeColors} />
+      <Graph 
+        graph={complexWeightedGraph} 
+        nodeColors={nodeColors} 
+        algorithmState={algorithmState} 
+      />
     </div>
   );
 }
