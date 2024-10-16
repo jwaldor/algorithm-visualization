@@ -80,7 +80,7 @@ function depthFirstSearch(tree: any, term: any, position: Array<any> = [],callba
 
 export default function Page() {
 
-    const [state, setState]  = useState<{visualizationData:Object,searchTerm:number,state:["pre-search"]|["searching",{position:Array<number>,positions:Array<number>}]|["found",{position:Array<number>}]|["not-found"]}>({visualizationData:{},searchTerm:6,state:["pre-search"]})
+    const [state, setState]  = useState<{visualizationData:Object,searchTerm:number,state:["pre-search"]|["searching",{position:Array<number>,positions:Array<Array<number>>}]|["found",{position:Array<number>}]|["not-found"]}>({visualizationData:{},searchTerm:6,state:["pre-search"]})
 
     useEffect(() => {const tree = [
         {
@@ -141,7 +141,7 @@ export default function Page() {
       if (state.state[0] !== "searching"){
       setState({...state,state:["searching",{position:[],positions:[]}]})
       depthFirstSearch(state.visualizationData,state.searchTerm,[],(searchState) => {
-        setState(prevState => ({...prevState, state:["searching",{position:searchState.position,positions:(prevState.state[1] as {position:Array<number>,positions:Array<number>}).positions.concat(searchState.position)}]}))
+        setState(prevState => ({...prevState, state:["searching",{position:searchState.position,positions:(prevState.state[1] as {position:Array<number>,positions:Array<Array<number>>}).positions.concat([searchState.position])}]}))
         console.log("positioncallback",searchState.position)
     })
     }
@@ -165,7 +165,15 @@ export default function Page() {
     return (
         <div>
             
-
+              <button
+                        onClick={handleStartSearch}
+                        className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center"
+                        disabled={state.state[0] === "searching"}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                        </svg>
+                        </button>
 
         </div>
     )
