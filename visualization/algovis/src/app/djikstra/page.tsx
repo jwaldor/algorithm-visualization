@@ -1,6 +1,10 @@
 "use client";
 
-import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef } from "react";
+import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef, useCallback } from "react";
+import * as d3 from 'd3';
+
+
+
 
 
 
@@ -13,7 +17,7 @@ interface CircleProps {
     found: number | undefined;
 }
 
-const Circle = forwardRef<HTMLDivElement, CircleProps>(({ entry, executing, array, setNumbers, found }, ref) => {
+const Circle: React.FC<CircleProps> = ({ entry, executing, array, setNumbers, found }) => {
     const isFound = found === entry;
     const baseClasses = "w-20 h-20 rounded-full grid place-items-center text-white font-bold shadow-md transition-all duration-300";
     const colorClasses = isFound
@@ -21,7 +25,7 @@ const Circle = forwardRef<HTMLDivElement, CircleProps>(({ entry, executing, arra
         : "bg-blue-500 border-4 border-blue-700 hover:bg-blue-400";
 
     return (
-        <div ref={ref} className={`${baseClasses} ${colorClasses}`}>
+        <div className={`${baseClasses} ${colorClasses}`}>
             {executing ? (
                 array[entry]
             ) : (
@@ -41,7 +45,7 @@ const Circle = forwardRef<HTMLDivElement, CircleProps>(({ entry, executing, arra
             )}
         </div>
     );
-});
+};
 
 const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     <button
@@ -153,8 +157,121 @@ type AlgorithmSnapshot =
   | { type: 'minimize_neighbors_step'; data: {current_node:string,neighbor:string,distances:Record<string,number>,newdist:number,edge_length:number} }
   | { type: 'finished'; data: {distances:Record<string,number>} }
 
+interface Node extends d3.SimulationNodeDatum {
+  id: string;
+}
+
+interface Link extends d3.SimulationLinkDatum<Node> {
+  source: string;
+  target: string;
+  value: number;
+}
+
+interface GraphProps {
+  graph: Record<string, Record<string, number>>;
+}
+
+const Graph: React.FC<GraphProps> = ({ graph }) => {
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [links, setLinks] = useState<Link[]>([]);
+
+  const svgRef = useRef<SVGSVGElement>(null);
+  const width = 800;
+  const height = 600;
+
+  useEffect(() => {
+    const nodesData: Node[] = Object.keys(graph).map(id => ({ id }));
+    const linksData: Link[] = [];
+
+    Object.entries(graph).forEach(([source, targets]) => {
+      Object.entries(targets).forEach(([target, value]) => {
+        linksData.push({ source, target, value });
+      });
+    });
+
+    setNodes(nodesData);
+    setLinks(linksData);
+
+    const simulation = d3.forceSimulation(nodesData)
+      .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(100))
+      .force('charge', d3.forceManyBody().strength(-300))
+      .force('center', d3.forceCenter(width / 2, height / 2));
+
+    simulation.on('tick', () => {
+      setNodes([...nodesData]);
+      setLinks([...linksData]);
+    });
+
+    return () => {
+      simulation.stop();
+    };
+  }, [graph]);
+
+  const dragStart = useCallback((event: any, d: any) => {
+    if (!event.active) d3.forceSimulation(nodes).alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }, [nodes]);
+
+  const dragged = useCallback((event: any, d: any) => {
+    d.fx = event.x;
+    d.fy = event.y;
+  }, []);
+
+  const dragEnd = useCallback((event: any, d: any) => {
+    if (!event.active) d3.forceSimulation(nodes).alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+  }, [nodes]);
+
+  return (
+    <svg ref={svgRef} width={width} height={height}>
+      {links.map((link, index) => (
+        <line
+          key={index}
+          x1={(link.source as Node).x}
+          y1={(link.source as Node).y}
+          x2={(link.target as Node).x}
+          y2={(link.target as Node).y}
+          stroke="#999"
+          strokeOpacity={0.6}
+          strokeWidth={2}
+        />
+      ))}
+      {nodes.map((node) => (
+        <g
+          key={node.id}
+          transform={`translate(${node.x},${node.y})`}
+          onMouseDown={(e) => dragStart(e, node)}
+          onMouseMove={(e) => dragged(e, node)}
+          onMouseUp={(e) => dragEnd(e, node)}
+          onMouseLeave={(e) => dragEnd(e, node)}
+        >
+          {/* <Circle
+            entry={parseInt(node.id)}
+            array={[]}
+            executing={false}
+            setNumbers={() => {}}
+            found={undefined}
+          /> */}
+          <text
+            textAnchor="middle"
+            dominantBaseline="central"
+            fill="black"
+            fontSize="16px"
+            fontWeight="bold"
+          >
+            {node.id}
+          </text>
+        </g>
+      ))}
+    </svg>
+  );
+};
+
 export default function Page() {
-  const [algorithmState, setAlgorithmState] = useState<AlgorithmSnapshot>({type:"pre_algorithm"})
+  // const svgRef = useRef<SVGSVGElement>(null);
+  const [algorithmState, setAlgorithmState] = useState<AlgorithmSnapshot>({type:"pre_algorithm"});
   const complexWeightedGraph = {
     A: { B: 4, C: 2 },
     B: { A: 4, C: 1, D: 5 },
@@ -163,20 +280,16 @@ export default function Page() {
     E: { C: 10, D: 2, F: 3 },
     F: { D: 6, E: 3 },
   };
-  useEffect(() => {
-    djikstra(complexWeightedGraph,"A")
-  }, [])
-    function update(payload: AlgorithmSnapshot){
 
-    }
-    
-    return (
-        <div className="p-8">
-            
-        </div>
-    )
+
+  function update(payload: AlgorithmSnapshot) {
+    setAlgorithmState(payload);
+  }
+
+  return (
+    <div className="p-8">
+      {/* <svg ref={svgRef}></svg> */}
+      <Graph graph={complexWeightedGraph} />
+    </div>
+  );
 }
-
-
-//set up callback so that it updates executionState
-//make djikstra call callback at each relevant portion in a way that can easily update executionstate
