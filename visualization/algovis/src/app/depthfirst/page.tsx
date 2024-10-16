@@ -173,7 +173,45 @@ export default function Page() {
         setState(prevState => ({...prevState, state:["searching",{position:0,positions:(prevState.state[1] as {position:number,positions:Array<Array<number>>}).positions.concat([searchState.position])}]}))
         console.log("positioncallback",searchState.position)
     })
+    // Set up an interval to update the position every second
+    const intervalId = setInterval(() => {
+      setState(prevState => {
+        if (prevState.state[0] === "searching") {
+          const currentPositions = (prevState.state[1] as {position: number, positions: Array<Array<number>>}).positions;
+          const newPosition = Math.min((prevState.state[1] as {position: number}).position + 1, currentPositions.length - 1);
+          
+          console.log(`Updating position: ${newPosition}`);
+          
+          // Check if we've reached the end of the positions array
+          if (newPosition === currentPositions.length - 1) {
+            console.log("Search complete, clearing interval");
+            clearInterval(intervalId);
+            return {
+              ...prevState,
+              state: ["searching", {
+                position: newPosition,
+                positions: currentPositions
+              }]
+            };
+          }
+          
+          return {
+            ...prevState,
+            state: ["searching", {
+              position: newPosition,
+              positions: currentPositions
+            }]
+          };
+        }
+        return prevState;
+      });
+    }, 1000);
 
+    // Clear the interval when the component unmounts
+    return () => {
+      console.log("Clearing interval");
+      clearInterval(intervalId);
+    };
     }
     }
 
