@@ -57,34 +57,20 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 );
 
 
-type onUpdateFunction = (state: {position:Array<any>}) => void
-
-function depthFirstSearch(tree: any, term: any, position: Array<any> = [],callback?: onUpdateFunction): any {
-    for (let i = 0; i < tree.length; i++) {
-      if (callback){
-        callback({position:position.concat(i)})
-        console.log("position",position.concat(i),tree,)
-      }
-      if (tree[i].value === term) {
-        position = position.concat(i);
-        return { position };
-      } else {
-        if (tree[i].children.length > 0) {
-          const d: any = depthFirstSearch(tree[i].children, term, position.concat(i),callback);
-          if (d) {
-            return d;
-          }
-        }
-      }
-    }
-  }
-
-// console.log("depthFirstSearch",depthFirstSearch([{value:1,children:[{value:2,children:[{value:3,children:[]}]}]}],3,[],(searchState) => {console.log("searchState",searchState)}))
+type onUpdateFunction = (state: AlgorithmSnapshot) => Promise<void>
 
 
 
 
-function djikstra(graph: Record<string, Record<string, number>>, starting_node: string): Record<string, number> {
+type AlgorithmSnapshot = 
+  | {type:"pre_algorithm"}
+  | { type: 'finding_min_unvisited'; data: {starting_node:string,distances:Record<string,number>,visited:Array<string>,wait_time:number} }
+  | { type: 'pre_minimize_neighbors'; data:{starting_node:string, current_node:string, unvisited_neighbors:Array<string>, distances:Record<string,number>, wait_time:number} }
+  | { type: 'minimize_neighbors_step'; data: {starting_node:string,current_node:string,neighbor:string,distances:Record<string,number>,newdist:number,edge_length:number,wait_time:number} }
+  | { type: 'finished'; data: {starting_node:string,distances:Record<string,number>} }
+
+
+async function djikstra(graph: Record<string, Record<string, number>>, starting_node: string, callback?: onUpdateFunction): Promise<Record<string, number>> {
   const nodes = Object.keys(graph);
   const distances: {[key: string]: number} = nodes.reduce((acc: {[key: string]: number}, node: string) => {
     acc[node] = Infinity;
@@ -94,10 +80,14 @@ function djikstra(graph: Record<string, Record<string, number>>, starting_node: 
   let current_node: string = "";
   const visited: Array<string> = [];
   while (visited.length < nodes.length) {
+
     //find node with smallest finite distance
     const distancesArray = Object.entries(distances).map(([key, value]) => ({
       [key]: value,
     }));
+    if (callback){
+      await callback({type:"finding_min_unvisited",data:{starting_node:starting_node,distances:distances,visited:visited,wait_time:1000}})
+    }
     console.log(
       "distancesArray",
       distancesArray.filter((arr) => !visited.includes(Object.keys(arr)[0]))
@@ -121,6 +111,9 @@ function djikstra(graph: Record<string, Record<string, number>>, starting_node: 
         return !visited.includes(elt);
       }
     );
+    if (callback){
+      await callback({type:"pre_minimize_neighbors",data:{starting_node:starting_node,current_node:current_node,unvisited_neighbors:unvisited_neighbors,distances:distances,wait_time:1000}})
+    }
     console.log("unvisited_neighbors", unvisited_neighbors);
     unvisited_neighbors.forEach((neighbor) => {
       const newdist = graph[current_node][neighbor] + distances[current_node];
@@ -150,12 +143,6 @@ function djikstra(graph: Record<string, Record<string, number>>, starting_node: 
 
 
 
-type AlgorithmSnapshot = 
-  | {type:"pre_algorithm"}
-  | { type: 'finding_min_unvisited'; data: {distances:Record<string,number>,visited:Array<string>,wait_time:number} }
-  | { type: 'pre_minimize_neighbors'; data:{current_node:string,unvisited_neighbors:Array<string>} }
-  | { type: 'minimize_neighbors_step'; data: {current_node:string,neighbor:string,distances:Record<string,number>,newdist:number,edge_length:number} }
-  | { type: 'finished'; data: {distances:Record<string,number>} }
 
 interface Node extends d3.SimulationNodeDatum {
   id: string;
@@ -170,9 +157,46 @@ interface Link extends d3.SimulationLinkDatum<Node> {
 interface GraphProps {
   graph: Record<string, Record<string, number>>;
   nodeColors: Record<string, string>;
+  algorithmState: AlgorithmSnapshot;
 }
 
-const Node: React.FC<{ node: Node; color: string; onDragStart: (event: any, node: Node) => void; onDragged: (event: any, node: Node) => void; onDragEnd: (event: any, node: Node) => void }> = ({ node, color, onDragStart, onDragged, onDragEnd }) => {
+const Node: React.FC<{ 
+  node: Node; 
+  color: string; 
+  onDragStart: (event: any, node: Node) => void; 
+  onDragged: (event: any, node: Node) => void; 
+  onDragEnd: (event: any, node: Node) => void;
+  algorithmState: AlgorithmSnapshot;
+}> = ({ node, color, onDragStart, onDragged, onDragEnd, algorithmState }) => {
+  // You can use algorithmState here to modify the node's appearance
+  let nodeText = node.id;
+  let nodeColor = color;
+  if (algorithmState.type !== "pre_algorithm"){
+
+      nodeText = `${node.id}: ${algorithmState.data.distances[node.id]}`;
+
+  
+    if (node.id === algorithmState.data.starting_node){
+      nodeColor = "green";
+    }
+    else if (algorithmState.type === 'finding_min_unvisited'){
+      if (!algorithmState.data.visited.includes(node.id) && algorithmState.data.starting_node !== node.id){
+        nodeColor = "red";
+      }
+    }
+    else {
+      nodeColor = "white";
+    }
+        if (algorithmState.type === 'pre_minimize_neighbors'){
+      if (algorithmState.data.unvisited_neighbors.includes(node.id)){
+        nodeColor = "blue";
+      }
+      else if (algorithmState.data.current_node === node.id && algorithmState.data.starting_node !== node.id){
+        nodeColor = "yellow";
+      }
+    }
+
+  }
   return (
     <g
       transform={`translate(${node.x},${node.y})`}
@@ -181,21 +205,21 @@ const Node: React.FC<{ node: Node; color: string; onDragStart: (event: any, node
       onMouseUp={(e) => onDragEnd(e, node)}
       onMouseLeave={(e) => onDragEnd(e, node)}
     >
-      <circle r="15" fill={color} stroke="black" strokeWidth="2" />
+      <circle r="35" fill={nodeColor} stroke="black" strokeWidth="3" />
       <text
         textAnchor="middle"
         dominantBaseline="central"
         fill="black"
-        fontSize="16px"
+        fontSize="20px"
         fontWeight="bold"
       >
-        {node.id}
+        {nodeText}
       </text>
     </g>
   );
 };
 
-const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
+const Graph: React.FC<GraphProps> = ({ graph, nodeColors, algorithmState }) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
   const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
@@ -223,8 +247,8 @@ const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
       setHaveRun(true);
 
     simulationRef.current = d3.forceSimulation(nodesData)
-      .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(100))
-      .force('charge', d3.forceManyBody().strength(-300))
+      .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(200))
+      .force('charge', d3.forceManyBody().strength(-500))
       .force('center', d3.forceCenter(width / 2, height / 2));
 
     simulationRef.current.on('tick', () => {
@@ -234,8 +258,8 @@ const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
   } else {
     console.log("restarting simulation")
     simulationRef.current = d3.forceSimulation(nodesData)
-      .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(100))
-      .force('charge', d3.forceManyBody().strength(-300))
+      .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(200))
+      .force('charge', d3.forceManyBody().strength(-500))
       .force('center', d3.forceCenter(width / 2, height / 2));
 
       
@@ -302,6 +326,7 @@ const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
           onDragStart={dragStart}
           onDragged={dragged}
           onDragEnd={dragEnd}
+          algorithmState={algorithmState}
         />
       ))}
     </svg>
@@ -312,6 +337,14 @@ export default function Page() {
   // const svgRef = useRef<SVGSVGElement>(null);
   const [algorithmState, setAlgorithmState] = useState<AlgorithmSnapshot>({type:"pre_algorithm"});
   const [nodeColors, setNodeColors] = useState<Record<string, string>>({});
+
+  //set node colors based on algorithm state
+  useEffect(() => {
+    if (algorithmState.type === "finding_min_unvisited"){
+      // setNodeColors(algorithmState.data.distances)
+    }
+  },[algorithmState])
+
   const complexWeightedGraph = {
     A: { B: 4, C: 2 },
     B: { A: 4, C: 1, D: 5 },
@@ -337,6 +370,12 @@ export default function Page() {
     E: "#4ECDC4", // Teal
     F: "#45B7D1", // Light Blue
   };
+  useEffect(() => {
+    djikstra(complexWeightedGraph,"A",update)
+    .then(() => {
+      console.log("djikstra finished")
+    })
+  },[])
 
   // useEffect(() => {
   //   const intervalId = setInterval(() => {
@@ -350,14 +389,26 @@ export default function Page() {
   
 
 
-  function update(payload: AlgorithmSnapshot) {
+  async function update(payload: AlgorithmSnapshot) {
     setAlgorithmState(payload);
+    //wait for payload.wait_time
+    if (payload.type !== "pre_algorithm" && payload.type !== "finished" && payload.data && "wait_time" in payload.data){
+      await new Promise(resolve => setTimeout(resolve, payload.data.wait_time));
+    }
   }
 
   return (
     <div className="p-8">
       {/* <svg ref={svgRef}></svg> */}
-      <Graph graph={complexWeightedGraph} nodeColors={nodeColors} />
+      <Graph 
+        graph={complexWeightedGraph} 
+        nodeColors={nodeColors} 
+        algorithmState={algorithmState} 
+      />
     </div>
   );
 }
+
+//add button to let you go to next step in algorithm?
+//have it display which step is happening in text
+//give starting node text a different color so you can still change its background appropriately (to yellow when it's the current node)
