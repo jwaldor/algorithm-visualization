@@ -169,9 +169,10 @@ interface Link extends d3.SimulationLinkDatum<Node> {
 
 interface GraphProps {
   graph: Record<string, Record<string, number>>;
+  nodeColors: Record<string, string>;
 }
 
-const Graph: React.FC<GraphProps> = ({ graph }) => {
+const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
 
@@ -260,10 +261,9 @@ const Graph: React.FC<GraphProps> = ({ graph }) => {
           onMouseUp={(e) => dragEnd(e, node)}
           onMouseLeave={(e) => dragEnd(e, node)}
         >
-
           <circle
             r="15"
-            fill="white"
+            fill={nodeColors[node.id] || "white"}
             stroke="black"
             strokeWidth="2"
           />
@@ -293,6 +293,14 @@ export default function Page() {
     E: { C: 10, D: 2, F: 3 },
     F: { D: 6, E: 3 },
   };
+  const nodeColors: Record<string, string> = {
+    A: "#FF6B6B", // Red
+    B: "#4ECDC4", // Teal
+    C: "#45B7D1", // Light Blue
+    D: "#FFA07A", // Light Salmon
+    E: "#98D8C8", // Pale Green
+    F: "#F7DC6F", // Yellow
+  };
 
 
   function update(payload: AlgorithmSnapshot) {
@@ -302,7 +310,7 @@ export default function Page() {
   return (
     <div className="p-8">
       {/* <svg ref={svgRef}></svg> */}
-      <Graph graph={complexWeightedGraph} />
+      <Graph graph={complexWeightedGraph} nodeColors={nodeColors} />
     </div>
   );
 }
