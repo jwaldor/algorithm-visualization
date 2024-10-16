@@ -77,6 +77,35 @@ function depthFirstSearch(tree: any, term: any, position: Array<any> = [],callba
 
 // console.log("depthFirstSearch",depthFirstSearch([{value:1,children:[{value:2,children:[{value:3,children:[]}]}]}],3,[],(searchState) => {console.log("searchState",searchState)}))
 
+const TreeNode: React.FC<{ node: any, depth: number }> = ({ node, depth }) => {
+  return (
+    <div className={`flex flex-col items-center ${depth > 0 ? 'mt-4' : ''}`}>
+      <div className="relative">
+        <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold z-10 relative">
+          {node.value}
+        </div>
+        {depth > 0 && (
+          <div className="absolute w-px h-4 bg-gray-400 top-0 left-1/2 transform -translate-x-1/2 -translate-y-full"></div>
+        )}
+      </div>
+      {node.children.length > 0 && (
+        <>
+          <div className="w-px h-4 bg-gray-400 my-2"></div>
+          <div className="relative">
+            <div className="absolute w-full h-px bg-gray-400 top-0 left-0"></div>
+            <div className="flex space-x-8 pt-4">
+              {node.children.map((child: any, index: number) => (
+                <TreeNode key={index} node={child} depth={depth + 1} />
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+
 
 export default function Page() {
 
@@ -146,6 +175,7 @@ export default function Page() {
     })
     }
     }
+
     console.log("state",state)
     //visualization components
         //show tree
@@ -161,20 +191,48 @@ export default function Page() {
       //no results: showing graph + text indicating no result
 
       //set up functions to handle state changes
-  
-    return (
-        <div>
-            
-              <button
-                        onClick={handleStartSearch}
-                        className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center"
-                        disabled={state.state[0] === "searching"}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                        </svg>
-                        </button>
 
+      //animate search:
+        //display tree
+        //highlight current search position
+        //make text that indicates what's being searched
+        //loop through search positions in a time-dependent manner
+        //handle completion of loop. when nothing is left in positions, check if the search term was found. if so, set state to found. if not, set it to not found.
+      //create display for found
+        //text indicates that we found it
+        //tree highlights the place where we found it
+      //create display for no results
+        //text highlights that we didn't find it
+      
+        //additional:
+          //add input for search term
+          //allow you to modify tree
+    return (
+        <div className="p-8">
+            <h1 className="text-3xl font-bold mb-6">Depth-First Search Visualization</h1>
+            
+            {/* Tree visualization with added padding */}
+            <div className="mb-8 overflow-x-auto">
+                <div className="inline-block min-w-full p-8">
+                    {state.visualizationData && Array.isArray(state.visualizationData) && (
+                        <div className="flex justify-center space-x-16">
+                            {state.visualizationData.map((rootNode: any, index: number) => (
+                                <TreeNode key={index} node={rootNode} depth={0} />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <button
+                onClick={handleStartSearch}
+                className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center"
+                disabled={state.state[0] === "searching"}
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                </svg>
+            </button>
         </div>
     )
 }
