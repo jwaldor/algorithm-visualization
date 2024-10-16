@@ -80,7 +80,7 @@ function depthFirstSearch(tree: any, term: any, position: Array<any> = [],callba
 
 export default function Page() {
 
-    const [state, setState]  = useState<{visualizationData:Object,searchTerm:number,position:Array<number>}>({searchTerm:6,position:[],visualizationData:{}})
+    const [state, setState]  = useState<{visualizationData:Object,state:["pre-search",{searchTerm:number}]|["searching",{position:Array<number>,searchTerm:number}]|["found",{position:Array<number>,value:number}]|["not-found",{searchTerm:number}]}>({visualizationData:{},state:["pre-search",{searchTerm:6}]})
 
     useEffect(() => {const tree = [
         {
@@ -142,6 +142,7 @@ export default function Page() {
         //show tree
         //show currently examined branch
         //show branch contents = searchTerm ?
+        //input for search term
     //callback data
       //set of positions in tree
     //UI states
@@ -149,7 +150,6 @@ export default function Page() {
       //during search: showing graph + disabling search input + highlighting current search + text indication of what's being searched
       //found results: showing graph + highlighting result  + text indication of result
       //no results: showing graph + text indicating no result
-
   
     return (
         <div>
