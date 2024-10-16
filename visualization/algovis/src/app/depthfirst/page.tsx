@@ -77,11 +77,15 @@ function depthFirstSearch(tree: any, term: any, position: Array<any> = [],callba
 
 // console.log("depthFirstSearch",depthFirstSearch([{value:1,children:[{value:2,children:[{value:3,children:[]}]}]}],3,[],(searchState) => {console.log("searchState",searchState)}))
 
-const TreeNode: React.FC<{ node: any, depth: number }> = ({ node, depth }) => {
+const TreeNode: React.FC<{ node: any, depth: number, position: number[], currentPosition: number[] }> = ({ node, depth, position, currentPosition }) => {
+  const isCurrentlySearched = JSON.stringify(position) === JSON.stringify(currentPosition);
+  const nodeColor = isCurrentlySearched ? 'bg-yellow-500' : 'bg-blue-500';
+  const borderColor = isCurrentlySearched ? 'border-yellow-700' : 'border-blue-700';
+
   return (
     <div className={`flex flex-col items-center ${depth > 0 ? 'mt-4' : ''}`}>
       <div className="relative">
-        <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold z-10 relative">
+        <div className={`w-12 h-12 rounded-full ${nodeColor} border-4 ${borderColor} flex items-center justify-center text-white font-bold z-10 relative transition-colors duration-300`}>
           {node.value}
         </div>
         {depth > 0 && (
@@ -95,7 +99,13 @@ const TreeNode: React.FC<{ node: any, depth: number }> = ({ node, depth }) => {
             <div className="absolute w-full h-px bg-gray-400 top-0 left-0"></div>
             <div className="flex space-x-8 pt-4">
               {node.children.map((child: any, index: number) => (
-                <TreeNode key={index} node={child} depth={depth + 1} />
+                <TreeNode 
+                  key={index} 
+                  node={child} 
+                  depth={depth + 1} 
+                  position={[...position, index]}
+                  currentPosition={currentPosition}
+                />
               ))}
             </div>
           </div>
@@ -256,7 +266,16 @@ export default function Page() {
                     {state.visualizationData && Array.isArray(state.visualizationData) && (
                         <div className="flex justify-center space-x-16">
                             {state.visualizationData.map((rootNode: any, index: number) => (
-                                <TreeNode key={index} node={rootNode} depth={0} />
+                                <TreeNode 
+                                    key={index} 
+                                    node={rootNode} 
+                                    depth={0} 
+                                    position={[index]}
+                                    currentPosition={state.state[0] === "searching" 
+                                        ? (state.state[1] as {position: number, positions: Array<Array<number>>}).positions[(state.state[1] as {position: number, positions: Array<Array<number>>}).position]
+                                        : []
+                                    }
+                                />
                             ))}
                         </div>
                     )}
