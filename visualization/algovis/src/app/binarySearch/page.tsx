@@ -52,6 +52,7 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     </button>
 );
 
+// get rid of cmplete and add return values.
 async function binarySearch(array:Array<number>, term: number, leading = 0,layer=0,callback:Function,complete:Function) {
     const m = Math.floor((array.length - 1) / 2);
     console.log("callback",array[m],array)
@@ -220,6 +221,7 @@ export default function Page() {
                     <div key={stepIndex} className="flex flex-row items-center mb-4">
                         <span className="mr-4 font-semibold">Step {stepIndex + 1}:</span>
                         <div className="flex flex-row">
+                            {/* pad the array with undefined to the left to line up the array properly */}
                             {[...Array(step.leading).fill(undefined), ...step.array].map((number, index) => (
                                 
                                 number === undefined ? <div

@@ -22,6 +22,7 @@ const Circle = forwardRef<HTMLDivElement, CircleProps>(({ entry, executing, arra
 
     return (
         <div ref={ref} className={`${baseClasses} ${colorClasses}`}>
+            {/* this is kind of hard to parse, maybe leave a comment to help the reader understand what you're up to. */}
             {executing ? (
                 array[entry]
             ) : (
@@ -52,19 +53,17 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     </button>
 );
 
-async function linearSearch(array:Array<number>, term: number, callback: Function,complete:Function ) {
-    console.log("linearSearch")
+
+type onUpdateFunction = (state: {i:number}) => Promise<void>
+
+async function linearSearch(array:Array<number>, term: number, onUpdate?: onUpdateFunction) {
     for (let i = 0; i < array.length; i++) {
-        console.log("here4",i)
-        await callback({i});
-        console.log("linearSearch",i)
-      if (array[i] === term) {
-        complete({i})
-        return i;
+        if (onUpdate) await onUpdate({i});
+        if (array[i] === term) {
+            return i;
       }
     }
-    complete({i:undefined})
-    return;
+    return undefined;
   }
 
 
@@ -89,9 +88,9 @@ function useSetInterval(callback: () => void, delay: number | null) {
 }
 
 export default function Page() {
-    const [i, setI] = useState<number|undefined>(undefined);
     const [numbers, setNumbers] = useState<number[]>([0,1,1,2]);
-    const [searchTerm, setSearchTerm] = useState<number | null>(7);
+    const [searchTerm, setSearchTerm] = useState<number>(7);
+    const [i, setI] = useState<number|undefined>(undefined);
     const [executing, setExecuting] = useState<boolean>(false);
     const [found, setFound] = useState<number|undefined>();
 
@@ -100,7 +99,7 @@ export default function Page() {
     //     const circleRefs =  numbers.map(() => createRef<HTMLDivElement>())
     //     setCircleRefs(circleRefs)
     // }, [numbers])
-        const circleRefs =  numbers.map(() => createRef<HTMLDivElement>())
+    const circleRefs =  numbers.map(() => createRef<HTMLDivElement>())
     
     const execute = () => {
         console.log("here",searchTerm,executing)
@@ -109,27 +108,25 @@ export default function Page() {
             // setI(0);
             setFound(undefined);
             setExecuting(true);
-            linearSearch(numbers,searchTerm,async (props:{i:number})=>{
-                setI(props.i)
-                console.log("here3",props.i)
-                // if (numbers[props.i] === searchTerm){
-                //     setFound(props.i)
+            const result = linearSearch(numbers,searchTerm,async (state:{i:number})=>{
+                setI(state.i)
+                console.log("here3",state.i)
+                // if (numbers[state.i] === searchTerm){
+                //     setFound(state.i)
                 //     setExecuting(false)
                 // }
                 await new Promise(resolve => setTimeout(resolve, 1000));
-                console.log("here5",props.i)
+                console.log("here5",state.i)
                 
-            },(props:{i:number})=>{
-                if (numbers[props.i] === searchTerm){
-                    setFound(props.i)
-                }
-                else{
-                    console.log("here6",props.i)
-                    setI(undefined)
-                }
-                setExecuting(false)
             })
-            console.log("done")
+
+            result.then((result) => {
+                setExecuting(false);
+                setFound(result)
+            }).catch((error) => {
+                console.error("An error occurred during search:", error);
+                setExecuting(false);
+            });
             // useSetInterval(algorithmStep,1000);
         }
             
@@ -196,7 +193,8 @@ export default function Page() {
                             found={found}
                         />
                         
-                        {i !== undefined && searchTerm !== null && index === i && (
+                        {/* only render this when we're executing?? */}
+                        {i !== undefined && index === i && (
                             <div className={`ml-4 w-20 h-20 rounded-full ${found !== undefined ? 'bg-purple-500 border-purple-600' : 'bg-red-400 border-red-600'} border-4 grid place-items-center text-white`}>
                                 {searchTerm}
                             </div>
