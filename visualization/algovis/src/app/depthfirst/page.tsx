@@ -311,7 +311,22 @@ export default function Page() {
             {/* New text display */}
             <div className="mb-4 p-4 bg-gray-100 rounded-lg shadow-md">
                 <p className="text-lg">
-                    <span className="font-semibold">Search Term:</span> {state.searchTerm}
+                    <span className="font-semibold">Search Term:</span>{' '}
+                    {state.state[0] === "searching" ? (
+                        state.searchTerm
+                    ) : (
+                        <input
+                            type="number"
+                            value={state.searchTerm}
+                            onChange={(e) => {
+                                const newValue = parseInt(e.target.value, 10);
+                                if (!isNaN(newValue)) {
+                                    setState(prevState => ({...prevState, searchTerm: newValue}));
+                                }
+                            }}
+                            className="w-16 px-2 py-1 border rounded"
+                        />
+                    )}
                 </p>
                 {state.state[0] === "searching" && (
                     <p className="text-lg mt-2">
