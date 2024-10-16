@@ -247,13 +247,13 @@ const Graph: React.FC<GraphProps> = ({ graph }) => {
           onMouseUp={(e) => dragEnd(e, node)}
           onMouseLeave={(e) => dragEnd(e, node)}
         >
-          {/* <Circle
-            entry={parseInt(node.id)}
-            array={[]}
-            executing={false}
-            setNumbers={() => {}}
-            found={undefined}
-          /> */}
+
+          <circle
+            r="15"
+            fill="white"
+            stroke="black"
+            strokeWidth="2"
+          />
           <text
             textAnchor="middle"
             dominantBaseline="central"
