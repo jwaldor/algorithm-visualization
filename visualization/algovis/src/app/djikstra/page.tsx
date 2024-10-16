@@ -187,14 +187,14 @@ const Node: React.FC<{
     else {
       nodeColor = "white";
     }
-        // if (algorithmState.type === 'pre_minimize_neighbors'){
-    //   if (algorithmState.data.unvisited_neighbors.includes(node.id)){
-    //     nodeColor = "blue";
-    //   }
-    //   // else if (algorithmState.data.current_node === node.id){
-    //   //   nodeColor = "yellow";
-    //   // }
-    // }
+        if (algorithmState.type === 'pre_minimize_neighbors'){
+      if (algorithmState.data.unvisited_neighbors.includes(node.id)){
+        nodeColor = "blue";
+      }
+      else if (algorithmState.data.current_node === node.id && algorithmState.data.starting_node !== node.id){
+        nodeColor = "yellow";
+      }
+    }
 
   }
   return (
@@ -410,4 +410,5 @@ export default function Page() {
 }
 
 //add button to let you go to next step in algorithm?
-
+//have it display which step is happening in text
+//give starting node text a different color so you can still change its background appropriately (to yellow when it's the current node)
