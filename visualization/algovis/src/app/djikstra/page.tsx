@@ -77,14 +77,7 @@ function depthFirstSearch(tree: any, term: any, position: Array<any> = [],callba
 
 // console.log("depthFirstSearch",depthFirstSearch([{value:1,children:[{value:2,children:[{value:3,children:[]}]}]}],3,[],(searchState) => {console.log("searchState",searchState)}))
 
-const complexWeightedGraph = {
-  A: { B: 4, C: 2 },
-  B: { A: 4, C: 1, D: 5 },
-  C: { A: 2, B: 1, D: 8, E: 10 },
-  D: { B: 5, C: 8, E: 2, F: 6 },
-  E: { C: 10, D: 2, F: 3 },
-  F: { D: 6, E: 3 },
-};
+
 
 
 function djikstra(graph: Record<string, Record<string, number>>, starting_node: string): Record<string, number> {
@@ -153,15 +146,27 @@ function djikstra(graph: Record<string, Record<string, number>>, starting_node: 
 
 
 
-type ExecutionSnapshot = 
+type AlgorithmSnapshot = 
+  | {type:"pre_algorithm"}
   | { type: 'finding_min_unvisited'; data: {distances:Record<string,number>,visited:Array<string>,wait_time:number} }
   | { type: 'pre_minimize_neighbors'; data:{current_node:string,unvisited_neighbors:Array<string>} }
   | { type: 'minimize_neighbors_step'; data: {current_node:string,neighbor:string,distances:Record<string,number>,newdist:number,edge_length:number} }
   | { type: 'finished'; data: {distances:Record<string,number>} }
 
 export default function Page() {
-  
-    function update(payload: ExecutionSnapshot){
+  const [algorithmState, setAlgorithmState] = useState<AlgorithmSnapshot>({type:"pre_algorithm"})
+  const complexWeightedGraph = {
+    A: { B: 4, C: 2 },
+    B: { A: 4, C: 1, D: 5 },
+    C: { A: 2, B: 1, D: 8, E: 10 },
+    D: { B: 5, C: 8, E: 2, F: 6 },
+    E: { C: 10, D: 2, F: 3 },
+    F: { D: 6, E: 3 },
+  };
+  useEffect(() => {
+    djikstra(complexWeightedGraph,"A")
+  }, [])
+    function update(payload: AlgorithmSnapshot){
 
     }
     
@@ -172,12 +177,6 @@ export default function Page() {
     )
 }
 
-//use compare to highlight found item + search focus?
 
-
-// add animations
-// add highlight for currently selected item
-//add set searchTerm entry
-// add "computer consciousness" area
-//make searcher change color when it finds
-
+//set up callback so that it updates executionState
+//make djikstra call callback at each relevant portion in a way that can easily update executionstate
