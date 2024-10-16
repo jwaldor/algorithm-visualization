@@ -64,10 +64,10 @@ type onUpdateFunction = (state: AlgorithmSnapshot) => Promise<void>
 
 type AlgorithmSnapshot = 
   | {type:"pre_algorithm"}
-  | { type: 'finding_min_unvisited'; data: {distances:Record<string,number>,visited:Array<string>,wait_time:number} }
-  | { type: 'pre_minimize_neighbors'; data:{current_node:string,unvisited_neighbors:Array<string>,wait_time:number} }
-  | { type: 'minimize_neighbors_step'; data: {current_node:string,neighbor:string,distances:Record<string,number>,newdist:number,edge_length:number,wait_time:number} }
-  | { type: 'finished'; data: {distances:Record<string,number>} }
+  | { type: 'finding_min_unvisited'; data: {starting_node:string,distances:Record<string,number>,visited:Array<string>,wait_time:number} }
+  | { type: 'pre_minimize_neighbors'; data:{starting_node:string, current_node:string,unvisited_neighbors:Array<string>,wait_time:number} }
+  | { type: 'minimize_neighbors_step'; data: {starting_node:string,current_node:string,neighbor:string,distances:Record<string,number>,newdist:number,edge_length:number,wait_time:number} }
+  | { type: 'finished'; data: {starting_node:string,distances:Record<string,number>} }
 
 
 async function djikstra(graph: Record<string, Record<string, number>>, starting_node: string, callback?: onUpdateFunction): Promise<Record<string, number>> {
@@ -86,7 +86,7 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
       [key]: value,
     }));
     if (callback){
-      await callback({type:"finding_min_unvisited",data:{distances:distances,visited:visited,wait_time:1000}})
+      await callback({type:"finding_min_unvisited",data:{starting_node:starting_node,distances:distances,visited:visited,wait_time:1000}})
     }
     console.log(
       "distancesArray",
