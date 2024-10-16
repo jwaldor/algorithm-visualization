@@ -57,34 +57,20 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 );
 
 
-type onUpdateFunction = (state: {position:Array<any>}) => void
-
-function depthFirstSearch(tree: any, term: any, position: Array<any> = [],callback?: onUpdateFunction): any {
-    for (let i = 0; i < tree.length; i++) {
-      if (callback){
-        callback({position:position.concat(i)})
-        console.log("position",position.concat(i),tree,)
-      }
-      if (tree[i].value === term) {
-        position = position.concat(i);
-        return { position };
-      } else {
-        if (tree[i].children.length > 0) {
-          const d: any = depthFirstSearch(tree[i].children, term, position.concat(i),callback);
-          if (d) {
-            return d;
-          }
-        }
-      }
-    }
-  }
-
-// console.log("depthFirstSearch",depthFirstSearch([{value:1,children:[{value:2,children:[{value:3,children:[]}]}]}],3,[],(searchState) => {console.log("searchState",searchState)}))
+type onUpdateFunction = (state: AlgorithmSnapshot) => Promise<void>
 
 
 
 
-function djikstra(graph: Record<string, Record<string, number>>, starting_node: string): Record<string, number> {
+type AlgorithmSnapshot = 
+  | {type:"pre_algorithm"}
+  | { type: 'finding_min_unvisited'; data: {distances:Record<string,number>,visited:Array<string>,wait_time:number} }
+  | { type: 'pre_minimize_neighbors'; data:{current_node:string,unvisited_neighbors:Array<string>,wait_time:number} }
+  | { type: 'minimize_neighbors_step'; data: {current_node:string,neighbor:string,distances:Record<string,number>,newdist:number,edge_length:number,wait_time:number} }
+  | { type: 'finished'; data: {distances:Record<string,number>} }
+
+
+async function djikstra(graph: Record<string, Record<string, number>>, starting_node: string, callback?: onUpdateFunction): Promise<Record<string, number>> {
   const nodes = Object.keys(graph);
   const distances: {[key: string]: number} = nodes.reduce((acc: {[key: string]: number}, node: string) => {
     acc[node] = Infinity;
@@ -94,10 +80,14 @@ function djikstra(graph: Record<string, Record<string, number>>, starting_node: 
   let current_node: string = "";
   const visited: Array<string> = [];
   while (visited.length < nodes.length) {
+
     //find node with smallest finite distance
     const distancesArray = Object.entries(distances).map(([key, value]) => ({
       [key]: value,
     }));
+    if (callback){
+      await callback({type:"finding_min_unvisited",data:{distances:distances,visited:visited,wait_time:1000}})
+    }
     console.log(
       "distancesArray",
       distancesArray.filter((arr) => !visited.includes(Object.keys(arr)[0]))
@@ -150,12 +140,6 @@ function djikstra(graph: Record<string, Record<string, number>>, starting_node: 
 
 
 
-type AlgorithmSnapshot = 
-  | {type:"pre_algorithm"}
-  | { type: 'finding_min_unvisited'; data: {distances:Record<string,number>,visited:Array<string>,wait_time:number} }
-  | { type: 'pre_minimize_neighbors'; data:{current_node:string,unvisited_neighbors:Array<string>} }
-  | { type: 'minimize_neighbors_step'; data: {current_node:string,neighbor:string,distances:Record<string,number>,newdist:number,edge_length:number} }
-  | { type: 'finished'; data: {distances:Record<string,number>} }
 
 interface Node extends d3.SimulationNodeDatum {
   id: string;
@@ -337,6 +321,12 @@ export default function Page() {
     E: "#4ECDC4", // Teal
     F: "#45B7D1", // Light Blue
   };
+  useEffect(() => {
+    djikstra(complexWeightedGraph,"A",update)
+    .then(() => {
+      console.log("djikstra finished")
+    })
+  },[])
 
   // useEffect(() => {
   //   const intervalId = setInterval(() => {
@@ -350,8 +340,12 @@ export default function Page() {
   
 
 
-  function update(payload: AlgorithmSnapshot) {
+  async function update(payload: AlgorithmSnapshot) {
     setAlgorithmState(payload);
+    //wait for payload.wait_time
+    if (payload.type !== "pre_algorithm" && payload.type !== "finished" && payload.data && "wait_time" in payload.data){
+      await new Promise(resolve => setTimeout(resolve, payload.data.wait_time));
+    }
   }
 
   return (
