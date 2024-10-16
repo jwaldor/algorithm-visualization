@@ -167,10 +167,21 @@ const Node: React.FC<{
 }> = ({ node, color, onDragStart, onDragged, onDragEnd, algorithmState }) => {
   // You can use algorithmState here to modify the node's appearance
   let nodeText = node.id;
+  let nodeColor = color;
+  if (algorithmState.type !== "pre_algorithm"){
   if (algorithmState.type === 'finding_min_unvisited' || algorithmState.type === 'finished') {
     nodeText = `${node.id}: ${algorithmState.data.distances[node.id]}`;
   }
-
+  
+    if (node.id === algorithmState.data.starting_node){
+      nodeColor = "green";
+    }
+    if (algorithmState.type === 'finding_min_unvisited'){
+      if (algorithmState.data.visited.includes(node.id) && algorithmState.data.starting_node !== node.id){
+        nodeColor = "red";
+      }
+    }
+  }
   return (
     <g
       transform={`translate(${node.x},${node.y})`}
@@ -179,7 +190,7 @@ const Node: React.FC<{
       onMouseUp={(e) => onDragEnd(e, node)}
       onMouseLeave={(e) => onDragEnd(e, node)}
     >
-      <circle r="35" fill={color} stroke="black" strokeWidth="3" />
+      <circle r="35" fill={nodeColor} stroke="black" strokeWidth="3" />
       <text
         textAnchor="middle"
         dominantBaseline="central"
