@@ -119,7 +119,7 @@ const TreeNode: React.FC<{ node: any, depth: number, position: number[], current
 
 export default function Page() {
 
-    const [state, setState]  = useState<{visualizationData:Object,searchTerm:number,state:["pre-search"]|["searching",{position:number,positions:Array<Array<number>>}]|["found",{position:Array<number>}]|["not-found"]}>({visualizationData:{},searchTerm:6,state:["pre-search"]})
+    const [state, setState]  = useState<{visualizationData:Object,searchTerm:number,state:["pre-search"]|["searching",{position:number,positions:Array<Array<number>>,foundItem:number|undefined}]|["found",{position:Array<number>}]|["not-found"]}>({visualizationData:{},searchTerm:6,state:["pre-search"]})
 
     useEffect(() => {const tree = [
         {
@@ -178,10 +178,11 @@ export default function Page() {
 
     function handleStartSearch(){
       if (state.state[0] !== "searching"){
-      setState({...state,state:["searching",{position:0,positions:[]}]})
-      depthFirstSearch(state.visualizationData,state.searchTerm,[],(searchState) => {
-        setState(prevState => ({...prevState, state:["searching",{position:0,positions:(prevState.state[1] as {position: number, positions: Array<Array<number>>}).positions.concat([searchState.position])}]}))
+      setState({...state,state:["searching",{position:0,positions:[],foundItem:undefined}]})
+      const result = depthFirstSearch(state.visualizationData,state.searchTerm,[],(searchState) => {
+        setState(prevState => ({...prevState, state:["searching",{position:0,positions:(prevState.state[1] as {position: number, positions: Array<Array<number>>,foundItem:number|undefined}).positions.concat([searchState.position]),foundItem:(prevState.state[1] as {position: number, positions: Array<Array<number>>,foundItem:number|undefined}).foundItem}]}))
         console.log("positioncallback",searchState.position)
+        setState(prevState => ({...prevState, state:["searching",{position:0,positions:(prevState.state[1] as {position: number, positions: Array<Array<number>>,foundItem:number|undefined}).positions,foundItem:result}]}))
     })
     // Set up an interval to update the position every second
     const intervalId = setInterval(() => {
@@ -200,7 +201,8 @@ export default function Page() {
               ...prevState,
               state: ["searching", {
                 position: newPosition,
-                positions: currentPositions
+                positions: currentPositions,
+                foundItem: prevState.state[1].foundItem
               }]
             };
           }
@@ -209,7 +211,8 @@ export default function Page() {
             ...prevState,
             state: ["searching", {
               position: newPosition,
-              positions: currentPositions
+              positions: currentPositions,
+              foundItem: prevState.state[1].foundItem
             }]
           };
         }
