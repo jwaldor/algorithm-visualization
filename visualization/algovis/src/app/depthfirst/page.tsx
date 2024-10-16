@@ -334,6 +334,16 @@ export default function Page() {
                         {<> <span className="font-semibold">Currently Examining:</span> {getCurrentlyHighlightedValue()}</>}
                     </p>
                 )}
+                {state.state[0] === "found" && (
+                    <p className="text-lg mt-2">
+                        {<> <span className="font-semibold">Found!</span></>}
+                    </p>
+                )}
+                {state.state[0] === "not-found" && (
+                    <p className="text-lg mt-2">
+                        {<> <span className="font-semibold">Result:</span> Item not found</>}
+                    </p>
+                )}
             </div>
             
             {/* Tree visualization with added padding */}
