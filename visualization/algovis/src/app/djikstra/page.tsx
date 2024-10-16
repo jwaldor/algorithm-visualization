@@ -65,7 +65,7 @@ type onUpdateFunction = (state: AlgorithmSnapshot) => Promise<void>
 type AlgorithmSnapshot = 
   | {type:"pre_algorithm"}
   | { type: 'finding_min_unvisited'; data: {starting_node:string,distances:Record<string,number>,visited:Array<string>,wait_time:number} }
-  | { type: 'pre_minimize_neighbors'; data:{starting_node:string, current_node:string,unvisited_neighbors:Array<string>,wait_time:number} }
+  | { type: 'pre_minimize_neighbors'; data:{starting_node:string, current_node:string, unvisited_neighbors:Array<string>, distances:Record<string,number>, wait_time:number} }
   | { type: 'minimize_neighbors_step'; data: {starting_node:string,current_node:string,neighbor:string,distances:Record<string,number>,newdist:number,edge_length:number,wait_time:number} }
   | { type: 'finished'; data: {starting_node:string,distances:Record<string,number>} }
 
@@ -111,6 +111,9 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
         return !visited.includes(elt);
       }
     );
+    if (callback){
+      await callback({type:"pre_minimize_neighbors",data:{starting_node:starting_node,current_node:current_node,unvisited_neighbors:unvisited_neighbors,distances:distances,wait_time:1000}})
+    }
     console.log("unvisited_neighbors", unvisited_neighbors);
     unvisited_neighbors.forEach((neighbor) => {
       const newdist = graph[current_node][neighbor] + distances[current_node];
@@ -169,9 +172,9 @@ const Node: React.FC<{
   let nodeText = node.id;
   let nodeColor = color;
   if (algorithmState.type !== "pre_algorithm"){
-    if (algorithmState.type === 'finding_min_unvisited' || algorithmState.type === 'finished') {
+
       nodeText = `${node.id}: ${algorithmState.data.distances[node.id]}`;
-    }
+
   
     if (node.id === algorithmState.data.starting_node){
       nodeColor = "green";
@@ -184,6 +187,14 @@ const Node: React.FC<{
     else {
       nodeColor = "white";
     }
+        // if (algorithmState.type === 'pre_minimize_neighbors'){
+    //   if (algorithmState.data.unvisited_neighbors.includes(node.id)){
+    //     nodeColor = "blue";
+    //   }
+    //   // else if (algorithmState.data.current_node === node.id){
+    //   //   nodeColor = "yellow";
+    //   // }
+    // }
 
   }
   return (
@@ -397,3 +408,6 @@ export default function Page() {
     </div>
   );
 }
+
+//add button to let you go to next step in algorithm?
+
