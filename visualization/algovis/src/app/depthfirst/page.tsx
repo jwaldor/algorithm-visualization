@@ -59,13 +59,14 @@ function depthFirstSearch(tree: any, term: any, position: Array<any> = [],callba
     for (let i = 0; i < tree.length; i++) {
       if (callback){
         callback({position:position.concat(i)})
+        console.log("position",position.concat(i),tree,)
       }
       if (tree[i].value === term) {
         position = position.concat(i);
         return { position };
       } else {
         if (tree[i].children.length > 0) {
-          const d: any = depthFirstSearch(tree[i].children, term, position.concat(i));
+          const d: any = depthFirstSearch(tree[i].children, term, position.concat(i),callback);
           if (d) {
             return d;
           }
@@ -74,11 +75,12 @@ function depthFirstSearch(tree: any, term: any, position: Array<any> = [],callba
     }
   }
 
+// console.log("depthFirstSearch",depthFirstSearch([{value:1,children:[{value:2,children:[{value:3,children:[]}]}]}],3,[],(searchState) => {console.log("searchState",searchState)}))
 
 
 export default function Page() {
 
-    const [state, setState]  = useState<{visualizationData:Object,searchTerm:number,position:Array<number>}>({searchTerm:3,position:[],visualizationData:{}})
+    const [state, setState]  = useState<{visualizationData:Object,searchTerm:number,position:Array<number>}>({searchTerm:6,position:[],visualizationData:{}})
 
     useEffect(() => {const tree = [
         {
@@ -129,7 +131,10 @@ export default function Page() {
           ],
         },
       ];
-      depthFirstSearch(tree,state.searchTerm,[],(searchState) => {setState({...state, position:searchState.position})})
+      depthFirstSearch(tree,state.searchTerm,[],(searchState) => {
+        setState(prevState => ({...prevState, position:searchState.position}))
+        console.log("positioncallback",searchState.position)
+    })
     setState({...state,visualizationData:tree})},[])
     
       
