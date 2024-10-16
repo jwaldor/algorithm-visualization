@@ -180,7 +180,7 @@ export default function Page() {
       if (state.state[0] !== "searching"){
       setState({...state,state:["searching",{position:0,positions:[]}]})
       depthFirstSearch(state.visualizationData,state.searchTerm,[],(searchState) => {
-        setState(prevState => ({...prevState, state:["searching",{position:0,positions:(prevState.state[1] as {position:number,positions:Array<Array<number>>}).positions.concat([searchState.position])}]}))
+        setState(prevState => ({...prevState, state:["searching",{position:0,positions:(prevState.state[1] as {position: number, positions: Array<Array<number>>}).positions.concat([searchState.position])}]}))
         console.log("positioncallback",searchState.position)
     })
     // Set up an interval to update the position every second
@@ -253,12 +253,46 @@ export default function Page() {
       //create display for no results
         //text highlights that we didn't find it
       
+        //render value of currently highlighted node during search
+            //function for obtaining value of currently highlighted node
+            //call that function conditionally based on state and display the result
+
+      
         //additional:
           //add input for search term
           //allow you to modify tree
+
+    const getCurrentlyHighlightedValue = () => {
+
+      const { position, positions } = state.state[1] as { position: number, positions: Array<Array<number>> };
+      const currentPosition = positions[position];
+      let currentNode: any = state.visualizationData;
+      for (const index of currentPosition.slice(0,-1)) {
+        currentNode = currentNode[index];
+        if (currentNode.children) {
+          currentNode = currentNode.children;
+        } else {
+          break;
+        }
+      }
+      return currentNode[currentPosition[currentPosition.length-1]].value;
+    };
+
     return (
         <div className="p-8">
             <h1 className="text-3xl font-bold mb-6">Depth-First Search Visualization</h1>
+            
+            {/* New text display */}
+            <div className="mb-4 p-4 bg-gray-100 rounded-lg shadow-md">
+                <p className="text-lg">
+                    <span className="font-semibold">Search Term:</span> {state.searchTerm}
+                </p>
+                {state.state[0] === "searching" && (
+                    <p className="text-lg mt-2">
+                        {<> <span className="font-semibold">Currently Examining:</span> {getCurrentlyHighlightedValue()}</>}
+                    </p>
+                )}
+            </div>
             
             {/* Tree visualization with added padding */}
             <div className="mb-8 overflow-x-auto">
