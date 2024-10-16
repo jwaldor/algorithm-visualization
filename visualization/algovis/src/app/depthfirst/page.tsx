@@ -77,8 +77,8 @@ function depthFirstSearch(tree: any, term: any, position: Array<any> = [],callba
 
 
 export default function Page() {
-    const [visualizationdata,setVisualizationData] = useState<Object>();
-    const [state, setState]  = useState<{searchTerm:number,position:Array<number>}>({searchTerm:3,position:[]})
+
+    const [state, setState]  = useState<{visualizationData:Object,searchTerm:number,position:Array<number>}>({searchTerm:3,position:[],visualizationData:{}})
 
     useEffect(() => {const tree = [
         {
@@ -130,7 +130,7 @@ export default function Page() {
         },
       ];
       depthFirstSearch(tree,state.searchTerm,[],(searchState) => {setState({...state, position:searchState.position})})
-    setVisualizationData({tree})},[])
+    setState({...state,visualizationData:tree})},[])
     
       
     //visualization components
