@@ -1,6 +1,6 @@
 "use client";
 
-import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef, useCallback } from "react";
+import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef, useCallback, useLayoutEffect } from "react";
 import * as d3 from 'd3';
 
 
@@ -172,15 +172,40 @@ interface GraphProps {
   nodeColors: Record<string, string>;
 }
 
+const Node: React.FC<{ node: Node; color: string; onDragStart: (event: any, node: Node) => void; onDragged: (event: any, node: Node) => void; onDragEnd: (event: any, node: Node) => void }> = ({ node, color, onDragStart, onDragged, onDragEnd }) => {
+  return (
+    <g
+      transform={`translate(${node.x},${node.y})`}
+      onMouseDown={(e) => onDragStart(e, node)}
+      onMouseMove={(e) => onDragged(e, node)}
+      onMouseUp={(e) => onDragEnd(e, node)}
+      onMouseLeave={(e) => onDragEnd(e, node)}
+    >
+      <circle r="15" fill={color} stroke="black" strokeWidth="2" />
+      <text
+        textAnchor="middle"
+        dominantBaseline="central"
+        fill="black"
+        fontSize="16px"
+        fontWeight="bold"
+      >
+        {node.id}
+      </text>
+    </g>
+  );
+};
+
 const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
+  const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
+  const [haveRun,setHaveRun] = useState(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const width = 800;
   const height = 600;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const nodesData: Node[] = Object.keys(graph).map(id => ({ id }));
     const linksData: Link[] = [];
 
@@ -193,26 +218,43 @@ const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
     setNodes(nodesData);
     setLinks(linksData);
 
-    const simulation = d3.forceSimulation(nodesData)
+    if (!haveRun){
+      console.log("setting up simulation")
+      setHaveRun(true);
+
+    simulationRef.current = d3.forceSimulation(nodesData)
       .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(100))
       .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(width / 2, height / 2));
 
-    simulation.on('tick', () => {
+    simulationRef.current.on('tick', () => {
       setNodes([...nodesData]);
       setLinks([...linksData]);
     });
+  } else {
+    console.log("restarting simulation")
+    simulationRef.current = d3.forceSimulation(nodesData)
+      .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(100))
+      .force('charge', d3.forceManyBody().strength(-300))
+      .force('center', d3.forceCenter(width / 2, height / 2));
+
+      
+      simulationRef.current.stop();
+      simulationRef.current.tick(3000);
+  }
 
     return () => {
-      simulation.stop();
+      if (simulationRef.current) {
+        simulationRef.current.stop();
+      }
     };
   }, [graph]);
 
   const dragStart = useCallback((event: any, d: any) => {
-    if (!event.active) d3.forceSimulation(nodes).alphaTarget(0.3).restart();
+    if (!event.active && simulationRef.current) simulationRef.current.alphaTarget(0.3).restart();
     d.fx = d.x;
     d.fy = d.y;
-  }, [nodes]);
+  }, []);
 
   const dragged = useCallback((event: any, d: any) => {
     d.fx = event.x;
@@ -220,10 +262,10 @@ const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
   }, []);
 
   const dragEnd = useCallback((event: any, d: any) => {
-    if (!event.active) d3.forceSimulation(nodes).alphaTarget(0);
+    if (!event.active && simulationRef.current) simulationRef.current.alphaTarget(0);
     d.fx = null;
     d.fy = null;
-  }, [nodes]);
+  }, []);
 
   return (
     <svg ref={svgRef} width={width} height={height}>
@@ -253,30 +295,14 @@ const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
         </g>
       ))}
       {nodes.map((node) => (
-        <g
+        <Node
           key={node.id}
-          transform={`translate(${node.x},${node.y})`}
-          onMouseDown={(e) => dragStart(e, node)}
-          onMouseMove={(e) => dragged(e, node)}
-          onMouseUp={(e) => dragEnd(e, node)}
-          onMouseLeave={(e) => dragEnd(e, node)}
-        >
-          <circle
-            r="15"
-            fill={nodeColors[node.id] || "white"}
-            stroke="black"
-            strokeWidth="2"
-          />
-          <text
-            textAnchor="middle"
-            dominantBaseline="central"
-            fill="black"
-            fontSize="16px"
-            fontWeight="bold"
-          >
-            {node.id}
-          </text>
-        </g>
+          node={node}
+          color={nodeColors[node.id] || 'white'}
+          onDragStart={dragStart}
+          onDragged={dragged}
+          onDragEnd={dragEnd}
+        />
       ))}
     </svg>
   );
@@ -285,6 +311,7 @@ const Graph: React.FC<GraphProps> = ({ graph, nodeColors }) => {
 export default function Page() {
   // const svgRef = useRef<SVGSVGElement>(null);
   const [algorithmState, setAlgorithmState] = useState<AlgorithmSnapshot>({type:"pre_algorithm"});
+  const [nodeColors, setNodeColors] = useState<Record<string, string>>({});
   const complexWeightedGraph = {
     A: { B: 4, C: 2 },
     B: { A: 4, C: 1, D: 5 },
@@ -293,7 +320,7 @@ export default function Page() {
     E: { C: 10, D: 2, F: 3 },
     F: { D: 6, E: 3 },
   };
-  const nodeColors: Record<string, string> = {
+  const nodeColors1: Record<string, string> = {
     A: "#FF6B6B", // Red
     B: "#4ECDC4", // Teal
     C: "#45B7D1", // Light Blue
@@ -301,6 +328,26 @@ export default function Page() {
     E: "#98D8C8", // Pale Green
     F: "#F7DC6F", // Yellow
   };
+
+  const nodeColors2: Record<string, string> = {
+    A: "#FFA07A", // Light Salmon
+    B: "#98D8C8", // Pale Green
+    C: "#F7DC6F", // Yellow
+    D: "#FF6B6B", // Red
+    E: "#4ECDC4", // Teal
+    F: "#45B7D1", // Light Blue
+  };
+
+  // useEffect(() => {
+  //   const intervalId = setInterval(() => {
+  //     setNodeColors(prevColors => 
+  //       prevColors === nodeColors1 ? nodeColors2 : nodeColors1
+  //     );
+  //   }, 1000);
+
+  //   return () => clearInterval(intervalId);
+  // }, []);
+  
 
 
   function update(payload: AlgorithmSnapshot) {
