@@ -8,8 +8,8 @@ function linearSearch<T extends string | number>(array: T[], term: T) {
 }
 
 // This will now cause a type error
-console.log(linearSearch([47, 23, 66, "3", 2, 56, 3], 3));
-console.log(linearSearch([47, 23, 66, "3", 2, 56, 3], 3));
+// console.log(linearSearch([47, 23, 66, "3", 2, 56, 3], 3));
+// console.log(linearSearch([47, 23, 66, "3", 2, 56, 3], 3));
 
 function binarySearch(array, term, leading = 0) {
   const m = Math.floor((array.length - 1) / 2);
@@ -29,7 +29,7 @@ function binarySearch(array, term, leading = 0) {
   }
 }
 
-console.log(binarySearch([2, 3, 23, 47, 47, 56, 66], 47));
+// console.log(binarySearch([2, 3, 23, 47, 47, 56, 66], 47));
 
 // Define a tree as a list of lists
 const tree = [
@@ -99,7 +99,7 @@ function depthFirstSearch(tree, term, position: Array<any> = []) {
 }
 
 // Example usage
-console.log("depthFirstSearch", depthFirstSearch(tree, 4));
+// console.log("depthFirstSearch", depthFirstSearch(tree, 4));
 
 function breadthFirstSearch(tree, term, position: Array<any> = []) {
   const queue: Array<any> = [];
@@ -120,7 +120,7 @@ function breadthFirstSearch(tree, term, position: Array<any> = []) {
   }
 }
 
-console.log(breadthFirstSearch(tree, 4));
+// console.log(breadthFirstSearch(tree, 4));
 
 function bubbleSort(array) {
   let didSort = false;
@@ -139,7 +139,7 @@ function bubbleSort(array) {
   }
 }
 
-console.log(bubbleSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+// console.log(bubbleSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
 
 function selectionSort(array) {
   let result: Array<number> = [];
@@ -158,7 +158,7 @@ function selectionSort(array) {
   return result;
 }
 
-console.log(selectionSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+// console.log(selectionSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
 
 function insertionSort(array) {
   let result: Array<number> = [];
@@ -185,10 +185,10 @@ function insertionSort(array) {
   return result;
 }
 
-console.log(
-  "insertionSort ",
-  insertionSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44])
-);
+// console.log(
+//   "insertionSort ",
+//   insertionSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44])
+// );
 
 const testArr1 = [1, 3, 5, 7];
 const testArr2 = [2, 4, 6, 8];
@@ -197,12 +197,12 @@ const zippedArray = testArr1.flatMap((value, index) => [
   testArr2[index],
 ]);
 
-console.log(zippedArray);
+// console.log(zippedArray);
 
-console.log("Testing combineArrays:");
-console.log("Input arrays:", testArr1, testArr2);
-const combinedArray = combineArrays(testArr1, testArr2);
-console.log("Combined array:", combinedArray);
+// console.log("Testing combineArrays:");
+// console.log("Input arrays:", testArr1, testArr2);
+// const combinedArray = combineArrays(testArr1, testArr2);
+// console.log("Combined array:", combinedArray);
 
 function combineArrays(arr1, arr2) {
   while (arr1.length > 0) {
@@ -233,7 +233,7 @@ function merge(left: number[], right: number[]): number[] {
   return [...result, ...left, ...right];
 }
 
-console.log("mergeSort ", mergeSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+// console.log("mergeSort ", mergeSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
 
 function mergeSort(array) {
   function splitArray(tosplit) {
@@ -259,7 +259,7 @@ function mergeSort(array) {
   }
 }
 
-console.log("mergeSort ", mergeSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+// console.log("mergeSort ", mergeSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
 
 // // quick sort is:
 // // if you have <=1 thing, just return it
@@ -288,9 +288,9 @@ console.log("mergeSort ", mergeSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
 // }
 
 // Test the quickSort function
-const unsortedArray = [3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44];
-console.log("Unsorted array:", unsortedArray);
-console.log("Sorted array:", quickSort(unsortedArray));
+// const unsortedArray = [3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44];
+// console.log("Unsorted array:", unsortedArray);
+// console.log("Sorted array:", quickSort(unsortedArray));
 
 function quickSort(array) {
   if (array.length <= 1) {
@@ -318,7 +318,7 @@ function quickSort(array) {
     .concat(quickSort(array.slice(pivot + 1, array.length)));
 }
 
-console.log("quickSort ", quickSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
+// console.log("quickSort ", quickSort([3, 2, 3, 4, 5, 5, 22, 56, 7, 75, 44]));
 
 // Define a complex weighted graph using an adjacency list
 const complexWeightedGraph = {
@@ -355,7 +355,9 @@ function djikstra(graph, starting_node) {
         if ((Object.values(elt)[0] as number) <= min) {
           min = Object.values(elt)[0] as number;
           console.log(Object.values(elt));
-          current_node = Object.values(elt)[1];
+          console.log(Object.keys(elt));
+          current_node = Object.keys(elt)[0];
+          console.log("set current_node", current_node);
         }
       });
     console.log("min", current_node, min);
@@ -371,9 +373,10 @@ function djikstra(graph, starting_node) {
     });
     visited.push(current_node);
   }
+  return unvisited;
 }
 
-// djikstra(complexWeightedGraph, "B");
+djikstra(complexWeightedGraph, "B");
 
 async function binarySearchCallback(
   array: Array<number>,
@@ -421,15 +424,15 @@ async function binarySearchCallback(
   }
 }
 
-binarySearchCallback(
-  [1, 3, 5, 7, 9, 11, 13, 15],
-  5,
-  0,
-  0,
-  (x) => {
-    console.log("callback", x);
-  },
-  (x) => {
-    console.log("complete", x);
-  }
-);
+// binarySearchCallback(
+//   [1, 3, 5, 7, 9, 11, 13, 15],
+//   5,
+//   0,
+//   0,
+//   (x) => {
+//     console.log("callback", x);
+//   },
+//   (x) => {
+//     console.log("complete", x);
+//   }
+// );
