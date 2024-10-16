@@ -77,10 +77,19 @@ function depthFirstSearch(tree: any, term: any, position: Array<any> = [],callba
 
 // console.log("depthFirstSearch",depthFirstSearch([{value:1,children:[{value:2,children:[{value:3,children:[]}]}]}],3,[],(searchState) => {console.log("searchState",searchState)}))
 
-const TreeNode: React.FC<{ node: any, depth: number, position: number[], currentPosition: number[] }> = ({ node, depth, position, currentPosition }) => {
-  const isCurrentlySearched = JSON.stringify(position) === JSON.stringify(currentPosition);
-  const nodeColor = isCurrentlySearched ? 'bg-yellow-500' : 'bg-blue-500';
-  const borderColor = isCurrentlySearched ? 'border-yellow-700' : 'border-blue-700';
+const TreeNode: React.FC<{ node: any, depth: number, position: number[], state: any }> = ({ node, depth, position, state }) => {
+  let isCurrentlySearched = false;
+  let isFound = false;
+
+  if (state.state[0] === "searching") {
+    const currentPosition = state.state[1].positions[state.state[1].position];
+    isCurrentlySearched = JSON.stringify(position) === JSON.stringify(currentPosition);
+  } else if (state.state[0] === "found") {
+    isFound = JSON.stringify(position) === JSON.stringify(state.state[1].position);
+  }
+
+  const nodeColor = isFound ? 'bg-purple-500' : (isCurrentlySearched ? 'bg-yellow-500' : 'bg-blue-500');
+  const borderColor = isFound ? 'border-purple-700' : (isCurrentlySearched ? 'border-yellow-700' : 'border-blue-700');
 
   return (
     <div className={`flex flex-col items-center ${depth > 0 ? 'mt-4' : ''}`}>
@@ -104,7 +113,7 @@ const TreeNode: React.FC<{ node: any, depth: number, position: number[], current
                   node={child} 
                   depth={depth + 1} 
                   position={[...position, index]}
-                  currentPosition={currentPosition}
+                  state={state}
                 />
               ))}
             </div>
@@ -277,6 +286,8 @@ export default function Page() {
 
           //problem with how I'm doing setInterval? should be cleaning up/useSetInterval?
 
+          //animate changing of currently highlighted node + appearance of search result
+
     const getCurrentlyHighlightedValue = () => {
 
       const { position, positions } = state.state[1] as { position: number, positions: Array<Array<number>> };
@@ -320,10 +331,7 @@ export default function Page() {
                                     node={rootNode} 
                                     depth={0} 
                                     position={[index]}
-                                    currentPosition={state.state[0] === "searching" 
-                                        ? (state.state[1] as {position: number, positions: Array<Array<number>>}).positions[(state.state[1] as {position: number, positions: Array<Array<number>>}).position]
-                                        : []
-                                    }
+                                    state={state}
                                 />
                             ))}
                         </div>
@@ -352,3 +360,4 @@ export default function Page() {
 //add set searchTerm entry
 // add "computer consciousness" area
 //make searcher change color when it finds
+
