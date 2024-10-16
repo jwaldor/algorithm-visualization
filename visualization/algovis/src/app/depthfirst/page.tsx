@@ -53,20 +53,98 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 );
 
 
+type onUpdateFunction = (state: {position:Array<any>}) => void
+
+function depthFirstSearch(tree: any, term: any, position: Array<any> = [],callback?: onUpdateFunction): any {
+    for (let i = 0; i < tree.length; i++) {
+      if (callback){
+        callback({position:position.concat(i)})
+      }
+      if (tree[i].value === term) {
+        position = position.concat(i);
+        return { position };
+      } else {
+        if (tree[i].children.length > 0) {
+          const d: any = depthFirstSearch(tree[i].children, term, position.concat(i));
+          if (d) {
+            return d;
+          }
+        }
+      }
+    }
+  }
 
 
 
 export default function Page() {
-   
-    // const [circleRefs,setCircleRefs] = useState<null|RefObject<HTMLDivElement>[]>(null)
-    // useEffect(()=> {
-    //     const circleRefs =  numbers.map(() => createRef<HTMLDivElement>())
-    //     setCircleRefs(circleRefs)
-    // }, [numbers])
+    const [visualizationdata,setVisualizationData] = useState<Object>();
+    const [state, setState]  = useState<{searchTerm:number,position:Array<number>}>({searchTerm:3,position:[]})
 
-    // Test call of binary search with a sorted array
-    const testArray = [1, 3, 5, 7, 9, 11, 13, 15];
-    const testTerm = 5;
+    useEffect(() => {const tree = [
+        {
+          value: 8,
+          children: [
+            {
+              value: 3,
+              children: [
+                { value: 9, children: [] },
+                { value: 2, children: [{ value: 7, children: [] }] },
+              ],
+            },
+            { value: 5, children: [] },
+            {
+              value: 1,
+              children: [
+                { value: 4, children: [] },
+                { value: 6, children: [{ value: 10, children: [] }] },
+              ],
+            },
+          ],
+        },
+        {
+          value: 12,
+          children: [
+            { value: 15, children: [{ value: 11, children: [] }] },
+            { value: 13, children: [] },
+            {
+              value: 14,
+              children: [
+                { value: 16, children: [{ value: 18, children: [] }] },
+                { value: 17, children: [] },
+              ],
+            },
+          ],
+        },
+        {
+          value: 20,
+          children: [
+            { value: 19, children: [] },
+            {
+              value: 21,
+              children: [
+                { value: 23, children: [] },
+                { value: 22, children: [{ value: 24, children: [] }] },
+              ],
+            },
+          ],
+        },
+      ];
+      depthFirstSearch(tree,state.searchTerm,[],(searchState) => {setState({...state, position:searchState.position})})
+    setVisualizationData({tree})},[])
+    
+      
+    //visualization components
+        //show tree
+        //show currently examined branch
+        //show branch contents = searchTerm ?
+    //callback data
+      //set of positions in tree
+    //UI states
+      //pre-search: showing graph + search term input
+      //during search: showing graph + disabling search input + highlighting current search + text indication of what's being searched
+      //found results: showing graph + highlighting result  + text indication of result
+      //no results: showing graph + text indicating no result
+
   
     return (
         <div>
