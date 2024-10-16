@@ -80,7 +80,7 @@ function depthFirstSearch(tree: any, term: any, position: Array<any> = [],callba
 
 export default function Page() {
 
-    const [state, setState]  = useState<{visualizationData:Object,searchTerm:number,state:["pre-search"]|["searching",{position:Array<number>,positions:Array<number>}]|["found",{position:Array<number>}]|["not-found"]}>({visualizationData:{},state:["pre-search",{searchTerm:6}]})
+    const [state, setState]  = useState<{visualizationData:Object,searchTerm:number,state:["pre-search"]|["searching",{position:Array<number>,positions:Array<number>}]|["found",{position:Array<number>}]|["not-found"]}>({visualizationData:{},searchTerm:6,state:["pre-search"]})
 
     useEffect(() => {const tree = [
         {
@@ -139,9 +139,14 @@ export default function Page() {
 
     function handleStartSearch(){
       if (state.state[0] !== "searching"){
-      setState({...state,state:["searching",{position:[],searchTerm:state.state[1].searchTerm}]})
+      setState({...state,state:["searching",{position:[],positions:[]}]})
+      depthFirstSearch(state.visualizationData,state.searchTerm,[],(searchState) => {
+        setState(prevState => ({...prevState, state:["searching",{position:searchState.position,positions:(prevState.state[1] as {position:Array<number>,positions:Array<number>}).positions.concat(searchState.position)}]}))
+        console.log("positioncallback",searchState.position)
+    })
     }
     }
+    console.log("state",state)
     //visualization components
         //show tree
         //show currently examined branch
