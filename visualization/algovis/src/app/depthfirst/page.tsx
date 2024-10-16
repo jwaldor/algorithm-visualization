@@ -197,7 +197,21 @@ export default function Page() {
           if (newPosition === currentPositions.length - 1) {
             console.log("Search complete, clearing interval");
             clearInterval(intervalId);
-            return {
+            if (prevState.state[1].foundItem){
+              setState({
+                ...prevState,
+                state: ["found", {
+                  position: currentPositions[currentPositions.length-1],
+                }]
+              })
+            }
+            else{
+              setState({
+                ...prevState,
+                state: ["not-found"]
+              })
+            }
+              return {
               ...prevState,
               state: ["searching", {
                 position: newPosition,
@@ -219,6 +233,7 @@ export default function Page() {
         return prevState;
       });
     }, 1000);
+    
     // Clear the interval when the component unmounts
     }
     }
