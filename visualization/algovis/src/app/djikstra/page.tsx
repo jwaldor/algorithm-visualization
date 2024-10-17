@@ -541,7 +541,7 @@ export default function Page() {
           {stateGroup.find(state => state.type === "pre_minimize_neighbors") && 
            ` - Minimum node: ${stateGroup.find(state => state.type === "pre_minimize_neighbors")?.data.current_node}`}
         </h3>
-        {stateGroup.map((state, index) => {
+        {[...stateGroup].reverse().map((state, index) => {
           let stateString: JSX.Element;
           switch (state.type) {
             case "pre_algorithm":
@@ -587,7 +587,7 @@ export default function Page() {
           return <div key={`${groupIndex}-${index}`}>{stateString}</div>;
         })}
       </div>
-    )).reverse();
+    ));
   }
 
   const [haveRun, setHaveRun] = useState(false);
