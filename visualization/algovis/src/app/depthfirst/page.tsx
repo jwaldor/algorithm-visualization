@@ -14,22 +14,19 @@ interface TreeNode {
 type onUpdateFunction = (state: { position: Array<number> }) => void
 
 function depthFirstSearch(tree: TreeNode, term: number, position: Array<number> = [], callback?: onUpdateFunction): Array<number> | undefined {
+  if (callback) {
+    callback({ position: position })
+    console.log("position", position, tree,)
+  }
   if (tree.value === term) {
     return position;
   }
   else {
     for (let i = 0; i < tree.children.length; i++) {
-      if (callback) {
-        callback({ position: position.concat(i) })
-        console.log("position", position.concat(i), tree,)
-      }
-      else {
-        if (tree.children[i].children.length > 0) {
-          const d: Array<number> | undefined = depthFirstSearch(tree.children[i], term, position.concat(i), callback);
-          if (d) {
-            return d;
-          }
-        }
+
+      const d: Array<number> | undefined = depthFirstSearch(tree.children[i], term, position.concat(i), callback);
+      if (d) {
+        return d;
       }
     }
   }
@@ -126,8 +123,9 @@ export default function Page() {
       const result = depthFirstSearch(state.visualizationData, state.searchTerm, [], (searchState) => {
         setState(prevState => ({ ...prevState, state: ["searching", { position: 0, positions: (prevState.state[1] as { position: number, positions: Array<Array<number>>, foundItem: number | undefined }).positions.concat([searchState.position]), foundItem: (prevState.state[1] as { position: number, positions: Array<Array<number>>, foundItem: number | undefined }).foundItem }] }))
         console.log("positioncallback", searchState.position)
-        setState(prevState => ({ ...prevState, state: ["searching", { position: 0, positions: (prevState.state[1] as { position: number, positions: Array<Array<number>>, foundItem: number | undefined }).positions, foundItem: result }] }))
+        // setState(prevState => ({ ...prevState, state: ["searching", { position: 0, positions: (prevState.state[1] as { position: number, positions: Array<Array<number>>, foundItem: number | undefined }).positions, foundItem: result }] }))
       })
+      console.log("result", result)
       // Set up an interval to update the position every second
       const intervalId = setInterval(() => {
         setState(prevState => {
@@ -228,18 +226,26 @@ export default function Page() {
 
     const { position, positions } = state.state[1] as { position: number, positions: Array<Array<number>> };
     const currentPosition = positions[position];
+    console.log("currentPosition", currentPosition, currentPosition.slice(1, -1))
     let currentNode: TreeNode = state.visualizationData;
-    for (const index of currentPosition.slice(0, -1)) {
+    for (const index of currentPosition.slice(0, currentPosition.length)) {
       currentNode = currentNode.children[index];
-      if (currentNode.children) {
-        currentNode = currentNode.children[index];
-      } else {
-        break;
-      }
+      console.log("currentNode loop", currentNode.value)
+      // if (currentNode.children) {
+      //   currentNode = currentNode.children[index];
+      // } else {
+      //   break;
+      // }
     }
+    console.log("currentNode value", currentNode.value)
     return currentNode.value;
   };
   console.log("tree", state.visualizationData)
+  // useEffect(() => {
+  //   if (state.state[0] === "searching") {
+  //     console.log("getCurrentlyHighlightedValue", getCurrentlyHighlightedValue())
+  //   }
+  // }, [state, getCurrentlyHighlightedValue])
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6">Depth-First Search Visualization</h1>
