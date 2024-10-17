@@ -550,23 +550,23 @@ export default function Page() {
             case "finding_min_unvisited":
               stateString = (
                 <span>
-                  Finding minimum unvisited node. Starting node: <span style={{color: 'green'}}>{state.data.starting_node}</span>. 
-                  Visited nodes: {state.data.visited.map(node => <span key={node} style={{color: 'blue'}}>{node} </span>)}
+                  Finding minimum unvisited node. Starting node: <span style={{backgroundColor: 'lightgreen'}}>{state.data.starting_node}</span>. 
+                  Visited nodes: {state.data.visited.map(node => <span key={node} style={{backgroundColor: 'lightblue'}}>{node} </span>)}
                 </span>
               );
               break;
             case "pre_minimize_neighbors":
               stateString = (
                 <span>
-                  Preparing to check neighbors of node <span style={{color: 'yellow'}}>{state.data.current_node}</span>. 
-                  Unvisited neighbors: {state.data.unvisited_neighbors.map(node => <span key={node} style={{color: 'orange'}}>{node} </span>)}
+                  Preparing to check neighbors of node <span style={{backgroundColor: 'yellow'}}>{state.data.current_node}</span>. 
+                  Unvisited neighbors: {state.data.unvisited_neighbors.map(node => <span key={node} style={{backgroundColor: 'lightsalmon'}}>{node} </span>)}
                 </span>
               );
               break;
             case "minimize_neighbors_step":
               stateString = (
                 <span>
-                  Checking neighbor <span style={{color: 'orange'}}>{state.data.neighbor}</span> of node <span style={{color: 'yellow'}}>{state.data.current_node}</span>. 
+                  Checking neighbor <span style={{backgroundColor: 'lightsalmon'}}>{state.data.neighbor}</span> of node <span style={{backgroundColor: 'yellow'}}>{state.data.current_node}</span>. 
                   New distance: {state.data.newdist}, Edge length: {state.data.edge_length}
                 </span>
               );
@@ -574,9 +574,9 @@ export default function Page() {
             case "finished":
               stateString = (
                 <span>
-                  Algorithm finished. Final distances from <span style={{color: 'green'}}>{state.data.starting_node}</span>: {' '}
+                  Algorithm finished. Final distances from <span style={{backgroundColor: 'lightgreen'}}>{state.data.starting_node}</span>: {' '}
                   {Object.entries(state.data.distances).map(([node, dist]) => (
-                    <span key={node} style={{color: 'blue'}}>{node}:{dist} </span>
+                    <span key={node} style={{backgroundColor: 'lightblue'}}>{node}:{dist} </span>
                   ))}
                 </span>
               );
@@ -587,7 +587,7 @@ export default function Page() {
           return <div key={`${groupIndex}-${index}`}>{stateString}</div>;
         })}
       </div>
-    ));
+    )).reverse();
   }
 
   const [haveRun, setHaveRun] = useState(false);
