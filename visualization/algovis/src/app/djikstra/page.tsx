@@ -194,6 +194,8 @@ interface GraphProps {
   setGraph: React.Dispatch<React.SetStateAction<Record<string, Record<string, number>>>>;
   nodeColors: Record<string, string>;
   algorithmState: AlgorithmSnapshot;
+  haveRun: boolean;
+  setHaveRun: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const Node: React.FC<{ 
@@ -205,7 +207,9 @@ const Node: React.FC<{
   algorithmState: AlgorithmSnapshot;
   graph: Record<string, Record<string, number>>;
   setGraph: React.Dispatch<React.SetStateAction<Record<string, Record<string, number>>>>;
-}> = ({ node, color, onDragStart, onDragged, onDragEnd, algorithmState, graph, setGraph }) => {
+  haveRun: boolean;
+  setHaveRun: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({ node, color, onDragStart, onDragged, onDragEnd, algorithmState, graph, setGraph, haveRun, setHaveRun }) => {
   const [showMenu, setShowMenu] = useState(false);
 
   // You can use algorithmState here to modify the node's appearance
@@ -317,6 +321,7 @@ const Node: React.FC<{
                         onClick={() => {
                           const newGraph = {...graph};
                           delete newGraph[node.id][neighbor];
+                          console.log("newGraph", newGraph)
                           setGraph(newGraph);
                         }}
                       >
@@ -334,17 +339,17 @@ const Node: React.FC<{
   );
 };
 
-const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmState }) => {
+const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmState, haveRun, setHaveRun }) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
   const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
-  const [haveRun,setHaveRun] = useState(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const width = 800;
   const height = 600;
 
   useLayoutEffect(() => {
+    console.log("useLayoutEffect",graph)
     const nodesData: Node[] = Object.keys(graph).map(id => ({ id }));
     const linksData: Link[] = [];
 
@@ -449,6 +454,8 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
           algorithmState={algorithmState}
           graph={graph}
           setGraph={setGraph}
+          haveRun={haveRun}
+          setHaveRun={setHaveRun}
         />
       ))}
     </svg>
@@ -503,6 +510,8 @@ export default function Page() {
     }
   }
 
+  const [haveRun, setHaveRun] = useState(false);
+
   return (
     <div className="p-8">
       {/* <svg ref={svgRef}></svg> */}
@@ -511,6 +520,8 @@ export default function Page() {
         setGraph={setComplexWeightedGraph}
         nodeColors={nodeColors} 
         algorithmState={algorithmState} 
+        haveRun={haveRun}
+        setHaveRun={setHaveRun}
       />
     </div>
   );
@@ -521,6 +532,7 @@ export default function Page() {
 //give starting node text a different color so you can still change its background appropriately (to yellow when it's the current node)
 //realistic edge lengths
 //allow adding new nodes
+
 
 
 
