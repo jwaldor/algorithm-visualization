@@ -144,6 +144,21 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
         distances[neighbor] = newdist;
         console.log("updated", neighbor, newdist);
       }
+      if (callback){
+        await callback({
+          type:"minimize_neighbors_step",
+          data:{
+            starting_node:starting_node,
+            current_node:current_node,
+            neighbor:neighbor,
+            distances:distances,
+            newdist:newdist,
+            edge_length:graph[current_node][neighbor],
+            wait_time:1000,
+            unvisited_neighbors:unvisited_neighbors
+          }
+        })
+      }
     }
     visited.push(current_node);
   }
@@ -207,6 +222,15 @@ const Node: React.FC<{
             nodeColor = "blue";
           } else if (algorithmState.data.current_node === node.id) {
             nodeColor = "yellow";
+          }
+          break;
+        case 'minimize_neighbors_step':
+          if (algorithmState.data.unvisited_neighbors.includes(node.id) && algorithmState.data.neighbor !== node.id) {
+            nodeColor = "blue";
+          } else if (algorithmState.data.current_node === node.id) {
+            nodeColor = "yellow";
+          } else if (algorithmState.data.neighbor === node.id) {
+            nodeColor = "green";
           }
           break;
         default:
