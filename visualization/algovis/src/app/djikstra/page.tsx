@@ -191,6 +191,7 @@ interface Link extends d3.SimulationLinkDatum<Node> {
 
 interface GraphProps {
   graph: Record<string, Record<string, number>>;
+  setGraph: React.Dispatch<React.SetStateAction<Record<string, Record<string, number>>>>;
   nodeColors: Record<string, string>;
   algorithmState: AlgorithmSnapshot;
 }
@@ -202,7 +203,9 @@ const Node: React.FC<{
   onDragged: (event: any, node: Node) => void; 
   onDragEnd: (event: any, node: Node) => void;
   algorithmState: AlgorithmSnapshot;
-}> = ({ node, color, onDragStart, onDragged, onDragEnd, algorithmState }) => {
+  graph: Record<string, Record<string, number>>;
+  setGraph: React.Dispatch<React.SetStateAction<Record<string, Record<string, number>>>>;
+}> = ({ node, color, onDragStart, onDragged, onDragEnd, algorithmState, graph, setGraph }) => {
   // You can use algorithmState here to modify the node's appearance
   let nodeText = node.id;
   let nodeColor = color;
@@ -269,7 +272,7 @@ const Node: React.FC<{
   );
 };
 
-const Graph: React.FC<GraphProps> = ({ graph, nodeColors, algorithmState }) => {
+const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmState }) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
   const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
@@ -377,6 +380,8 @@ const Graph: React.FC<GraphProps> = ({ graph, nodeColors, algorithmState }) => {
           onDragged={dragged}
           onDragEnd={dragEnd}
           algorithmState={algorithmState}
+          graph={graph}
+          setGraph={setGraph}
         />
       ))}
     </svg>
@@ -436,6 +441,7 @@ export default function Page() {
       {/* <svg ref={svgRef}></svg> */}
       <Graph 
         graph={complexWeightedGraph} 
+        setGraph={setComplexWeightedGraph}
         nodeColors={nodeColors} 
         algorithmState={algorithmState} 
       />
@@ -448,4 +454,6 @@ export default function Page() {
 //give starting node text a different color so you can still change its background appropriately (to yellow when it's the current node)
 //realistic edge lengths
 //allow adding new nodes
+
+
 
