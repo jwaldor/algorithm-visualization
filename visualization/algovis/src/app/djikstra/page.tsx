@@ -1,6 +1,6 @@
 "use client";
 
-import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef, useCallback, useLayoutEffect, ReactNode } from "react";
+import {  useState, useRef, useCallback, useLayoutEffect, ReactNode } from "react";
 import * as d3 from 'd3';
 
 
@@ -411,6 +411,7 @@ export default function Page() {
     setAlgorithmState(payload);
     setAlgorithmStateHistory(prevHistory => {
       const newHistory = structuredClone(prevHistory);
+      //Group together algorithm steps from the same iteration
       if (payload.type === "finding_min_unvisited" && newHistory[newHistory.length - 1].length > 0) {
         newHistory.push([]);      }
       newHistory[newHistory.length - 1].push(payload);

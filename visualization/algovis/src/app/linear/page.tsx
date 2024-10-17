@@ -1,6 +1,6 @@
 "use client";
 
-import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef } from "react";
+import React,{ createRef, useState, forwardRef } from "react";
 
 
 
@@ -67,25 +67,7 @@ async function linearSearch(array:Array<number>, term: number, onUpdate?: onUpda
   }
 
 
-function useSetInterval(callback: () => void, delay: number | null) {
-    const savedCallback = useRef<() => void>();
 
-    // Remember the latest callback
-    useEffect(() => {
-        savedCallback.current = callback;
-    }, [callback]);
-
-    // Set up the interval
-    useEffect(() => {
-        function tick() {
-            savedCallback.current?.();
-        }
-        if (delay !== null) {
-            const id = setInterval(tick, delay);
-            return () => clearInterval(id);
-        }
-    }, [delay]);
-}
 
 export default function Page() {
     const [numbers, setNumbers] = useState<number[]>([0,1,1,2]);

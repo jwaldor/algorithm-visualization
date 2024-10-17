@@ -1,6 +1,6 @@
 "use client";
 
-import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef } from "react";
+import { createRef, useState, forwardRef } from "react";
 
 
 
@@ -55,7 +55,6 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 // get rid of cmplete and add return values.
 async function binarySearch(array:Array<number>, term: number, leading = 0,layer=0,callback:Function,complete:Function) {
     const m = Math.floor((array.length - 1) / 2);
-    console.log("callback",array[m],array)
     await callback({compare:array[m],layer,leading:leading,array:array,index:m})
     if (array.length === 0) {
         complete({compare:undefined,layer:layer,leading:leading,array:[array[m+leading]],index:m+leading});;
@@ -81,7 +80,7 @@ async function binarySearch(array:Array<number>, term: number, leading = 0,layer
 
 
 export default function Page() {
-    const [compare, setCompare] = useState<number|undefined>(undefined);
+    // const [compare, setCompare] = useState<number|undefined>(undefined);
     const [numbers, setNumbers] = useState<number[]>([1,3,5,7,9,11,13,15]);
     const [searchTerm, setSearchTerm] = useState<number | null>(5);
     const [executing, setExecuting] = useState<boolean>(false);
@@ -139,24 +138,7 @@ export default function Page() {
         }
             
     };
-    // Test call of binary search with a sorted array
-    const testArray = [1, 3, 5, 7, 9, 11, 13, 15];
-    const testTerm = 5;
-    
-    const testBinarySearch = () => {
-        binarySearch(testArray, testTerm, 0, 0, 
-            (props: { compare: number, layer: number, leading: number, array: Array<number>,index:number }) => {
-                console.log(`Comparing at index ${props.compare} layer ${props.layer} leading ${props.leading} array ${props.array}`);
-            },
-            (props: { compare: number | undefined }) => {
-                if (props.compare !== undefined) {
-                    console.log(`Found ${testTerm} at index ${props.compare}`);
-                } else {
-                    console.log(`${testTerm} not found in the array`);
-                }
-            }
-        );
-    };
+ 
 
     // Call the test function
     // useEffect(() => {
@@ -186,7 +168,7 @@ export default function Page() {
                         value={searchTerm !== null ? searchTerm : ''}
                         onChange={(e) => {
                             setSearchTerm(Number(e.target.value))
-                            setCompare(undefined)
+                            // setCompare(undefined)
                         }}
                         className="w-16 h-16 text-center text-xl border-2 border-gray-300 rounded-md mr-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         placeholder="Term"
