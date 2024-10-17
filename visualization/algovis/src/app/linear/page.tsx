@@ -44,6 +44,8 @@ const Circle = forwardRef<HTMLDivElement, CircleProps>(({ entry, executing, arra
     );
 });
 
+Circle.displayName = "Circle";
+
 const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     <button
         onClick={onClick}

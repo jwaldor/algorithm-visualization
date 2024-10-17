@@ -1,6 +1,6 @@
 "use client";
 
-import { createRef, useState, forwardRef } from "react";
+import React, { createRef, useState, forwardRef } from "react";
 
 
 
@@ -43,6 +43,8 @@ const Circle = forwardRef<HTMLDivElement, CircleProps>(({ entry, executing, arra
     );
 });
 
+Circle.displayName = "Circle";
+
 const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     <button
         onClick={onClick}
@@ -57,7 +59,7 @@ async function binarySearch(array:Array<number>, term: number, leading = 0,layer
     const m = Math.floor((array.length - 1) / 2);
     await callback({compare:array[m],layer,leading:leading,array:array,index:m})
     if (array.length === 0) {
-        complete({compare:undefined,layer:layer,leading:leading,array:[array[m+leading]],index:m+leading});;
+        complete({compare:undefined,layer:layer,leading:leading,array:[array[m+leading]],index:m+leading});
     }
     if (array[m] < term) {
       binarySearch(
