@@ -291,16 +291,18 @@ const Node: React.FC<{
                 {neighbors.map(([neighbor, edgeLength], index) => (
                   <g key={neighbor} transform={`translate(20, ${50 + index * 30})`}>
                     <text fontSize="12">{neighbor}</text>
-                    <input
-                      width="20"
-                      height="20"
-                      value={edgeLength}
-                      onChange={(e) => {
-                        const newGraph = {...graph};
-                        newGraph[node.id][neighbor] = Number(e.target.value);
-                        setGraph(newGraph);
-                      }}
-                    />
+                    <foreignObject x="30" y="-15" width="40" height="20">
+                      <input
+                        type="number"
+                        style={{ width: '100%', height: '100%', fontSize: '12px' }}
+                        value={edgeLength}
+                        onChange={(e) => {
+                          const newGraph = {...graph};
+                          newGraph[node.id][neighbor] = Number(e.target.value);
+                          setGraph(newGraph);
+                        }}
+                      />
+                    </foreignObject>
                     <rect x="50" y="-15" width="20" height="20" fill="red" />
                     <text x="55" y="0" fontSize="14" fill="white">X</text>
                   </g>
@@ -501,6 +503,7 @@ export default function Page() {
 //give starting node text a different color so you can still change its background appropriately (to yellow when it's the current node)
 //realistic edge lengths
 //allow adding new nodes
+
 
 
 
