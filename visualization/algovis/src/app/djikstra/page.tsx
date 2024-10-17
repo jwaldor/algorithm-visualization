@@ -9,54 +9,6 @@ import * as d3 from 'd3';
 
 
 
-interface CircleProps {
-    entry: number;
-    array: number[];
-    executing: boolean;
-    setNumbers: React.Dispatch<React.SetStateAction<number[]>>;
-    found: number | undefined;
-}
-
-const Circle: React.FC<CircleProps> = ({ entry, executing, array, setNumbers, found }) => {
-    const isFound = found === entry;
-    const baseClasses = "w-20 h-20 rounded-full grid place-items-center text-white font-bold shadow-md transition-all duration-300";
-    const colorClasses = isFound
-        ? "bg-purple-500 border-4 border-purple-700 hover:bg-purple-400"
-        : "bg-blue-500 border-4 border-blue-700 hover:bg-blue-400";
-
-    return (
-        <div className={`${baseClasses} ${colorClasses}`}>
-            {executing ? (
-                array[entry]
-            ) : (
-                <input
-                    value={array[entry]}
-                    onChange={(e) => {
-                        const newValue = parseInt(e.target.value, 10);
-                        if (!isNaN(newValue)) {
-                            const newArray = [...array];
-                            newArray[entry] = newValue;
-                            setNumbers(newArray);
-                        }
-                    }}
-                    className="w-full h-full bg-transparent text-center text-white outline-none"
-                    style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
-                />
-            )}
-        </div>
-    );
-};
-
-const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
-    <button
-        onClick={onClick}
-        className="w-20 h-20 rounded-full bg-green-500 border-4 border-green-700 flex items-center justify-center text-white font-bold text-3xl shadow-md hover:bg-green-400 transition-colors duration-300"
-    >
-        +
-    </button>
-);
-
-
 type onUpdateFunction = (state: AlgorithmSnapshot) => Promise<void>
 
 
@@ -495,33 +447,7 @@ export default function Page() {
 
 
 
-  const hasRunAlgorithm = useRef(false);
 
-  // useEffect(() => {
-  //   if (!hasRunAlgorithm.current) {
-  //     hasRunAlgorithm.current = true;
-  //     console.log("running algorithm")
-  //     djikstra(complexWeightedGraph, "A", update)
-  //       .then(() => {
-  //         console.log("djikstra finished");
-  //       });
-  //   }
-  // }, []);
-
-  
-
-
-
-  // useEffect(() => {
-  //   const intervalId = setInterval(() => {
-  //     setNodeColors(prevColors => 
-  //       prevColors === nodeColors1 ? nodeColors2 : nodeColors1
-  //     );
-  //   }, 1000);
-
-  //   return () => clearInterval(intervalId);
-  // }, []);
-  
 
 
   async function update(payload: AlgorithmSnapshot) {
