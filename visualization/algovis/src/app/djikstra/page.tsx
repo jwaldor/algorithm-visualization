@@ -71,6 +71,7 @@ type AlgorithmSnapshot =
 
 
 async function djikstra(graph: Record<string, Record<string, number>>, starting_node: string, callback?: onUpdateFunction): Promise<Record<string, number>> {
+  console.log("calling djikstra")
   const nodes = Object.keys(graph);
   const distances: {[key: string]: number} = nodes.reduce((acc: {[key: string]: number}, node: string) => {
     acc[node] = Infinity;
@@ -167,6 +168,7 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
     visited.push(current_node);
   }
   if (callback){
+    console.log("callback finished")
     await callback({type:"finished",data:{starting_node:starting_node,distances:distances}})
   }
   return distances;
@@ -477,12 +479,17 @@ export default function Page() {
   const [nodeColors, setNodeColors] = useState<Record<string, string>>({});
   const [complexWeightedGraph,setComplexWeightedGraph] = useState<Record<string,Record<string,number>>>({
     A: { B: 4, C: 2 },
-    B: { A: 4, C: 1, D: 5 },
-    C: { A: 2, B: 1, D: 8, E: 10 },
-    D: { B: 5, C: 8, E: 2, F: 6 },
-    E: { C: 10, D: 2, F: 3 },
-    F: { D: 6, E: 3 },
+    B: { A: 4, C: 1 },
+    C: { A: 2, B: 1 },
   });
+  // {
+  //   A: { B: 4, C: 2 },
+  //   B: { A: 4, C: 1, D: 5 },
+  //   C: { A: 2, B: 1, D: 8, E: 10 },
+  //   D: { B: 5, C: 8, E: 2, F: 6 },
+  //   E: { C: 10, D: 2, F: 3 },
+  //   F: { D: 6, E: 3 },
+  // }
   //set node colors based on algorithm state
   useEffect(() => {
     if (algorithmState.type === "finding_min_unvisited"){
@@ -494,15 +501,20 @@ export default function Page() {
 
   const hasRunAlgorithm = useRef(false);
 
-  useEffect(() => {
-    if (!hasRunAlgorithm.current) {
-      djikstra(complexWeightedGraph, "A", update)
-        .then(() => {
-          console.log("djikstra finished");
-        });
-      hasRunAlgorithm.current = true;
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!hasRunAlgorithm.current) {
+  //     hasRunAlgorithm.current = true;
+  //     console.log("running algorithm")
+  //     djikstra(complexWeightedGraph, "A", update)
+  //       .then(() => {
+  //         console.log("djikstra finished");
+  //       });
+  //   }
+  // }, []);
+
+  
+
+
 
   // useEffect(() => {
   //   const intervalId = setInterval(() => {
@@ -518,15 +530,16 @@ export default function Page() {
 
   async function update(payload: AlgorithmSnapshot) {
     setAlgorithmState(payload);
+    console.log("calling update")
     setAlgorithmStateHistory(prevHistory => {
-      const newHistory = [...prevHistory];
+      const newHistory = structuredClone(prevHistory);
       if (payload.type === "finding_min_unvisited" && newHistory[newHistory.length - 1].length > 0) {
-        newHistory.push([]);
-      }
+        newHistory.push([]);      }
+      console.log("adding payload",payload.type)
       newHistory[newHistory.length - 1].push(payload);
+      console.log("generating new history, prev history:",prevHistory, "new history:",newHistory)
       return newHistory;
     });
-    //wait for payload.wait_time
     if (payload.type !== "pre_algorithm" && payload.type !== "finished" && payload.data && "wait_time" in payload.data){
       await new Promise(resolve => setTimeout(resolve, payload.data.wait_time));
     }
@@ -555,14 +568,6 @@ export default function Page() {
                 </span>
               );
               break;
-            case "pre_minimize_neighbors":
-              stateString = (
-                <span>
-                  Preparing to check neighbors of node <span style={{backgroundColor: 'yellow'}}>{state.data.current_node}</span>. 
-                  Unvisited neighbors: {state.data.unvisited_neighbors.map(node => <span key={node} style={{backgroundColor: 'lightsalmon'}}>{node} </span>)}
-                </span>
-              );
-              break;
             case "minimize_neighbors_step":
               stateString = (
                 <span>
@@ -574,7 +579,7 @@ export default function Page() {
             case "finished":
               stateString = (
                 <span>
-                  Algorithm finished. Final distances from <span style={{backgroundColor: 'lightgreen'}}>{state.data.starting_node}</span>: {' '}
+                  No unvisited nodes left. Algorithm finished. Final distances from <span style={{backgroundColor: 'lightgreen'}}>{state.data.starting_node}</span>: {' '}
                   {Object.entries(state.data.distances).map(([node, dist]) => (
                     <span key={node} style={{backgroundColor: 'lightblue'}}>{node}:{dist} </span>
                   ))}
@@ -582,7 +587,7 @@ export default function Page() {
               );
               break;
             default:
-              stateString = <span>Unknown state</span>;
+              stateString = <span></span>;
           }
           return <div key={`${groupIndex}-${index}`}>{stateString}</div>;
         })}
@@ -595,6 +600,19 @@ export default function Page() {
   return (
     <div className="p-8">
       {/* <svg ref={svgRef}></svg> */}
+      <button 
+        onClick={() => {
+          console.log("running algorithm")
+          setAlgorithmStateHistory([[]]);
+          djikstra(complexWeightedGraph, "A", update)
+            .then(() => {
+              console.log("dijkstra finished");
+            });
+        }}
+
+        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
+      >
+      </button>
       <Graph 
         graph={complexWeightedGraph} 
         setGraph={setComplexWeightedGraph}
@@ -627,3 +645,7 @@ export default function Page() {
 
 
 
+
+
+//buy a domain for yourself
+//make a homepage for the algos site
