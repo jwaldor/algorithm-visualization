@@ -1,6 +1,6 @@
 "use client";
 
-import React,{ createRef, useState, forwardRef } from "react";
+import React, { createRef, useState, forwardRef } from "react";
 
 
 
@@ -56,52 +56,52 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 );
 
 
-type onUpdateFunction = (state: {i:number}) => Promise<void>
+type onUpdateFunction = (state: { i: number }) => Promise<void>
 
-async function linearSearch(array:Array<number>, term: number, onUpdate?: onUpdateFunction) {
+async function linearSearch(array: Array<number>, term: number, onUpdate?: onUpdateFunction) {
     for (let i = 0; i < array.length; i++) {
-        if (onUpdate) await onUpdate({i});
+        if (onUpdate) await onUpdate({ i });
         if (array[i] === term) {
             return i;
-      }
+        }
     }
     return undefined;
-  }
+}
 
 
 
 
 export default function Page() {
-    const [numbers, setNumbers] = useState<number[]>([0,1,1,2]);
+    const [numbers, setNumbers] = useState<number[]>([0, 1, 1, 2]);
     const [searchTerm, setSearchTerm] = useState<number>(7);
-    const [i, setI] = useState<number|undefined>(undefined);
+    const [i, setI] = useState<number | undefined>(undefined);
     const [executing, setExecuting] = useState<boolean>(false);
-    const [found, setFound] = useState<number|undefined>();
+    const [found, setFound] = useState<number | undefined>();
 
     // const [circleRefs,setCircleRefs] = useState<null|RefObject<HTMLDivElement>[]>(null)
     // useEffect(()=> {
     //     const circleRefs =  numbers.map(() => createRef<HTMLDivElement>())
     //     setCircleRefs(circleRefs)
     // }, [numbers])
-    const circleRefs =  numbers.map(() => createRef<HTMLDivElement>())
-    
+    const circleRefs = numbers.map(() => createRef<HTMLDivElement>())
+
     const execute = () => {
-        console.log("here",searchTerm,executing)
-        if (searchTerm !== null && !executing){
+        console.log("here", searchTerm, executing)
+        if (searchTerm !== null && !executing) {
             console.log("here2")
             // setI(0);
             setFound(undefined);
             setExecuting(true);
-            const result = linearSearch(numbers,searchTerm,async (state:{i:number})=>{
+            const result = linearSearch(numbers, searchTerm, async (state: { i: number }) => {
                 setI(state.i)
-                console.log("here3",state.i)
+                console.log("here3", state.i)
                 // if (numbers[state.i] === searchTerm){
                 //     setFound(state.i)
                 //     setExecuting(false)
                 // }
                 await new Promise(resolve => setTimeout(resolve, 1000));
-                console.log("here5",state.i)
-                
+                console.log("here5", state.i)
+
             })
 
             result.then((result) => {
@@ -113,7 +113,7 @@ export default function Page() {
             });
             // useSetInterval(algorithmStep,1000);
         }
-            
+
     };
 
     // const algorithmStep = () => {
@@ -176,7 +176,7 @@ export default function Page() {
                             setNumbers={setNumbers}
                             found={found}
                         />
-                        
+
                         {/* only render this when we're executing?? */}
                         {i !== undefined && index === i && (
                             <div className={`ml-4 w-20 h-20 rounded-full ${found !== undefined ? 'bg-purple-500 border-purple-600' : 'bg-red-400 border-red-600'} border-4 grid place-items-center text-white`}>
