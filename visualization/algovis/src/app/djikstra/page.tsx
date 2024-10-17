@@ -267,9 +267,9 @@ const Node: React.FC<{
       onMouseMove={(e) => onDragged(e, node)}
       onMouseUp={(e) => onDragEnd(e, node)}
       onMouseLeave={(e) => onDragEnd(e, node)}
-      onClick={handleClick}
+      
     >
-      <circle r="35" fill={nodeColor} stroke="black" strokeWidth="3" />
+      <circle r="35" fill={nodeColor} stroke="black" strokeWidth="3" onClick={handleClick}/>
       <text
         textAnchor="middle"
         dominantBaseline="central"
@@ -281,9 +281,33 @@ const Node: React.FC<{
       </text>
       {(algorithmState.type === "pre_algorithm" || algorithmState.type === "finished") && showMenu && (
         <g transform="translate(40, -30)">
-          <rect x="0" y="0" width="100" height="60" fill="white" stroke="black" />
-          <text x="10" y="20" fontSize="14">Edit Node</text>
-          <text x="10" y="40" fontSize="14">Delete Node</text>
+          {(() => {
+            const neighbors = Object.entries(graph[node.id] || {});
+            const boxHeight = 30 + neighbors.length * 30; // 30 for the header, 30 for each neighbor
+            return (
+              <>
+                <rect x="0" y="0" width="100" height={boxHeight} fill="white" stroke="black" />
+                <text x="10" y="20" fontSize="14">Neighbors:</text>
+                {neighbors.map(([neighbor, edgeLength], index) => (
+                  <g key={neighbor} transform={`translate(20, ${50 + index * 30})`}>
+                    <text fontSize="12">{neighbor}</text>
+                    <input
+                      width="20"
+                      height="20"
+                      value={edgeLength}
+                      onChange={(e) => {
+                        const newGraph = {...graph};
+                        newGraph[node.id][neighbor] = Number(e.target.value);
+                        setGraph(newGraph);
+                      }}
+                    />
+                    <rect x="50" y="-15" width="20" height="20" fill="red" />
+                    <text x="55" y="0" fontSize="14" fill="white">X</text>
+                  </g>
+                ))}
+              </>
+            );
+          })()}
         </g>
       )}
     </g>
