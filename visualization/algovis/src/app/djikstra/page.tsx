@@ -303,8 +303,26 @@ const Node: React.FC<{
                         }}
                       />
                     </foreignObject>
-                    <rect x="50" y="-15" width="20" height="20" fill="red" />
-                    <text x="55" y="0" fontSize="14" fill="white">X</text>
+                    <foreignObject x="50" y="-15" width="20" height="20">
+                      <div
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          backgroundColor: 'red',
+                          display: 'flex',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => {
+                          const newGraph = {...graph};
+                          delete newGraph[node.id][neighbor];
+                          setGraph(newGraph);
+                        }}
+                      >
+                        <span style={{ color: 'white', fontSize: '14px' }}>X</span>
+                      </div>
+                    </foreignObject>
                   </g>
                 ))}
               </>
