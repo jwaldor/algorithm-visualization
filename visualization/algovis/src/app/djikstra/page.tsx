@@ -477,19 +477,15 @@ export default function Page() {
   const [algorithmState, setAlgorithmState] = useState<AlgorithmSnapshot>({type:"pre_algorithm"});
   const [algorithmStateHistory, setAlgorithmStateHistory] = useState<Array<Array<AlgorithmSnapshot>>>([[]]);
   const [nodeColors, setNodeColors] = useState<Record<string, string>>({});
-  const [complexWeightedGraph,setComplexWeightedGraph] = useState<Record<string,Record<string,number>>>({
+  const [complexWeightedGraph,setComplexWeightedGraph] = useState<Record<string,Record<string,number>>>(  {
     A: { B: 4, C: 2 },
-    B: { A: 4, C: 1 },
-    C: { A: 2, B: 1 },
+    B: { A: 4, C: 1, D: 5 },
+    C: { A: 2, B: 1, D: 8, E: 10 },
+    D: { B: 5, C: 8, E: 2, F: 6 },
+    E: { C: 10, D: 2, F: 3 },
+    F: { D: 6, E: 3 },
   });
-  // {
-  //   A: { B: 4, C: 2 },
-  //   B: { A: 4, C: 1, D: 5 },
-  //   C: { A: 2, B: 1, D: 8, E: 10 },
-  //   D: { B: 5, C: 8, E: 2, F: 6 },
-  //   E: { C: 10, D: 2, F: 3 },
-  //   F: { D: 6, E: 3 },
-  // }
+
   //set node colors based on algorithm state
   useEffect(() => {
     if (algorithmState.type === "finding_min_unvisited"){
@@ -609,9 +605,11 @@ export default function Page() {
               console.log("dijkstra finished");
             });
         }}
-
-        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
+        className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 flex items-center justify-center"
       >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+          <path d="M8 5v14l11-7z" />
+        </svg>
       </button>
       <Graph 
         graph={complexWeightedGraph} 
