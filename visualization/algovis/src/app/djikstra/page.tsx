@@ -383,7 +383,14 @@ export default function Page() {
   // const svgRef = useRef<SVGSVGElement>(null);
   const [algorithmState, setAlgorithmState] = useState<AlgorithmSnapshot>({type:"pre_algorithm"});
   const [nodeColors, setNodeColors] = useState<Record<string, string>>({});
-
+  const [complexWeightedGraph,setComplexWeightedGraph] = useState<Record<string,Record<string,number>>>({
+    A: { B: 4, C: 2 },
+    B: { A: 4, C: 1, D: 5 },
+    C: { A: 2, B: 1, D: 8, E: 10 },
+    D: { B: 5, C: 8, E: 2, F: 6 },
+    E: { C: 10, D: 2, F: 3 },
+    F: { D: 6, E: 3 },
+  });
   //set node colors based on algorithm state
   useEffect(() => {
     if (algorithmState.type === "finding_min_unvisited"){
@@ -391,14 +398,7 @@ export default function Page() {
     }
   },[algorithmState])
 
-  const complexWeightedGraph = {
-    A: { B: 4, C: 2 },
-    B: { A: 4, C: 1, D: 5 },
-    C: { A: 2, B: 1, D: 8, E: 10 },
-    D: { B: 5, C: 8, E: 2, F: 6 },
-    E: { C: 10, D: 2, F: 3 },
-    F: { D: 6, E: 3 },
-  };
+
 
   useEffect(() => {
     djikstra(complexWeightedGraph,"A",update)
@@ -442,5 +442,6 @@ export default function Page() {
 //add button to let you go to next step in algorithm?
 //have it display which step is happening in text
 //give starting node text a different color so you can still change its background appropriately (to yellow when it's the current node)
-
+//realistic edge lengths
+//allow adding new nodes
 
