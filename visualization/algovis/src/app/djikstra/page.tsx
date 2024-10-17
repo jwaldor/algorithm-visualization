@@ -304,6 +304,7 @@ const Node: React.FC<{
                           const newGraph = {...graph};
                           newGraph[node.id][neighbor] = Number(e.target.value);
                           setGraph(newGraph);
+                          setHaveRun(false);
                         }}
                       />
                     </foreignObject>
@@ -323,6 +324,7 @@ const Node: React.FC<{
                           delete newGraph[node.id][neighbor];
                           console.log("newGraph", newGraph)
                           setGraph(newGraph);
+                          setHaveRun(false);
                         }}
                       >
                         <span style={{ color: 'white', fontSize: '14px' }}>X</span>
@@ -362,7 +364,7 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
     setNodes(nodesData);
     setLinks(linksData);
 
-    if (!haveRun){
+    if (!haveRun && false){
       console.log("setting up simulation")
       setHaveRun(true);
 
@@ -415,49 +417,57 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
     // Close all node menus when clicking on the svg
     setNodes(nodes.map(node => ({ ...node, showMenu: false })));
   };
+  console.log("links",links)
 
   return (
     <svg ref={svgRef} width={width} height={height} onClick={handleSvgClick}>
-      {links.map((link, index) => (
-        <g key={index}>
-          <line
-            x1={(link.source as Node).x}
-            y1={(link.source as Node).y}
-            x2={(link.target as Node).x}
-            y2={(link.target as Node).y}
-            stroke="#999"
-            strokeOpacity={0.6}
-            strokeWidth={2}
+        {(() => {
+          console.log("renderinglinks", links);
+          console.log('here1')
+          return links.map((link, index) => {
+            console.log("here")
+            console.log("alink",link,index)
+            return (
+            <g key={index}>
+              <line
+                x1={(link.source as Node).x}
+                y1={(link.source as Node).y}
+                x2={(link.target as Node).x}
+                y2={(link.target as Node).y}
+                stroke="#999"
+                strokeOpacity={0.6}
+                strokeWidth={2}
+              />
+              <text
+                x={(((link.source as Node).x || 0) + ((link.target as Node).x || 0)) / 2}
+                y={(((link.source as Node).y || 0) + ((link.target as Node).y || 0)) / 2}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fill="#666"
+                fontSize="12px"
+                fontWeight="bold"
+                dy="-5"
+              >
+                {link.value}
+                </text>
+            </g>
+          )});
+        })()}
+        {nodes.map((node) => (
+          <Node
+            key={node.id}
+            node={node}
+            color={nodeColors[node.id] || 'white'}
+            onDragStart={dragStart}
+            onDragged={dragged}
+            onDragEnd={dragEnd}
+            algorithmState={algorithmState}
+            graph={graph}
+            setGraph={setGraph}
+            haveRun={haveRun}
+            setHaveRun={setHaveRun}
           />
-          <text
-            x={(((link.source as Node).x || 0) + ((link.target as Node).x || 0)) / 2}
-            y={(((link.source as Node).y || 0) + ((link.target as Node).y || 0)) / 2}
-            textAnchor="middle"
-            dominantBaseline="central"
-            fill="#666"
-            fontSize="12px"
-            fontWeight="bold"
-            dy="-5"
-          >
-            {link.value}
-          </text>
-        </g>
-      ))}
-      {nodes.map((node) => (
-        <Node
-          key={node.id}
-          node={node}
-          color={nodeColors[node.id] || 'white'}
-          onDragStart={dragStart}
-          onDragged={dragged}
-          onDragEnd={dragEnd}
-          algorithmState={algorithmState}
-          graph={graph}
-          setGraph={setGraph}
-          haveRun={haveRun}
-          setHaveRun={setHaveRun}
-        />
-      ))}
+        ))}
     </svg>
   );
 };
@@ -465,6 +475,7 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
 export default function Page() {
   // const svgRef = useRef<SVGSVGElement>(null);
   const [algorithmState, setAlgorithmState] = useState<AlgorithmSnapshot>({type:"pre_algorithm"});
+  const [algorithmStateHistory, setAlgorithmStateHistory] = useState<Array<AlgorithmSnapshot>>([]);
   const [nodeColors, setNodeColors] = useState<Record<string, string>>({});
   const [complexWeightedGraph,setComplexWeightedGraph] = useState<Record<string,Record<string,number>>>({
     A: { B: 4, C: 2 },
@@ -504,10 +515,59 @@ export default function Page() {
 
   async function update(payload: AlgorithmSnapshot) {
     setAlgorithmState(payload);
+    setAlgorithmStateHistory(prevHistory => [...prevHistory, payload]);
     //wait for payload.wait_time
     if (payload.type !== "pre_algorithm" && payload.type !== "finished" && payload.data && "wait_time" in payload.data){
       await new Promise(resolve => setTimeout(resolve, payload.data.wait_time));
     }
+  }
+
+  function generateLog(history: Array<AlgorithmSnapshot>): ReactNode[] {
+    return history.map((state, index) => {
+      let stateString: JSX.Element;
+      switch (state.type) {
+        case "pre_algorithm":
+          stateString = <span>Algorithm is about to start</span>;
+          break;
+        case "finding_min_unvisited":
+          stateString = (
+            <span>
+              Finding minimum unvisited node. Starting node: <span style={{color: 'green'}}>{state.data.starting_node}</span>. 
+              Visited nodes: {state.data.visited.map(node => <span key={node} style={{color: 'blue'}}>{node} </span>)}
+            </span>
+          );
+          break;
+        case "pre_minimize_neighbors":
+          stateString = (
+            <span>
+              Preparing to check neighbors of node <span style={{color: 'yellow'}}>{state.data.current_node}</span>. 
+              Unvisited neighbors: {state.data.unvisited_neighbors.map(node => <span key={node} style={{color: 'orange'}}>{node} </span>)}
+            </span>
+          );
+          break;
+        case "minimize_neighbors_step":
+          stateString = (
+            <span>
+              Checking neighbor <span style={{color: 'orange'}}>{state.data.neighbor}</span> of node <span style={{color: 'yellow'}}>{state.data.current_node}</span>. 
+              New distance: {state.data.newdist}, Edge length: {state.data.edge_length}
+            </span>
+          );
+          break;
+        case "finished":
+          stateString = (
+            <span>
+              Algorithm finished. Final distances from <span style={{color: 'green'}}>{state.data.starting_node}</span>: {' '}
+              {Object.entries(state.data.distances).map(([node, dist]) => (
+                <span key={node} style={{color: 'blue'}}>{node}:{dist} </span>
+              ))}
+            </span>
+          );
+          break;
+        default:
+          stateString = <span>Unknown state</span>;
+      }
+      return <div key={index}>{stateString}</div>;
+    }).reverse();
   }
 
   const [haveRun, setHaveRun] = useState(false);
@@ -523,7 +583,14 @@ export default function Page() {
         haveRun={haveRun}
         setHaveRun={setHaveRun}
       />
+      <div>
+      <div className="text-lg font-semibold">Algorithm Log</div>
+      <div> {generateLog(algorithmStateHistory).map((line, index) => (
+        <div key={index}>{line}</div>
+      ))} </div>
     </div>
+    </div>
+    
   );
 }
 
@@ -532,6 +599,8 @@ export default function Page() {
 //give starting node text a different color so you can still change its background appropriately (to yellow when it's the current node)
 //realistic edge lengths
 //allow adding new nodes
+
+
 
 
 
