@@ -34,12 +34,13 @@ function depthFirstSearch(tree: TreeNode, term: number, position: Array<number> 
 
 // console.log("depthFirstSearch",depthFirstSearch([{value:1,children:[{value:2,children:[{value:3,children:[]}]}]}],3,[],(searchState) => {console.log("searchState",searchState)}))
 
-const TreeNode: React.FC<{ node: TreeNode, depth: number, position: number, state: StateType }> = ({ node, depth, position, state }) => {
+const TreeNode: React.FC<{ node: TreeNode, depth: number, position: Array<number>, state: StateType }> = ({ node, depth, position, state }) => {
   let isCurrentlySearched = false;
   let isFound = false;
 
   if (state[0] === "searching") {
     const currentPosition = state[1].positions[state[1].position];
+    console.log("currentPosition", currentPosition, "position", position)
     isCurrentlySearched = JSON.stringify(position) === JSON.stringify(currentPosition);
   } else if (state[0] === "found") {
     isFound = JSON.stringify(position) === JSON.stringify(state[1].position);
@@ -69,7 +70,7 @@ const TreeNode: React.FC<{ node: TreeNode, depth: number, position: number, stat
                   key={index}
                   node={child}
                   depth={depth + 1}
-                  position={index}
+                  position={position.concat(index)}
                   state={state}
                 />
               ))}
@@ -226,7 +227,6 @@ export default function Page() {
 
     const { position, positions } = state.state[1] as { position: number, positions: Array<Array<number>> };
     const currentPosition = positions[position];
-    console.log("currentPosition", currentPosition, currentPosition.slice(1, -1))
     let currentNode: TreeNode = state.visualizationData;
     for (const index of currentPosition.slice(0, currentPosition.length)) {
       currentNode = currentNode.children[index];
@@ -304,7 +304,7 @@ export default function Page() {
               <TreeNode
                 node={state.visualizationData}
                 depth={0}
-                position={0}
+                position={[]}
                 state={state.state}
               />
             </div>
