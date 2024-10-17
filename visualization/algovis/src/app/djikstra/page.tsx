@@ -206,6 +206,8 @@ const Node: React.FC<{
   graph: Record<string, Record<string, number>>;
   setGraph: React.Dispatch<React.SetStateAction<Record<string, Record<string, number>>>>;
 }> = ({ node, color, onDragStart, onDragged, onDragEnd, algorithmState, graph, setGraph }) => {
+  const [showMenu, setShowMenu] = useState(false);
+
   // You can use algorithmState here to modify the node's appearance
   let nodeText = node.id;
   let nodeColor = color;
@@ -250,6 +252,14 @@ const Node: React.FC<{
           nodeColor = "white";
       }
   }
+
+  const handleClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (algorithmState.type === "pre_algorithm" || algorithmState.type === "finished"){
+      setShowMenu(!showMenu);
+    }
+  };
+
   return (
     <g
       transform={`translate(${node.x},${node.y})`}
@@ -257,6 +267,7 @@ const Node: React.FC<{
       onMouseMove={(e) => onDragged(e, node)}
       onMouseUp={(e) => onDragEnd(e, node)}
       onMouseLeave={(e) => onDragEnd(e, node)}
+      onClick={handleClick}
     >
       <circle r="35" fill={nodeColor} stroke="black" strokeWidth="3" />
       <text
@@ -264,10 +275,17 @@ const Node: React.FC<{
         dominantBaseline="central"
         fill={nodeBold ? "brown" : "black"}
         fontSize="20px"
-        fontWeight="normal"//{nodeBold ? "bold" : "normal"}
+        fontWeight="normal"
       >
         {nodeText}
       </text>
+      {(algorithmState.type === "pre_algorithm" || algorithmState.type === "finished") && showMenu && (
+        <g transform="translate(40, -30)">
+          <rect x="0" y="0" width="100" height="60" fill="white" stroke="black" />
+          <text x="10" y="20" fontSize="14">Edit Node</text>
+          <text x="10" y="40" fontSize="14">Delete Node</text>
+        </g>
+      )}
     </g>
   );
 };
@@ -344,8 +362,13 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
     d.fy = null;
   }, []);
 
+  const handleSvgClick = () => {
+    // Close all node menus when clicking on the svg
+    setNodes(nodes.map(node => ({ ...node, showMenu: false })));
+  };
+
   return (
-    <svg ref={svgRef} width={width} height={height}>
+    <svg ref={svgRef} width={width} height={height} onClick={handleSvgClick}>
       {links.map((link, index) => (
         <g key={index}>
           <line
@@ -454,6 +477,7 @@ export default function Page() {
 //give starting node text a different color so you can still change its background appropriately (to yellow when it's the current node)
 //realistic edge lengths
 //allow adding new nodes
+
 
 
 
