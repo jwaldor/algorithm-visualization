@@ -171,16 +171,17 @@ const Node: React.FC<{
   // You can use algorithmState here to modify the node's appearance
   let nodeText = node.id;
   let nodeColor = color;
+  let nodeBold = false;
   if (algorithmState.type !== "pre_algorithm"){
 
       nodeText = `${node.id}: ${algorithmState.data.distances[node.id]}`;
 
   
     if (node.id === algorithmState.data.starting_node){
-      nodeColor = "green";
+      nodeBold = true;
     }
     else if (algorithmState.type === 'finding_min_unvisited'){
-      if (!algorithmState.data.visited.includes(node.id) && algorithmState.data.starting_node !== node.id){
+      if (!algorithmState.data.visited.includes(node.id)){
         nodeColor = "red";
       }
     }
@@ -191,7 +192,7 @@ const Node: React.FC<{
       if (algorithmState.data.unvisited_neighbors.includes(node.id)){
         nodeColor = "blue";
       }
-      else if (algorithmState.data.current_node === node.id && algorithmState.data.starting_node !== node.id){
+      else if (algorithmState.data.current_node === node.id){
         nodeColor = "yellow";
       }
     }
@@ -209,9 +210,9 @@ const Node: React.FC<{
       <text
         textAnchor="middle"
         dominantBaseline="central"
-        fill="black"
+        fill={nodeBold ? "brown" : "black"}
         fontSize="20px"
-        fontWeight="bold"
+        fontWeight={nodeBold ? "bold" : "normal"}
       >
         {nodeText}
       </text>
@@ -353,23 +354,7 @@ export default function Page() {
     E: { C: 10, D: 2, F: 3 },
     F: { D: 6, E: 3 },
   };
-  const nodeColors1: Record<string, string> = {
-    A: "#FF6B6B", // Red
-    B: "#4ECDC4", // Teal
-    C: "#45B7D1", // Light Blue
-    D: "#FFA07A", // Light Salmon
-    E: "#98D8C8", // Pale Green
-    F: "#F7DC6F", // Yellow
-  };
 
-  const nodeColors2: Record<string, string> = {
-    A: "#FFA07A", // Light Salmon
-    B: "#98D8C8", // Pale Green
-    C: "#F7DC6F", // Yellow
-    D: "#FF6B6B", // Red
-    E: "#4ECDC4", // Teal
-    F: "#45B7D1", // Light Blue
-  };
   useEffect(() => {
     djikstra(complexWeightedGraph,"A",update)
     .then(() => {
