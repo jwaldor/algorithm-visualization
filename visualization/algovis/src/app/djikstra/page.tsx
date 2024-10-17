@@ -162,6 +162,9 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
     }
     visited.push(current_node);
   }
+  if (callback){
+    await callback({type:"finished",data:{starting_node:starting_node,distances:distances}})
+  }
   return distances;
 }
 
