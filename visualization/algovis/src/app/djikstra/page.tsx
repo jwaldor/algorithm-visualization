@@ -136,7 +136,7 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
             newdist:newdist,
             edge_length:graph[current_node][neighbor],
             wait_time:1000,
-            unvisited_neighbors:unvisited_neighbors // Add this line
+            unvisited_neighbors:unvisited_neighbors
           }
         })
       }
@@ -186,31 +186,32 @@ const Node: React.FC<{
   let nodeText = node.id;
   let nodeColor = color;
   let nodeBold = false;
-  if (algorithmState.type !== "pre_algorithm"){
-
+  switch (algorithmState.type) {
+    case "pre_algorithm":
+      break;
+    default:
       nodeText = `${node.id}: ${algorithmState.data.distances[node.id]}`;
-
-  
-    if (node.id === algorithmState.data.starting_node){
-      nodeBold = true;
-    }
-    else if (algorithmState.type === 'finding_min_unvisited'){
-      if (!algorithmState.data.visited.includes(node.id)){
-        nodeColor = "red";
+      
+      if (node.id === algorithmState.data.starting_node) {
+        nodeBold = true;
       }
-    }
-    else {
-      nodeColor = "white";
-    }
-        if (algorithmState.type === 'pre_minimize_neighbors'){
-      if (algorithmState.data.unvisited_neighbors.includes(node.id)){
-        nodeColor = "blue";
+      
+      switch (algorithmState.type) {
+        case 'finding_min_unvisited':
+          if (!algorithmState.data.visited.includes(node.id)) {
+            nodeColor = "red";
+          }
+          break;
+        case 'pre_minimize_neighbors':
+          if (algorithmState.data.unvisited_neighbors.includes(node.id)) {
+            nodeColor = "blue";
+          } else if (algorithmState.data.current_node === node.id) {
+            nodeColor = "yellow";
+          }
+          break;
+        default:
+          nodeColor = "white";
       }
-      else if (algorithmState.data.current_node === node.id){
-        nodeColor = "yellow";
-      }
-    }
-
   }
   return (
     <g
@@ -411,4 +412,5 @@ export default function Page() {
 //add button to let you go to next step in algorithm?
 //have it display which step is happening in text
 //give starting node text a different color so you can still change its background appropriately (to yellow when it's the current node)
+
 
