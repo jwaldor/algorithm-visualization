@@ -160,6 +160,9 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
         })
       }
     }
+    if (callback){
+      await callback({type:"pre_minimize_neighbors",data:{starting_node:starting_node,current_node:current_node,unvisited_neighbors:unvisited_neighbors,distances:distances,wait_time:2500}})
+    }
     visited.push(current_node);
   }
   if (callback){
