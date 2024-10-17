@@ -207,7 +207,7 @@ export default function Page() {
             console.log("Search complete, clearing interval");
             clearInterval(intervalId);
             setTimeout(() => {
-              if (prevState.state[1].foundItem) {
+              if (prevState.state[1] && 'foundItem' in prevState.state[1] && prevState.state[1].foundItem) {
                 setState({
                   ...prevState,
                   state: ["found", {

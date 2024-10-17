@@ -23,7 +23,6 @@ type AlgorithmSnapshot =
 
 
 async function djikstra(graph: Record<string, Record<string, number>>, starting_node: string, callback?: onUpdateFunction): Promise<Record<string, number>> {
-  console.log("calling djikstra")
   const nodes = Object.keys(graph);
   const distances: {[key: string]: number} = nodes.reduce((acc: {[key: string]: number}, node: string) => {
     acc[node] = Infinity;
@@ -39,46 +38,28 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
       [key]: value,
     }));
     if (callback){
-      console.log("callback finding_min_unvisited")
       await callback({type:"finding_min_unvisited",data:{starting_node:starting_node,distances:distances,visited:visited,wait_time:1000}})
     }
-    console.log(
-      "distancesArray",
-      distancesArray.filter((arr) => !visited.includes(Object.keys(arr)[0]))
-    );
+
     let min = Infinity;
     distancesArray
       .filter((arr) => !visited.includes(Object.keys(arr)[0]))
       .forEach((elt, _) => {
-        // console.log("elt", elt, a);
-        // console.log(elt, Object.values(elt)[0]);
         if ((Object.values(elt)[0] as number) <= min) {
           min = Object.values(elt)[0] as number;
           current_node = Object.keys(elt)[0];
         }
       });
-    // console.log("min", current_node, min);
-    //update distances of unvisited neighbors
     const unvisited_neighbors = Object.keys(graph[current_node]).filter(
       (elt) => {
-        console.log("elt", elt, visited);
         return !visited.includes(elt);
       }
     );
     if (callback){
       await callback({type:"pre_minimize_neighbors",data:{starting_node:starting_node,current_node:current_node,unvisited_neighbors:unvisited_neighbors,distances:distances,wait_time:1000}})
     }
-    console.log("unvisited_neighbors", unvisited_neighbors);
     for (const neighbor of unvisited_neighbors){
       const newdist = graph[current_node][neighbor] + distances[current_node];
-      console.log(
-        "graphneighbor",
-        current_node,
-        neighbor,
-        graph[current_node][neighbor],
-        distances[current_node],
-        newdist
-      );
       if (callback){
         await callback({
           type:"minimize_neighbors_step",
@@ -96,7 +77,6 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
       }
       if (newdist < distances[neighbor]) {
         distances[neighbor] = newdist;
-        console.log("updated", neighbor, newdist);
       }
       if (callback){
         await callback({
@@ -120,7 +100,6 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
     visited.push(current_node);
   }
   if (callback){
-    console.log("callback finished")
     await callback({type:"finished",data:{starting_node:starting_node,distances:distances}})
   }
   return distances;
@@ -277,7 +256,6 @@ const Node: React.FC<{
                         onClick={() => {
                           const newGraph = {...graph};
                           delete newGraph[node.id][neighbor];
-                          console.log("newGraph", newGraph)
                           setGraph(newGraph);
                           setHaveRun(false);
                         }}
@@ -306,7 +284,6 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
   const height = 600;
 
   useLayoutEffect(() => {
-    console.log("useLayoutEffect",graph)
     const nodesData: Node[] = Object.keys(graph).map(id => ({ id }));
     const linksData: Link[] = [];
 
@@ -319,21 +296,7 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
     setNodes(nodesData);
     setLinks(linksData);
 
-  //   if (!haveRun && false){
-  //     console.log("setting up simulation")
-  //     setHaveRun(true);
 
-  //   simulationRef.current = d3.forceSimulation(nodesData)
-  //     .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(200))
-  //     .force('charge', d3.forceManyBody().strength(-500))
-  //     .force('center', d3.forceCenter(width / 2, height / 2));
-
-  //   simulationRef.current.on('tick', () => {
-  //     setNodes([...nodesData]);
-  //     setLinks([...linksData]);
-  //   });
-  // } else {
-    console.log("restarting simulation")
     simulationRef.current = d3.forceSimulation(nodesData)
       .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(200))
       .force('charge', d3.forceManyBody().strength(-500))
@@ -342,7 +305,7 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
       
       simulationRef.current.stop();
       simulationRef.current.tick(3000);
-  // }
+
 
     return () => {
       if (simulationRef.current) {
@@ -372,7 +335,6 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
     // Close all node menus when clicking on the svg
     setNodes(nodes.map(node => ({ ...node, showMenu: false })));
   };
-  console.log("links",links)
 
   return (
     <svg ref={svgRef} width={width} height={height} onClick={handleSvgClick}>
@@ -425,7 +387,7 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
 };
 
 export default function Page() {
-  // const svgRef = useRef<SVGSVGElement>(null);
+
   const [algorithmState, setAlgorithmState] = useState<AlgorithmSnapshot>({type:"pre_algorithm"});
   const [algorithmStateHistory, setAlgorithmStateHistory] = useState<Array<Array<AlgorithmSnapshot>>>([[]]);
   const [nodeColors, setNodeColors] = useState<Record<string, string>>({});
@@ -438,12 +400,7 @@ export default function Page() {
     F: { D: 6, E: 3 },
   });
 
-  //set node colors based on algorithm state
-  useEffect(() => {
-    if (algorithmState.type === "finding_min_unvisited"){
-      // setNodeColors(algorithmState.data.distances)
-    }
-  },[algorithmState])
+
 
 
 
@@ -452,21 +409,17 @@ export default function Page() {
 
   async function update(payload: AlgorithmSnapshot) {
     setAlgorithmState(payload);
-    console.log("calling update")
     setAlgorithmStateHistory(prevHistory => {
       const newHistory = structuredClone(prevHistory);
       if (payload.type === "finding_min_unvisited" && newHistory[newHistory.length - 1].length > 0) {
         newHistory.push([]);      }
-      console.log("adding payload",payload.type)
       newHistory[newHistory.length - 1].push(payload);
-      console.log("generating new history, prev history:",prevHistory, "new history:",newHistory)
       return newHistory;
     });
     if (payload.type !== "pre_algorithm" && payload.type !== "finished" && payload.data && "wait_time" in payload.data){
       await new Promise(resolve => setTimeout(resolve, payload.data.wait_time));
     }
   }
-  console.log("prevHistory",algorithmStateHistory)
 
   function generateLog(history: Array<Array<AlgorithmSnapshot>>): ReactNode[] {
     return history.map((stateGroup, groupIndex) => (
@@ -524,7 +477,6 @@ export default function Page() {
       {/* <svg ref={svgRef}></svg> */}
       <button 
         onClick={() => {
-          console.log("running algorithm")
           setAlgorithmStateHistory([[]]);
           djikstra(complexWeightedGraph, "A", update)
             .then(() => {
