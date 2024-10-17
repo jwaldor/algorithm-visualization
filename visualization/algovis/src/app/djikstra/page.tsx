@@ -211,8 +211,12 @@ const Node: React.FC<{
     case "pre_algorithm":
       break;
     default:
+      if (algorithmState.data.distances[node.id] !== Infinity){
       nodeText = `${node.id}: ${algorithmState.data.distances[node.id]}`;
-      
+      }
+      else{
+        nodeText =  `${node.id}: ∞`;
+      }
       if (node.id === algorithmState.data.starting_node) {
         nodeBold = true;
       }
