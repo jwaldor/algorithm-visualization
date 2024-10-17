@@ -473,7 +473,7 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
 export default function Page() {
   // const svgRef = useRef<SVGSVGElement>(null);
   const [algorithmState, setAlgorithmState] = useState<AlgorithmSnapshot>({type:"pre_algorithm"});
-  const [algorithmStateHistory, setAlgorithmStateHistory] = useState<Array<AlgorithmSnapshot>>([]);
+  const [algorithmStateHistory, setAlgorithmStateHistory] = useState<Array<Array<AlgorithmSnapshot>>>([[]]);
   const [nodeColors, setNodeColors] = useState<Record<string, string>>({});
   const [complexWeightedGraph,setComplexWeightedGraph] = useState<Record<string,Record<string,number>>>({
     A: { B: 4, C: 2 },
@@ -518,7 +518,14 @@ export default function Page() {
 
   async function update(payload: AlgorithmSnapshot) {
     setAlgorithmState(payload);
-    setAlgorithmStateHistory(prevHistory => [...prevHistory, payload]);
+    setAlgorithmStateHistory(prevHistory => {
+      const newHistory = [...prevHistory];
+      if (payload.type === "finding_min_unvisited" && newHistory[newHistory.length - 1].length > 0) {
+        newHistory.push([]);
+      }
+      newHistory[newHistory.length - 1].push(payload);
+      return newHistory;
+    });
     //wait for payload.wait_time
     if (payload.type !== "pre_algorithm" && payload.type !== "finished" && payload.data && "wait_time" in payload.data){
       await new Promise(resolve => setTimeout(resolve, payload.data.wait_time));
@@ -526,52 +533,61 @@ export default function Page() {
   }
   console.log("prevHistory",algorithmStateHistory)
 
-  function generateLog(history: Array<AlgorithmSnapshot>): ReactNode[] {
-    return history.map((state, index) => {
-      let stateString: JSX.Element;
-      switch (state.type) {
-        case "pre_algorithm":
-          stateString = <span>Algorithm is about to start</span>;
-          break;
-        case "finding_min_unvisited":
-          stateString = (
-            <span>
-              Finding minimum unvisited node. Starting node: <span style={{color: 'green'}}>{state.data.starting_node}</span>. 
-              Visited nodes: {state.data.visited.map(node => <span key={node} style={{color: 'blue'}}>{node} </span>)}
-            </span>
-          );
-          break;
-        case "pre_minimize_neighbors":
-          stateString = (
-            <span>
-              Preparing to check neighbors of node <span style={{color: 'yellow'}}>{state.data.current_node}</span>. 
-              Unvisited neighbors: {state.data.unvisited_neighbors.map(node => <span key={node} style={{color: 'orange'}}>{node} </span>)}
-            </span>
-          );
-          break;
-        case "minimize_neighbors_step":
-          stateString = (
-            <span>
-              Checking neighbor <span style={{color: 'orange'}}>{state.data.neighbor}</span> of node <span style={{color: 'yellow'}}>{state.data.current_node}</span>. 
-              New distance: {state.data.newdist}, Edge length: {state.data.edge_length}
-            </span>
-          );
-          break;
-        case "finished":
-          stateString = (
-            <span>
-              Algorithm finished. Final distances from <span style={{color: 'green'}}>{state.data.starting_node}</span>: {' '}
-              {Object.entries(state.data.distances).map(([node, dist]) => (
-                <span key={node} style={{color: 'blue'}}>{node}:{dist} </span>
-              ))}
-            </span>
-          );
-          break;
-        default:
-          stateString = <span>Unknown state</span>;
-      }
-      return <div key={index}>{stateString}</div>;
-    }).reverse();
+  function generateLog(history: Array<Array<AlgorithmSnapshot>>): ReactNode[] {
+    return history.map((stateGroup, groupIndex) => (
+      <div key={groupIndex} className="mb-4 border-b pb-2">
+        <h3 className="font-bold">
+          Iteration {groupIndex + 1}
+          {stateGroup.find(state => state.type === "pre_minimize_neighbors") && 
+           ` - Minimum node: ${stateGroup.find(state => state.type === "pre_minimize_neighbors")?.data.current_node}`}
+        </h3>
+        {stateGroup.map((state, index) => {
+          let stateString: JSX.Element;
+          switch (state.type) {
+            case "pre_algorithm":
+              stateString = <span>Algorithm is about to start</span>;
+              break;
+            case "finding_min_unvisited":
+              stateString = (
+                <span>
+                  Finding minimum unvisited node. Starting node: <span style={{color: 'green'}}>{state.data.starting_node}</span>. 
+                  Visited nodes: {state.data.visited.map(node => <span key={node} style={{color: 'blue'}}>{node} </span>)}
+                </span>
+              );
+              break;
+            case "pre_minimize_neighbors":
+              stateString = (
+                <span>
+                  Preparing to check neighbors of node <span style={{color: 'yellow'}}>{state.data.current_node}</span>. 
+                  Unvisited neighbors: {state.data.unvisited_neighbors.map(node => <span key={node} style={{color: 'orange'}}>{node} </span>)}
+                </span>
+              );
+              break;
+            case "minimize_neighbors_step":
+              stateString = (
+                <span>
+                  Checking neighbor <span style={{color: 'orange'}}>{state.data.neighbor}</span> of node <span style={{color: 'yellow'}}>{state.data.current_node}</span>. 
+                  New distance: {state.data.newdist}, Edge length: {state.data.edge_length}
+                </span>
+              );
+              break;
+            case "finished":
+              stateString = (
+                <span>
+                  Algorithm finished. Final distances from <span style={{color: 'green'}}>{state.data.starting_node}</span>: {' '}
+                  {Object.entries(state.data.distances).map(([node, dist]) => (
+                    <span key={node} style={{color: 'blue'}}>{node}:{dist} </span>
+                  ))}
+                </span>
+              );
+              break;
+            default:
+              stateString = <span>Unknown state</span>;
+          }
+          return <div key={`${groupIndex}-${index}`}>{stateString}</div>;
+        })}
+      </div>
+    )).reverse();
   }
 
   const [haveRun, setHaveRun] = useState(false);
@@ -588,11 +604,9 @@ export default function Page() {
         setHaveRun={setHaveRun}
       />
       <div>
-      <div className="text-lg font-semibold">Algorithm Log</div>
-      <div> {generateLog(algorithmStateHistory).map((line, index) => (
-        <div key={index}>{line}</div>
-      ))} </div>
-    </div>
+        <div className="text-lg font-semibold">Algorithm Log</div>
+        <div>{generateLog(algorithmStateHistory)}</div>
+      </div>
     </div>
     
   );
@@ -603,6 +617,7 @@ export default function Page() {
 //give starting node text a different color so you can still change its background appropriately (to yellow when it's the current node)
 //realistic edge lengths
 //allow adding new nodes
+
 
 
 
