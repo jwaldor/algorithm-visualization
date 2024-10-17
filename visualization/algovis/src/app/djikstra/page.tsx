@@ -115,7 +115,7 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
       await callback({type:"pre_minimize_neighbors",data:{starting_node:starting_node,current_node:current_node,unvisited_neighbors:unvisited_neighbors,distances:distances,wait_time:1000}})
     }
     console.log("unvisited_neighbors", unvisited_neighbors);
-    unvisited_neighbors.forEach((neighbor) => {
+    for (const neighbor of unvisited_neighbors){
       const newdist = graph[current_node][neighbor] + distances[current_node];
       console.log(
         "graphneighbor",
@@ -125,12 +125,14 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
         distances[current_node],
         newdist
       );
-
+      if (callback){
+        await callback({type:"minimize_neighbors_step",data:{starting_node:starting_node,current_node:current_node,neighbor:neighbor,distances:distances,newdist:newdist,edge_length:graph[current_node][neighbor],wait_time:1000}})
+      }
       if (newdist < distances[neighbor]) {
         distances[neighbor] = newdist;
         console.log("updated", neighbor, newdist);
       }
-    });
+    }
     visited.push(current_node);
   }
   return distances;
@@ -212,7 +214,7 @@ const Node: React.FC<{
         dominantBaseline="central"
         fill={nodeBold ? "brown" : "black"}
         fontSize="20px"
-        fontWeight={nodeBold ? "bold" : "normal"}
+        fontWeight="normal"//{nodeBold ? "bold" : "normal"}
       >
         {nodeText}
       </text>
