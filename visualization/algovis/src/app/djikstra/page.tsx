@@ -1,6 +1,6 @@
 "use client";
 
-import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef, useCallback, useLayoutEffect } from "react";
+import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef, useCallback, useLayoutEffect, ReactNode } from "react";
 import * as d3 from 'd3';
 
 
@@ -86,6 +86,7 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
       [key]: value,
     }));
     if (callback){
+      console.log("callback finding_min_unvisited")
       await callback({type:"finding_min_unvisited",data:{starting_node:starting_node,distances:distances,visited:visited,wait_time:1000}})
     }
     console.log(
@@ -422,11 +423,8 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
   return (
     <svg ref={svgRef} width={width} height={height} onClick={handleSvgClick}>
         {(() => {
-          console.log("renderinglinks", links);
-          console.log('here1')
           return links.map((link, index) => {
-            console.log("here")
-            console.log("alink",link,index)
+
             return (
             <g key={index}>
               <line
@@ -494,12 +492,17 @@ export default function Page() {
 
 
 
+  const hasRunAlgorithm = useRef(false);
+
   useEffect(() => {
-    djikstra(complexWeightedGraph,"A",update)
-    .then(() => {
-      console.log("djikstra finished")
-    })
-  },[])
+    if (!hasRunAlgorithm.current) {
+      djikstra(complexWeightedGraph, "A", update)
+        .then(() => {
+          console.log("djikstra finished");
+        });
+      hasRunAlgorithm.current = true;
+    }
+  }, []);
 
   // useEffect(() => {
   //   const intervalId = setInterval(() => {
@@ -521,6 +524,7 @@ export default function Page() {
       await new Promise(resolve => setTimeout(resolve, payload.data.wait_time));
     }
   }
+  console.log("prevHistory",algorithmStateHistory)
 
   function generateLog(history: Array<AlgorithmSnapshot>): ReactNode[] {
     return history.map((state, index) => {
@@ -599,6 +603,7 @@ export default function Page() {
 //give starting node text a different color so you can still change its background appropriately (to yellow when it's the current node)
 //realistic edge lengths
 //allow adding new nodes
+
 
 
 
