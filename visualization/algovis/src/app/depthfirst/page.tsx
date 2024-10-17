@@ -82,7 +82,7 @@ const TreeNode: React.FC<{ node: TreeNode, depth: number, position: Array<number
   );
 };
 
-type StateType = ["pre-search"] | ["searching", { position: number, positions: Array<Array<number>>, foundItem: number | undefined }] | ["found", { position: Array<number> }] | ["not-found"]
+type StateType = ["pre-search"] | ["searching", { position: number, positions: Array<Array<number>>, foundItem: number[] | undefined }] | ["found", { position: Array<number> }] | ["not-found"]
 
 export default function Page() {
 
@@ -122,10 +122,11 @@ export default function Page() {
     if (state.state[0] !== "searching") {
       setState({ ...state, state: ["searching", { position: 0, positions: [], foundItem: undefined }] })
       const result = depthFirstSearch(state.visualizationData, state.searchTerm, [], (searchState) => {
-        setState(prevState => ({ ...prevState, state: ["searching", { position: 0, positions: (prevState.state[1] as { position: number, positions: Array<Array<number>>, foundItem: number | undefined }).positions.concat([searchState.position]), foundItem: (prevState.state[1] as { position: number, positions: Array<Array<number>>, foundItem: number | undefined }).foundItem }] }))
+        setState(prevState => ({ ...prevState, state: ["searching", { position: 0, positions: (prevState.state[1] as { position: number, positions: Array<Array<number>>, foundItem: number[] | undefined }).positions.concat([searchState.position]), foundItem: (prevState.state[1] as { position: number, positions: Array<Array<number>>, foundItem: number[] | undefined }).foundItem }] }))
         console.log("positioncallback", searchState.position)
-        // setState(prevState => ({ ...prevState, state: ["searching", { position: 0, positions: (prevState.state[1] as { position: number, positions: Array<Array<number>>, foundItem: number | undefined }).positions, foundItem: result }] }))
       })
+      setState(prevState => ({ ...prevState, state: ["searching", { position: 0, positions: (prevState.state[1] as { position: number, positions: Array<Array<number>>, foundItem: number | undefined }).positions, foundItem: result }] }))
+
       console.log("result", result)
       // Set up an interval to update the position every second
       const intervalId = setInterval(() => {
