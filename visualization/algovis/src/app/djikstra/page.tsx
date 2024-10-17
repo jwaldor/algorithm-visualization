@@ -367,20 +367,20 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
     setNodes(nodesData);
     setLinks(linksData);
 
-    if (!haveRun && false){
-      console.log("setting up simulation")
-      setHaveRun(true);
+  //   if (!haveRun && false){
+  //     console.log("setting up simulation")
+  //     setHaveRun(true);
 
-    simulationRef.current = d3.forceSimulation(nodesData)
-      .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(200))
-      .force('charge', d3.forceManyBody().strength(-500))
-      .force('center', d3.forceCenter(width / 2, height / 2));
+  //   simulationRef.current = d3.forceSimulation(nodesData)
+  //     .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(200))
+  //     .force('charge', d3.forceManyBody().strength(-500))
+  //     .force('center', d3.forceCenter(width / 2, height / 2));
 
-    simulationRef.current.on('tick', () => {
-      setNodes([...nodesData]);
-      setLinks([...linksData]);
-    });
-  } else {
+  //   simulationRef.current.on('tick', () => {
+  //     setNodes([...nodesData]);
+  //     setLinks([...linksData]);
+  //   });
+  // } else {
     console.log("restarting simulation")
     simulationRef.current = d3.forceSimulation(nodesData)
       .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(200))
@@ -390,7 +390,7 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
       
       simulationRef.current.stop();
       simulationRef.current.tick(3000);
-  }
+  // }
 
     return () => {
       if (simulationRef.current) {
@@ -430,17 +430,17 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
             return (
             <g key={index}>
               <line
-                x1={(link.source as Node).x}
-                y1={(link.source as Node).y}
-                x2={(link.target as Node).x}
-                y2={(link.target as Node).y}
+                x1={(link.source as unknown as Node).x}
+                y1={(link.source as unknown as Node).y}
+                x2={(link.target as unknown as Node).x}
+                y2={(link.target as unknown as Node).y}
                 stroke="#999"
                 strokeOpacity={0.6}
                 strokeWidth={2}
               />
               <text
-                x={(((link.source as Node).x || 0) + ((link.target as Node).x || 0)) / 2}
-                y={(((link.source as Node).y || 0) + ((link.target as Node).y || 0)) / 2}
+                x={(((link.source as unknown as Node).x || 0) + ((link.target as unknown as Node).x || 0)) / 2}
+                y={(((link.source as unknown as Node).y || 0) + ((link.target as unknown as Node).y || 0)) / 2}
                 textAnchor="middle"
                 dominantBaseline="central"
                 fill="#666"
