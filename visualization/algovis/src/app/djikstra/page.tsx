@@ -66,7 +66,7 @@ type AlgorithmSnapshot =
   | {type:"pre_algorithm"}
   | { type: 'finding_min_unvisited'; data: {starting_node:string,distances:Record<string,number>,visited:Array<string>,wait_time:number} }
   | { type: 'pre_minimize_neighbors'; data:{starting_node:string, current_node:string, unvisited_neighbors:Array<string>, distances:Record<string,number>, wait_time:number} }
-  | { type: 'minimize_neighbors_step'; data: {starting_node:string,current_node:string,neighbor:string,distances:Record<string,number>,newdist:number,edge_length:number,wait_time:number} }
+  | { type: 'minimize_neighbors_step'; data: {starting_node:string,current_node:string,neighbor:string,distances:Record<string,number>,newdist:number,edge_length:number,wait_time:number,unvisited_neighbors:Array<string>} }
   | { type: 'finished'; data: {starting_node:string,distances:Record<string,number>} }
 
 
@@ -126,7 +126,19 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
         newdist
       );
       if (callback){
-        await callback({type:"minimize_neighbors_step",data:{starting_node:starting_node,current_node:current_node,neighbor:neighbor,distances:distances,newdist:newdist,edge_length:graph[current_node][neighbor],wait_time:1000}})
+        await callback({
+          type:"minimize_neighbors_step",
+          data:{
+            starting_node:starting_node,
+            current_node:current_node,
+            neighbor:neighbor,
+            distances:distances,
+            newdist:newdist,
+            edge_length:graph[current_node][neighbor],
+            wait_time:1000,
+            unvisited_neighbors:unvisited_neighbors // Add this line
+          }
+        })
       }
       if (newdist < distances[neighbor]) {
         distances[neighbor] = newdist;
@@ -399,3 +411,4 @@ export default function Page() {
 //add button to let you go to next step in algorithm?
 //have it display which step is happening in text
 //give starting node text a different color so you can still change its background appropriately (to yellow when it's the current node)
+
