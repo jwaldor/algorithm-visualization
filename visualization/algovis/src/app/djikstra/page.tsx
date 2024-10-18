@@ -45,7 +45,7 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
     let min = Infinity;
     distancesArray
       .filter((arr) => !visited.includes(Object.keys(arr)[0]))
-      .forEach((elt, _) => {
+      .forEach((elt) => {
         if ((Object.values(elt)[0] as number) <= min) {
           min = Object.values(elt)[0] as number;
           current_node = Object.keys(elt)[0];
