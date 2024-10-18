@@ -1,4 +1,4 @@
-type CallbackArgs = {
+export type CallbackArgs = {
   compare: number;
   leading: number;
   array: Array<number>;
@@ -58,10 +58,10 @@ export function makeFrames(searchSteps: Array<CallbackArgs>) {
     const step = searchSteps[i];
     const frame: Frame = [];
     for (let j = 0; j < step.array.length; j++) {
-      if (j === step.index) {
-        frame.push({ value: step.array[j], type: "focus" });
-      } else if (step.array[j] === step.target && j === step.index) {
+      if (step.array[j] === step.target && j === step.index) {
         frame.push({ value: step.array[j], type: "found" });
+      } else if (j === step.index) {
+        frame.push({ value: step.array[j], type: "focus" });
       } else {
         frame.push({ value: step.array[j], type: "regular" });
       }

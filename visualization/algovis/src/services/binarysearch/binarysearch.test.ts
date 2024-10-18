@@ -1,4 +1,4 @@
-import { binarySearch } from "./binarysearch";
+import { binarySearch, CallbackArgs, makeFrames } from "./binarysearch";
 import { describe, test, expect } from "vitest";
 
 describe("Binary Search", () => {
@@ -34,4 +34,68 @@ describe("Binary Search", () => {
     expect(binarySearch(arr, 7)).toBeGreaterThanOrEqual(5);
     expect(binarySearch(arr, 7)).toBeLessThanOrEqual(6);
   });
+});
+
+describe("makeFrames", () => {
+  test("should create correct frames for a simple search", () => {
+    const searchSteps = [
+      { compare: 5, leading: 0, array: [1, 3, 5, 7, 9], index: 2, target: 5 },
+    ];
+    const frames = makeFrames(searchSteps);
+    expect(frames).toEqual([
+      [
+        { value: 1, type: "regular" },
+        { value: 3, type: "regular" },
+        { value: 5, type: "found" },
+        { value: 7, type: "regular" },
+        { value: 9, type: "regular" },
+      ],
+    ]);
+  });
+
+  // test("should create correct frames for multiple steps", () => {
+  //   const searchSteps = [
+  //     { compare: 5, leading: 0, array: [1, 3, 5, 7, 9], index: 2, target: 7 },
+  //     { compare: 7, leading: 3, array: [1, 3, 5, 7, 9], index: 3, target: 7 },
+  //   ];
+  //   const frames = makeFrames(searchSteps);
+  //   expect(frames).toEqual([
+  //     [
+  //       { value: 1, type: "regular" },
+  //       { value: 3, type: "regular" },
+  //       { value: 5, type: "focus" },
+  //       { value: 7, type: "regular" },
+  //       { value: 9, type: "regular" },
+  //     ],
+  //     [
+  //       { value: 1, type: "regular" },
+  //       { value: 3, type: "regular" },
+  //       { value: 5, type: "regular" },
+  //       { value: 7, type: "focus" },
+  //       { value: 9, type: "regular" },
+  //     ],
+  //   ]);
+  // });
+
+  // test("should handle empty array", () => {
+  //   const searchSteps: Array<CallbackArgs> = [];
+  //   const frames = makeFrames(searchSteps);
+  //   expect(frames).toEqual([]);
+  // });
+
+  // test("should handle target found", () => {
+  //   const searchSteps = [
+  //     { compare: 5, leading: 0, array: [1, 3, 5, 7, 9], index: 2, target: 5 },
+  //   ];
+  //   const frames = makeFrames(searchSteps);
+  //   expect(frames).toEqual([
+  //     [
+  //       { value: 1, type: "regular" },
+  //       { value: 3, type: "regular" },
+  //       { value: 5, type: "focus" },
+  //       { value: 7, type: "regular" },
+  //       { value: 9, type: "regular" },
+  //     ],
+  //   ]);
+  // });
 });
