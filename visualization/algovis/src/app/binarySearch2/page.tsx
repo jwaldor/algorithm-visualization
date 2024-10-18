@@ -62,18 +62,13 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 
 
 export default function Page() {
-    // const [compare, setCompare] = useState<number|undefined>(undefined);
     const [numbers, setNumbers] = useState<number[]>([1, 3, 5, 7, 9, 11, 13, 15, 19]);
     const [searchTerm, setSearchTerm] = useState<number | null>(5);
     const [executing, setExecuting] = useState<boolean>(false);
     const [found, setFound] = useState<number | undefined>();
-    const [searchSteps, setSearchSteps] = useState<Array<{ compare: number, layer: number, leading: number, array: Array<number>, index: number }>>([]);
+    const [searchSteps, setSearchSteps] = useState<Array<CallbackArgs>>([]);
 
-    // const [circleRefs,setCircleRefs] = useState<null|RefObject<HTMLDivElement>[]>(null)
-    // useEffect(()=> {
-    //     const circleRefs =  numbers.map(() => createRef<HTMLDivElement>())
-    //     setCircleRefs(circleRefs)
-    // }, [numbers])
+
     const circleRefs = numbers.map(() => createRef<HTMLDivElement>())
 
     const execute = () => {
@@ -81,35 +76,23 @@ export default function Page() {
 
         if (searchTerm !== null && !executing) {
 
-            // setI(0);
+
             setFound(undefined);
             setExecuting(true);
             binarySearch(numbers, searchTerm, (searchStep: CallbackArgs) => { setSearchSteps(searchSteps => [...searchSteps, searchStep]) })
 
-            // useSetInterval(algorithmStep,1000);
+
         }
 
     };
 
 
-    // Call the test function
-    // useEffect(() => {
-    //     testBinarySearch();
-    //     setNumbers([1,3,5,7,9,11,13,15])
-    //     setSearchTerm(5)
-    // }, []);
+
     const handleAddNumber = () => {
         setNumbers([...numbers, 0]);
     };
 
-    // useEffect(()=>{
-    //     console.log("executing")
-    //     execute()
-    // },[numbers,searchTerm])
-    // useEffect(()=>{
-    //     console.log("searchSteps",searchSteps)
-    // },[searchSteps])
-    console.log("searchSteps length", searchSteps.length)
+
 
     return (
         <div>
