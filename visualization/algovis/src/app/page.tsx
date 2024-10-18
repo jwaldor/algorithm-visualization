@@ -127,11 +127,35 @@ export default function Home() {
               <line x1="10" y1="30" x2="190" y2="30" stroke="black" strokeWidth="2" />
               <circle cx="100" cy="30" r="5" fill="red" />
               <text x="100" y="55" fontSize="10" textAnchor="middle">Mid</text>
-              <polygon points="10,25 10,35 5,30" fill="black" />
+              <circle cx="10" cy="30" r="3" fill="black" />
               <text x="10" y="20" fontSize="10" textAnchor="middle">Start</text>
-              <polygon points="190,25 190,35 195,30" fill="black" />
+              <circle cx="190" cy="30" r="3" fill="black" />
               <text x="190" y="20" fontSize="10" textAnchor="middle">End</text>
               <line x1="100" y1="10" x2="100" y2="50" stroke="black" strokeWidth="1" strokeDasharray="4" />
+            </svg>
+          </div>
+        </div>
+        <div
+          onClick={() => window.location.href = '/depthFirstSearch'}
+          className="p-3 border border-gray-300 rounded-md w-[80%] sm:w-[50%] h-28 cursor-pointer"
+        >
+          <div className="mb-1">Depth First Search</div>
+          <div className="flex justify-center h-full">
+            <svg width="250" height="70" viewBox="0 0 200 70">
+              <line x1="100" y1="20" x2="70" y2="40" stroke="black" strokeWidth="2" />
+              <line x1="100" y1="20" x2="130" y2="40" stroke="black" strokeWidth="2" />
+              <line x1="70" y1="40" x2="55" y2="60" stroke="black" strokeWidth="2" />
+              <line x1="70" y1="40" x2="85" y2="60" stroke="black" strokeWidth="2" />
+              <line x1="130" y1="40" x2="115" y2="60" stroke="black" strokeWidth="2" />
+              <line x1="130" y1="40" x2="145" y2="60" stroke="black" strokeWidth="2" />
+              <circle cx="100" cy="20" r="5" fill="red" />
+              <circle cx="70" cy="40" r="5" fill="black" />
+              <circle cx="130" cy="40" r="5" fill="black" />
+              <circle cx="55" cy="60" r="5" fill="black" />
+              <circle cx="85" cy="60" r="5" fill="black" />
+              <circle cx="115" cy="60" r="5" fill="black" />
+              <circle cx="145" cy="60" r="5" fill="black" />
+              <text x="100" y="10" fontSize="10" textAnchor="middle">Start</text>
             </svg>
           </div>
         </div>
