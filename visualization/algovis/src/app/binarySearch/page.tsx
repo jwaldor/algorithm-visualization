@@ -127,6 +127,9 @@ export default function Page() {
                 //     setFound(props.i)
                 //     setExecuting(false)
                 // }
+                if (props.array.length <= 1) {
+                    setExecuting(false)
+                }
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
 
