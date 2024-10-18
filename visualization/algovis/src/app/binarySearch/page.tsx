@@ -1,6 +1,6 @@
 "use client";
 
-import { createRef, useMemo, useState, forwardRef, useEffect, RefObject, useRef } from "react";
+import React, { createRef, useState, forwardRef } from "react";
 
 
 
@@ -43,6 +43,8 @@ const Circle = forwardRef<HTMLDivElement, CircleProps>(({ entry, executing, arra
     );
 });
 
+Circle.displayName = "Circle";
+
 const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     <button
         onClick={onClick}
@@ -51,58 +53,60 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
         +
     </button>
 );
-
+type CallbackArgs = { compare: number, layer: number, leading: number, array: Array<number>, index: number }
+type Callback = (props: CallbackArgs) => void
+type CompleteArgs = { compare: number | undefined, layer: number, leading: number, array: Array<number>, index: number }
+type Complete = (props: CompleteArgs) => void
 // get rid of cmplete and add return values.
-async function binarySearch(array:Array<number>, term: number, leading = 0,layer=0,callback:Function,complete:Function) {
+async function binarySearch(array: Array<number>, term: number, leading = 0, layer = 0, callback: Callback, complete: Complete) {
     const m = Math.floor((array.length - 1) / 2);
-    console.log("callback",array[m],array)
-    await callback({compare:array[m],layer,leading:leading,array:array,index:m})
+    await callback({ compare: array[m], layer, leading: leading, array: array, index: m })
     if (array.length === 0) {
-        complete({compare:undefined,layer:layer,leading:leading,array:[array[m+leading]],index:m+leading});;
+        complete({ compare: undefined, layer: layer, leading: leading, array: [array[m + leading]], index: m + leading });
     }
     if (array[m] < term) {
-      binarySearch(
-        array.slice(m + 1, array.length),
-        term,
-        leading + m + 1,
-        layer+1,
-        callback,
-        complete
-      );
+        binarySearch(
+            array.slice(m + 1, array.length),
+            term,
+            leading + m + 1,
+            layer + 1,
+            callback,
+            complete
+        );
     } else if (array[m] > term) {
 
-     binarySearch(array.slice(0, m + 1), term, leading,layer+1,callback,complete);
+        binarySearch(array.slice(0, m + 1), term, leading, layer + 1, callback, complete);
     } else {
-        complete({compare:m+leading,layer:layer,leading:leading+m,array:[array[m]],index:m+leading});
+        complete({ compare: m + leading, layer: layer, leading: leading + m, array: [array[m]], index: m + leading });
     }
-  }
+}
 
 
 
 
 export default function Page() {
-    const [compare, setCompare] = useState<number|undefined>(undefined);
-    const [numbers, setNumbers] = useState<number[]>([1,3,5,7,9,11,13,15]);
+    // const [compare, setCompare] = useState<number|undefined>(undefined);
+    const [numbers, setNumbers] = useState<number[]>([1, 3, 5, 7, 9, 11, 13, 15]);
     const [searchTerm, setSearchTerm] = useState<number | null>(5);
     const [executing, setExecuting] = useState<boolean>(false);
-    const [found, setFound] = useState<number|undefined>();
-    const [searchSteps,setSearchSteps] = useState<Array<{compare:number,layer:number, leading:number,array:Array<number>,index:number}>>([]);
+    const [found, setFound] = useState<number | undefined>();
+    const [searchSteps, setSearchSteps] = useState<Array<{ compare: number, layer: number, leading: number, array: Array<number>, index: number }>>([]);
 
     // const [circleRefs,setCircleRefs] = useState<null|RefObject<HTMLDivElement>[]>(null)
     // useEffect(()=> {
     //     const circleRefs =  numbers.map(() => createRef<HTMLDivElement>())
     //     setCircleRefs(circleRefs)
     // }, [numbers])
-        const circleRefs =  numbers.map(() => createRef<HTMLDivElement>())
-    
+    const circleRefs = numbers.map(() => createRef<HTMLDivElement>())
+
     const execute = () => {
-        console.log("here",searchTerm,executing)
-        if (searchTerm !== null && !executing){
+        console.log("here", searchTerm, executing)
+        if (searchTerm !== null && !executing) {
             console.log("here2")
             // setI(0);
             setFound(undefined);
             setExecuting(true);
-            binarySearch(numbers,searchTerm,0,0,async (props:{compare:number,layer:number, leading:number,array:Array<number>,index:number})=>{
+            binarySearch(numbers, searchTerm, 0, 0, async (props: { compare: number, layer: number, leading: number, array: Array<number>, index: number }) => {
                 setSearchSteps(prevSteps => [...prevSteps, {
                     compare: props.compare,
                     layer: props.layer,
@@ -116,47 +120,29 @@ export default function Page() {
                 //     setExecuting(false)
                 // }
                 await new Promise(resolve => setTimeout(resolve, 1000));
-                console.log("here5",props.compare)
-                
-            },(props:{compare:number,layer:number,leading:number,array:Array<number>,index:number})=>{
-                if (numbers[props.compare] === searchTerm){
+                console.log("here5", props.compare)
+
+            }, (props: CompleteArgs) => {
+                if (props.compare !== undefined && numbers[props.compare] === searchTerm) {
                     setFound(props.compare)
                     setSearchSteps(prevSteps => [...prevSteps, {
-                        compare: props.compare,
+                        compare: props.compare as number,
                         layer: props.layer,
                         leading: props.leading,
                         array: props.array,
                         index: props.index
                     }]);
                 }
-                else{
-                    console.log("here6",props.compare)
+                else {
                 }
                 setExecuting(false)
             })
             console.log("done")
             // useSetInterval(algorithmStep,1000);
         }
-            
+
     };
-    // Test call of binary search with a sorted array
-    const testArray = [1, 3, 5, 7, 9, 11, 13, 15];
-    const testTerm = 5;
-    
-    const testBinarySearch = () => {
-        binarySearch(testArray, testTerm, 0, 0, 
-            (props: { compare: number, layer: number, leading: number, array: Array<number>,index:number }) => {
-                console.log(`Comparing at index ${props.compare} layer ${props.layer} leading ${props.leading} array ${props.array}`);
-            },
-            (props: { compare: number | undefined }) => {
-                if (props.compare !== undefined) {
-                    console.log(`Found ${testTerm} at index ${props.compare}`);
-                } else {
-                    console.log(`${testTerm} not found in the array`);
-                }
-            }
-        );
-    };
+
 
     // Call the test function
     // useEffect(() => {
@@ -175,7 +161,7 @@ export default function Page() {
     // useEffect(()=>{
     //     console.log("searchSteps",searchSteps)
     // },[searchSteps])
-    console.log(searchSteps,"searchSteps")
+    console.log(searchSteps, "searchSteps")
     return (
         <div>
             <h1>Binary Search</h1>
@@ -186,7 +172,7 @@ export default function Page() {
                         value={searchTerm !== null ? searchTerm : ''}
                         onChange={(e) => {
                             setSearchTerm(Number(e.target.value))
-                            setCompare(undefined)
+                            // setCompare(undefined)
                         }}
                         className="w-16 h-16 text-center text-xl border-2 border-gray-300 rounded-md mr-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         placeholder="Term"
@@ -223,26 +209,24 @@ export default function Page() {
                         <div className="flex flex-row">
                             {/* pad the array with undefined to the left to line up the array properly */}
                             {[...Array(step.leading).fill(undefined), ...step.array].map((number, index) => (
-                                
+
                                 number === undefined ? <div
-                                key={index}
-                                className={`w-10 h-10 rounded-full ${
-                                    index === step.compare ? 'bg-yellow-400 border-yellow-600' :
-                                    number === searchTerm ? 'bg-green-500 border-green-600' :
-                                    'bg-blue-400  border-blue-600'
-                                } border-2 flex items-center justify-center text-white text-sm mr-2 bg-transparent border-none`}
-                            >
-                                {number}
-                            </div> :
-                                <div
                                     key={index}
-                                    className={`w-10 h-10 rounded-full ${
-                                        step.index === index - step.leading ? 'bg-yellow-400 border-yellow-600' :
-                                        'bg-blue-400 border-blue-600'
-                                    } border-2 flex items-center justify-center text-white text-sm mr-2`}
+                                    className={`w-10 h-10 rounded-full ${index === step.compare ? 'bg-yellow-400 border-yellow-600' :
+                                        number === searchTerm ? 'bg-green-500 border-green-600' :
+                                            'bg-blue-400  border-blue-600'
+                                        } border-2 flex items-center justify-center text-white text-sm mr-2 bg-transparent border-none`}
                                 >
                                     {number}
-                                </div>
+                                </div> :
+                                    <div
+                                        key={index}
+                                        className={`w-10 h-10 rounded-full ${step.index === index - step.leading ? 'bg-yellow-400 border-yellow-600' :
+                                            'bg-blue-400 border-blue-600'
+                                            } border-2 flex items-center justify-center text-white text-sm mr-2`}
+                                    >
+                                        {number}
+                                    </div>
                             ))}
                         </div>
                     </div>
