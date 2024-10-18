@@ -23,7 +23,7 @@ type AlgorithmSnapshot =
   | { type: 'finished'; data: { starting_node: string, distances: Record<string, number> } }
 
 
-async function djikstra(graph: Record<string, Record<string, number>>, starting_node: string, callback?: onUpdateFunction): Promise<Record<string, number>> {
+async function dijkstra(graph: Record<string, Record<string, number>>, starting_node: string, callback?: onUpdateFunction): Promise<Record<string, number>> {
   const nodes = Object.keys(graph);
   const distances: { [key: string]: number } = nodes.reduce((acc: { [key: string]: number }, node: string) => {
     acc[node] = Infinity;
@@ -469,7 +469,7 @@ export default function Page() {
       <button
         onClick={() => {
           setAlgorithmStateHistory([[]]);
-          djikstra(complexWeightedGraph, "A", update)
+          dijkstra(complexWeightedGraph, "A", update)
             .then(() => {
               console.log("dijkstra finished");
             });
