@@ -82,7 +82,7 @@ export default function Page() {
             let frameIndex = 0;
 
             const animateFrames = () => {
-                if (frameIndex < allFrames.length) {
+                if (frameIndex < allFrames.length + 1) {
                     console.log(frameIndex, "frameIndex", allFrames[frameIndex], "allFrames[frameIndex]")
                     setShowingFrames(allFrames.slice(0, frameIndex));
                     frameIndex++;
@@ -114,6 +114,16 @@ export default function Page() {
             {/* //Here, you can define the search term and the array that you want to search */}
             <div className="flex flex-row justify-center gap-4 my-4">
                 <div className="flex items-center justify-center mb-4">
+
+                    <button
+                        onClick={execute}
+                        className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center"
+                        disabled={executing}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                        </svg>
+                    </button>
                     <input
                         type="number"
                         value={searchTerm !== null ? searchTerm : ''}
@@ -137,6 +147,15 @@ export default function Page() {
                 ))}
                 <PlusButton onClick={handleAddNumber} />
             </div>
+            {showingframes.map((frame, index) => (
+                <div key={index} className="flex flex-row">
+                    {frame.map((item, index) => (
+                        <div key={index} className="w-10 h-10 rounded-full bg-blue-400 border-2 border-blue-600 flex items-center justify-center text-white text-sm mr-2">
+                            {item.value}
+                        </div>
+                    ))}
+                </div>
+            ))}
             {/* <div className="mt-8">
                 <h2 className="text-xl font-bold mb-4">Search Steps</h2>
                 {searchSteps.map((step, stepIndex) => {
