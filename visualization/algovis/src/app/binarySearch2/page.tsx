@@ -1,4 +1,6 @@
 "use client";
+import { binarySearch } from "@/services/binarysearch/binarysearch";
+import { CallbackArgs } from "@/services/binarysearch/binarysearch";
 
 import React, { createRef, useState, forwardRef } from "react";
 
@@ -53,47 +55,15 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
         +
     </button>
 );
-type CallbackArgs = { compare: number, layer: number, leading: number, array: Array<number>, index: number }
-type Callback = (props: CallbackArgs) => void
-type CompleteArgs = { compare: number | undefined, layer: number, leading: number, array: Array<number>, index: number, complete: true }
-type Complete = (props: CompleteArgs) => void
-// get rid of cmplete and add return values.
-async function binarySearch(array: Array<number>, term: number, leading = 0, layer = 0, callback: Callback, complete: Complete) {
-    const m = Math.floor((array.length - 1) / 2);
-    console.log("still searching")
-    await callback({ compare: array[m], layer, leading: leading, array: array, index: m })
-    if (array.length === 0) {
-        return;
-        // complete({ compare: undefined, layer: layer, leading: leading, array: [array[m + leading]], index: m + leading, complete: true });
-    }
-    if (array[m] < term) {
-        console.log("searching right")
-        binarySearch(
-            array.slice(m + 1, array.length),
-            term,
-            leading + m + 1,
-            layer + 1,
-            callback,
-            complete
-        );
-    } else if (array[m] > term) {
-        console.log("searching left", array.slice(0, m + 1))
 
-        binarySearch(array.slice(0, m), term, leading, layer + 1, callback, complete);
-    } else {
-        console.log("completecallback")
-        // complete({ compare: m + leading, layer: layer, leading: leading + m, array: [array[m]], index: m + leading, complete: true });
-        // callback({ compare: m + leading, layer: layer, leading: leading + m, array: [array[m]], index: m + leading });
-        return;
-    }
-}
+
 
 
 
 
 export default function Page() {
     // const [compare, setCompare] = useState<number|undefined>(undefined);
-    const [numbers, setNumbers] = useState<number[]>([1, 3, 5, 7, 9, 11, 13, 15]);
+    const [numbers, setNumbers] = useState<number[]>([1, 3, 5, 7, 9, 11, 13, 15, 19]);
     const [searchTerm, setSearchTerm] = useState<number | null>(5);
     const [executing, setExecuting] = useState<boolean>(false);
     const [found, setFound] = useState<number | undefined>();
@@ -114,41 +84,7 @@ export default function Page() {
             // setI(0);
             setFound(undefined);
             setExecuting(true);
-            binarySearch(numbers, searchTerm, 0, 0, async (props: { compare: number, layer: number, leading: number, array: Array<number>, index: number }) => {
-                setSearchSteps(prevSteps => [...prevSteps, {
-                    compare: props.compare,
-                    layer: props.layer,
-                    leading: props.leading,
-                    array: props.array,
-                    index: props.index
-                }]);
-
-                // if (numbers[props.i] === searchTerm){
-                //     setFound(props.i)
-                //     setExecuting(false)
-                // }
-                if (props.array.length <= 1) {
-                    setExecuting(false)
-                }
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
-
-            }, (props: CompleteArgs) => {
-                if (props.compare !== undefined && numbers[props.compare] === searchTerm) {
-                    setFound(props.compare)
-                    setSearchSteps(prevSteps => [...prevSteps, {
-                        compare: props.compare as number,
-                        layer: props.layer,
-                        leading: props.leading,
-                        array: props.array,
-                        index: props.index
-                    }]);
-                    console.log("complete", props.complete)
-                }
-                else {
-                }
-                setExecuting(false)
-            })
+            binarySearch(numbers, searchTerm, (searchStep: CallbackArgs) => { setSearchSteps(searchSteps => [...searchSteps, searchStep]) })
 
             // useSetInterval(algorithmStep,1000);
         }
@@ -247,7 +183,7 @@ export default function Page() {
                                         </div> :
                                             <div
                                                 key={index}
-                                                className={`w-10 h-10 rounded-full ${!(step.array.length === 1 && number === searchTerm) && (step.index === index - step.leading ? 'bg-yellow-400 border-yellow-600' :
+                                                className={`w-10 h-10 rounded-full ${!(step.array[step.index] === 1 && number === searchTerm) && (step.index === index - step.leading ? 'bg-yellow-400 border-yellow-600' :
                                                     'bg-blue-400 border-blue-600'
                                                 )} ${step.array.length === 1 && number === searchTerm && 'bg-green-500 border-green-600'} border-2 flex items-center justify-center text-white text-sm mr-2`}
                                             >

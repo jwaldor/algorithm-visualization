@@ -6,18 +6,18 @@ export type CallbackArgs = {
   target: number;
   right: number;
 };
-type Callback = (props: CallbackArgs) => void;
+export type Callback = (props: CallbackArgs) => void;
 
 type FrameBubble = {
   value: number | undefined;
   type: "regular" | "focus" | "found" | undefined;
 };
 
-type Frame = Array<FrameBubble>;
+export type Frame = Array<FrameBubble>;
 
-type Frames = Array<Frame>;
+export type Frames = Array<Frame>;
 
-enum FrameBubbleColor {
+export enum FrameBubbleColor {
   REGULAR = "bg-blue-400 border-blue-600",
   FOCUS = "bg-yellow-400 border-yellow-600",
   FOUND = "bg-green-400 border-green-600",
