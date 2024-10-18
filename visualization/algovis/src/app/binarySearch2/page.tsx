@@ -12,15 +12,12 @@ interface CircleProps {
     array: number[];
     executing: boolean;
     setNumbers: React.Dispatch<React.SetStateAction<number[]>>;
-    found: number | undefined;
+    color: string;
 }
 
-const Circle = forwardRef<HTMLDivElement, CircleProps>(({ entry, executing, array, setNumbers, found }, ref) => {
-    const isFound = found === entry;
+const Circle = forwardRef<HTMLDivElement, CircleProps>(({ entry, executing, array, setNumbers, color }, ref) => {
     const baseClasses = "w-20 h-20 rounded-full grid place-items-center text-white font-bold shadow-md transition-all duration-300";
-    const colorClasses = isFound
-        ? "bg-purple-500 border-4 border-purple-700 hover:bg-purple-400"
-        : "bg-blue-500 border-4 border-blue-700 hover:bg-blue-400";
+    const colorClasses = color
 
     return (
         <div ref={ref} className={`${baseClasses} ${colorClasses}`}>
@@ -87,7 +84,6 @@ export default function Page() {
             const animateFrames = () => {
                 if (frameIndex < allFrames.length) {
                     console.log(frameIndex, "frameIndex", allFrames[frameIndex], "allFrames[frameIndex]")
-
                     setShowingFrames(allFrames.slice(0, frameIndex));
                     frameIndex++;
                     setTimeout(animateFrames, 1000); // Delay of 1 second between frames
@@ -114,16 +110,8 @@ export default function Page() {
 
     return (
         <div>
-            <button
-                onClick={execute}
-                className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center"
-                disabled={executing}
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                </svg>
-            </button>
-            {/* <h1>Binary Search</h1>
+            <h1>Binary Search</h1>
+            {/* //Here, you can define the search term and the array that you want to search */}
             <div className="flex flex-row justify-center gap-4 my-4">
                 <div className="flex items-center justify-center mb-4">
                     <input
@@ -131,36 +119,25 @@ export default function Page() {
                         value={searchTerm !== null ? searchTerm : ''}
                         onChange={(e) => {
                             setSearchTerm(Number(e.target.value))
-                            // setCompare(undefined)
                         }}
                         className="w-16 h-16 text-center text-xl border-2 border-gray-300 rounded-md mr-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         placeholder="Term"
                     />
-                    <button
-                        onClick={execute}
-                        className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center"
-                        disabled={executing}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                        </svg>
-                    </button>
                 </div>
                 {numbers.map((number, index) => (
                     <div key={index} className="flex flex-row">
                         <Circle
-                            ref={circleRefs[index]}
                             entry={index}
                             array={numbers}
                             executing={executing}
                             setNumbers={setNumbers}
-                            found={found}
+                            color={"bg-blue-500 border-4 border-blue-700 hover:bg-blue-400"}
                         />
                     </div>
                 ))}
                 <PlusButton onClick={handleAddNumber} />
             </div>
-            <div className="mt-8">
+            {/* <div className="mt-8">
                 <h2 className="text-xl font-bold mb-4">Search Steps</h2>
                 {searchSteps.map((step, stepIndex) => {
                     console.log(searchSteps[searchSteps.length - 1], searchSteps[searchSteps.length - 1].array, "searchSteps")
