@@ -10,7 +10,7 @@ export type Callback = (props: CallbackArgs) => void;
 
 type FrameBubble = {
   value: number | undefined;
-  type: "regular" | "focus" | "found" | undefined;
+  type: "regular" | "focus" | "found" | "empty";
 };
 
 export type Frame = Array<FrameBubble>;

@@ -8,6 +8,7 @@ export enum FrameBubbleColor {
     regular = "bg-blue-400 border-blue-600",
     focus = "bg-yellow-400 border-yellow-600",
     found = "bg-green-400 border-green-600",
+    empty = "bg-transparent border-transparent"
 }
 
 
@@ -155,7 +156,7 @@ export default function Page() {
             {showingframes.map((frame, index) => (
                 <div key={index} className="flex flex-row">
                     {frame.map((item, index) => (
-                        <div key={index} className={`w-10 h-10 rounded-full ${item.type ? FrameBubbleColor[item.type] : "bg-transparent border-transparent"} flex items-center justify-center text-white text-sm mr-2`}>
+                        <div key={index} className={`w-10 h-10 rounded-full ${FrameBubbleColor[item.type]} flex items-center justify-center text-white text-sm mr-2`}>
                             {item.value}
                         </div>
                     ))}

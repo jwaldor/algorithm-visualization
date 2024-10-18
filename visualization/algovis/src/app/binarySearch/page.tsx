@@ -93,7 +93,7 @@ async function binarySearch(array: Array<number>, term: number, leading = 0, lay
 
 export default function Page() {
     // const [compare, setCompare] = useState<number|undefined>(undefined);
-    const [numbers, setNumbers] = useState<number[]>([1, 3, 5, 7, 9, 11, 13, 15]);
+    const [numbers, setNumbers] = useState<number[]>([1, 3, 5, 7, 9, 11, 13, 15, 19]);
     const [searchTerm, setSearchTerm] = useState<number | null>(5);
     const [executing, setExecuting] = useState<boolean>(false);
     const [found, setFound] = useState<number | undefined>();
@@ -247,7 +247,7 @@ export default function Page() {
                                         </div> :
                                             <div
                                                 key={index}
-                                                className={`w-10 h-10 rounded-full ${!(step.array.length === 1 && number === searchTerm) && (step.index === index - step.leading ? 'bg-yellow-400 border-yellow-600' :
+                                                className={`w-10 h-10 rounded-full ${!(step.array[step.index] === 1 && number === searchTerm) && (step.index === index - step.leading ? 'bg-yellow-400 border-yellow-600' :
                                                     'bg-blue-400 border-blue-600'
                                                 )} ${step.array.length === 1 && number === searchTerm && 'bg-green-500 border-green-600'} border-2 flex items-center justify-center text-white text-sm mr-2`}
                                             >
