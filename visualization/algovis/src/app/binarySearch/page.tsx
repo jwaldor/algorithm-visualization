@@ -55,14 +55,14 @@ const PlusButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
 );
 type CallbackArgs = { compare: number, layer: number, leading: number, array: Array<number>, index: number }
 type Callback = (props: CallbackArgs) => void
-type CompleteArgs = { compare: number | undefined, layer: number, leading: number, array: Array<number>, index: number }
+type CompleteArgs = { compare: number | undefined, layer: number, leading: number, array: Array<number>, index: number, complete: true }
 type Complete = (props: CompleteArgs) => void
 // get rid of cmplete and add return values.
 async function binarySearch(array: Array<number>, term: number, leading = 0, layer = 0, callback: Callback, complete: Complete) {
     const m = Math.floor((array.length - 1) / 2);
     await callback({ compare: array[m], layer, leading: leading, array: array, index: m })
     if (array.length === 0) {
-        complete({ compare: undefined, layer: layer, leading: leading, array: [array[m + leading]], index: m + leading });
+        complete({ compare: undefined, layer: layer, leading: leading, array: [array[m + leading]], index: m + leading, complete: true });
     }
     if (array[m] < term) {
         binarySearch(
@@ -77,7 +77,7 @@ async function binarySearch(array: Array<number>, term: number, leading = 0, lay
 
         binarySearch(array.slice(0, m + 1), term, leading, layer + 1, callback, complete);
     } else {
-        complete({ compare: m + leading, layer: layer, leading: leading + m, array: [array[m]], index: m + leading });
+        complete({ compare: m + leading, layer: layer, leading: leading + m, array: [array[m]], index: m + leading, complete: true });
     }
 }
 
