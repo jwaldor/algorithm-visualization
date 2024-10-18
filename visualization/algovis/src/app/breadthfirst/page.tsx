@@ -14,55 +14,64 @@ interface TreeNode {
 type onUpdateFunction = (state: { position: Array<number> }) => void
 
 
-function breadthFirstSearch(tree: TreeNode, term: number, position: Array<number> = [], callback?: onUpdateFunction): number[] | undefined {
+function breadthFirstSearch(tree: TreeNode, term: number, position: Array<number> = [0], callback?: onUpdateFunction): number[] | undefined {
   const queue: Array<TreeNode> = [];
-  if (position.length === 0) {
+  const queueMap: { [key: number]: TreeNode[] } = {};
+  if (position.length === 1) {
     if (callback) {
-      callback({ position: [0] })
+      callback({ position })
     }
     if (tree.value === term) {
       return position;
     }
-    console.log("position", position, tree,)
   }
 
   for (let i = 0; i < tree.children.length; i++) {
-    if (tree.value === term) {
-      return position.concat(i);
-    }
     if (callback) {
-      callback({ position: position })
-      console.log("position", position, tree,)
+      callback({ position: position.concat(i) })
+    }
+    if (tree.children[i].value === term) {
+      return position.concat(i);
     }
     // console.log(tree, tree[i].children);
     if (tree.children[i].children.length > 0) {
       queue.push(...tree.children[i].children);
+      queueMap[i] = tree.children[i].children
     }
   }
-  for (let i = 0; i < queue.length; i++) {
-    const b = breadthFirstSearch(queue[i], term, position.concat([i]));
-    if (b) {
-      return b;
-    }
-  }
-}
-
-
-function depthFirstSearch(tree: TreeNode, term: number, position: Array<number> = [], callback?: onUpdateFunction): Array<number> | undefined {
-
-  if (tree.value === term) {
-    return position;
-  }
-  else {
-    for (let i = 0; i < tree.children.length; i++) {
-
-      const d: Array<number> | undefined = depthFirstSearch(tree.children[i], term, position.concat(i), callback);
-      if (d) {
-        return d;
+  console.log("queue.length", queue.length)
+  for (const [key, nodes] of Object.entries(queueMap)) {
+    for (let i = 0; i < nodes.length; i++) {
+      const b = breadthFirstSearch(nodes[i], term, [...position, parseInt(key)]);
+      if (b) {
+        return b;
       }
     }
   }
+  // for (let i = 0; i < queue.length; i++) {
+  //   const b = breadthFirstSearch(queue[i], term, [...position]);
+  //   if (b) {
+  //     return b;
+  //   }
+  // }
 }
+
+
+// function depthFirstSearch(tree: TreeNode, term: number, position: Array<number> = [], callback?: onUpdateFunction): Array<number> | undefined {
+
+//   if (tree.value === term) {
+//     return position;
+//   }
+//   else {
+//     for (let i = 0; i < tree.children.length; i++) {
+
+//       const d: Array<number> | undefined = depthFirstSearch(tree.children[i], term, position.concat(i), callback);
+//       if (d) {
+//         return d;
+//       }
+//     }
+//   }
+// }
 
 // console.log("depthFirstSearch",depthFirstSearch([{value:1,children:[{value:2,children:[{value:3,children:[]}]}]}],3,[],(searchState) => {console.log("searchState",searchState)}))
 
@@ -143,7 +152,7 @@ export default function Page() {
       ],
     }
 
-    depthFirstSearch(tree, state.searchTerm, [], (searchState) => {
+    breadthFirstSearch(tree, state.searchTerm, [0], (searchState) => {
       setState(prevState => ({ ...prevState, position: searchState.position }))
       console.log("positioncallback", searchState.position)
     })
@@ -153,12 +162,16 @@ export default function Page() {
   function handleStartSearch() {
     if (state.state[0] !== "searching") {
       setState({ ...state, state: ["searching", { position: 0, positions: [], foundItem: undefined }] })
-      const result = depthFirstSearch(state.visualizationData, state.searchTerm, [], (searchState) => {
+      const result = breadthFirstSearch(state.visualizationData, state.searchTerm, [0], (searchState) => {
         setState(prevState => ({ ...prevState, state: ["searching", { position: 0, positions: (prevState.state[1] as { position: number, positions: Array<Array<number>>, foundItem: number[] | undefined }).positions.concat([searchState.position]), foundItem: (prevState.state[1] as { position: number, positions: Array<Array<number>>, foundItem: number[] | undefined }).foundItem }] }))
         console.log("positioncallback", searchState.position)
       })
+      console.log("result", result)
       setState(prevState => ({ ...prevState, state: ["searching", { position: 0, positions: (prevState.state[1] as { position: number, positions: Array<Array<number>>, foundItem: number | undefined }).positions, foundItem: result }] }))
-
+      setState(prevState => {
+        console.log("final state", prevState)
+        return prevState
+      })
       console.log("result", result)
       // Set up an interval to update the position every second
       const intervalId = setInterval(() => {
@@ -261,6 +274,7 @@ export default function Page() {
     const { position, positions } = state.state[1] as { position: number, positions: Array<Array<number>> };
     const currentPosition = positions[position];
     let currentNode: TreeNode = state.visualizationData;
+    console.log(state.visualizationData)
     for (const index of currentPosition.slice(0, currentPosition.length)) {
       currentNode = currentNode.children[index];
       console.log("currentNode loop", currentNode.value)
