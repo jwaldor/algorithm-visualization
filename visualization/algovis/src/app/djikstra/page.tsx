@@ -1,7 +1,8 @@
 "use client";
 
-import React,{  useState, useRef, useCallback, useLayoutEffect, ReactNode } from "react";
+import React, { useState, useRef, useLayoutEffect, ReactNode } from "react";
 import * as d3 from 'd3';
+
 
 
 
@@ -14,17 +15,17 @@ type onUpdateFunction = (state: AlgorithmSnapshot) => Promise<void>
 
 
 
-type AlgorithmSnapshot = 
-  | {type:"pre_algorithm"}
-  | { type: 'finding_min_unvisited'; data: {starting_node:string,distances:Record<string,number>,visited:Array<string>,wait_time:number} }
-  | { type: 'pre_minimize_neighbors'; data:{starting_node:string, current_node:string, unvisited_neighbors:Array<string>, distances:Record<string,number>, wait_time:number} }
-  | { type: 'minimize_neighbors_step'; data: {starting_node:string,current_node:string,neighbor:string,distances:Record<string,number>,newdist:number,edge_length:number,wait_time:number,unvisited_neighbors:Array<string>} }
-  | { type: 'finished'; data: {starting_node:string,distances:Record<string,number>} }
+type AlgorithmSnapshot =
+  | { type: "pre_algorithm" }
+  | { type: 'finding_min_unvisited'; data: { starting_node: string, distances: Record<string, number>, visited: Array<string>, wait_time: number } }
+  | { type: 'pre_minimize_neighbors'; data: { starting_node: string, current_node: string, unvisited_neighbors: Array<string>, distances: Record<string, number>, wait_time: number } }
+  | { type: 'minimize_neighbors_step'; data: { starting_node: string, current_node: string, neighbor: string, distances: Record<string, number>, newdist: number, edge_length: number, wait_time: number, unvisited_neighbors: Array<string> } }
+  | { type: 'finished'; data: { starting_node: string, distances: Record<string, number> } }
 
 
 async function djikstra(graph: Record<string, Record<string, number>>, starting_node: string, callback?: onUpdateFunction): Promise<Record<string, number>> {
   const nodes = Object.keys(graph);
-  const distances: {[key: string]: number} = nodes.reduce((acc: {[key: string]: number}, node: string) => {
+  const distances: { [key: string]: number } = nodes.reduce((acc: { [key: string]: number }, node: string) => {
     acc[node] = Infinity;
     return acc;
   }, {});
@@ -37,8 +38,8 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
     const distancesArray = Object.entries(distances).map(([key, value]) => ({
       [key]: value,
     }));
-    if (callback){
-      await callback({type:"finding_min_unvisited",data:{starting_node:starting_node,distances:distances,visited:visited,wait_time:1000}})
+    if (callback) {
+      await callback({ type: "finding_min_unvisited", data: { starting_node: starting_node, distances: distances, visited: visited, wait_time: 1000 } })
     }
 
     let min = Infinity;
@@ -55,52 +56,52 @@ async function djikstra(graph: Record<string, Record<string, number>>, starting_
         return !visited.includes(elt);
       }
     );
-    if (callback){
-      await callback({type:"pre_minimize_neighbors",data:{starting_node:starting_node,current_node:current_node,unvisited_neighbors:unvisited_neighbors,distances:distances,wait_time:1000}})
+    if (callback) {
+      await callback({ type: "pre_minimize_neighbors", data: { starting_node: starting_node, current_node: current_node, unvisited_neighbors: unvisited_neighbors, distances: distances, wait_time: 1000 } })
     }
-    for (const neighbor of unvisited_neighbors){
+    for (const neighbor of unvisited_neighbors) {
       const newdist = graph[current_node][neighbor] + distances[current_node];
-      if (callback){
+      if (callback) {
         await callback({
-          type:"minimize_neighbors_step",
-          data:{
-            starting_node:starting_node,
-            current_node:current_node,
-            neighbor:neighbor,
-            distances:distances,
-            newdist:newdist,
-            edge_length:graph[current_node][neighbor],
-            wait_time:1000,
-            unvisited_neighbors:unvisited_neighbors
+          type: "minimize_neighbors_step",
+          data: {
+            starting_node: starting_node,
+            current_node: current_node,
+            neighbor: neighbor,
+            distances: distances,
+            newdist: newdist,
+            edge_length: graph[current_node][neighbor],
+            wait_time: 1000,
+            unvisited_neighbors: unvisited_neighbors
           }
         })
       }
       if (newdist < distances[neighbor]) {
         distances[neighbor] = newdist;
       }
-      if (callback){
+      if (callback) {
         await callback({
-          type:"minimize_neighbors_step",
-          data:{
-            starting_node:starting_node,
-            current_node:current_node,
-            neighbor:neighbor,
-            distances:distances,
-            newdist:newdist,
-            edge_length:graph[current_node][neighbor],
-            wait_time:1000,
-            unvisited_neighbors:unvisited_neighbors
+          type: "minimize_neighbors_step",
+          data: {
+            starting_node: starting_node,
+            current_node: current_node,
+            neighbor: neighbor,
+            distances: distances,
+            newdist: newdist,
+            edge_length: graph[current_node][neighbor],
+            wait_time: 1000,
+            unvisited_neighbors: unvisited_neighbors
           }
         })
       }
     }
-    if (callback){
-      await callback({type:"pre_minimize_neighbors",data:{starting_node:starting_node,current_node:current_node,unvisited_neighbors:unvisited_neighbors,distances:distances,wait_time:2500}})
+    if (callback) {
+      await callback({ type: "pre_minimize_neighbors", data: { starting_node: starting_node, current_node: current_node, unvisited_neighbors: unvisited_neighbors, distances: distances, wait_time: 2500 } })
     }
     visited.push(current_node);
   }
-  if (callback){
-    await callback({type:"finished",data:{starting_node:starting_node,distances:distances}})
+  if (callback) {
+    await callback({ type: "finished", data: { starting_node: starting_node, distances: distances } })
   }
   return distances;
 }
@@ -126,44 +127,38 @@ interface Link extends d3.SimulationLinkDatum<Node> {
 interface GraphProps {
   graph: Record<string, Record<string, number>>;
   setGraph: React.Dispatch<React.SetStateAction<Record<string, Record<string, number>>>>;
-  nodeColors: Record<string, string>;
   algorithmState: AlgorithmSnapshot;
-  haveRun: boolean;
-  setHaveRun: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const Node: React.FC<{ 
-  node: Node; 
-  color: string; 
-  onDragStart: (event: any, node: Node) => void; 
-  onDragged: (event: any, node: Node) => void; 
-  onDragEnd: (event: any, node: Node) => void;
+const Node: React.FC<{
+  node: Node;
+  // onDragStart: (event: React.MouseEvent, node: Node) => void;
+  // onDragged: (event: React.MouseEvent, node: Node) => void;
+  // onDragEnd: (event: React.MouseEvent, node: Node) => void;
   algorithmState: AlgorithmSnapshot;
   graph: Record<string, Record<string, number>>;
   setGraph: React.Dispatch<React.SetStateAction<Record<string, Record<string, number>>>>;
-  haveRun: boolean;
-  setHaveRun: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({ node, color, onDragStart, onDragged, onDragEnd, algorithmState, graph, setGraph, haveRun, setHaveRun }) => {
+}> = ({ node, algorithmState, graph, setGraph }) => {
   const [showMenu, setShowMenu] = useState(false);
 
   // You can use algorithmState here to modify the node's appearance
   let nodeText = node.id;
-  let nodeColor = color;
+  let nodeColor = "white";
   let nodeBold = false;
   switch (algorithmState.type) {
     case "pre_algorithm":
       break;
     default:
-      if (algorithmState.data.distances[node.id] !== Infinity){
-      nodeText = `${node.id}: ${algorithmState.data.distances[node.id]}`;
+      if (algorithmState.data.distances[node.id] !== Infinity) {
+        nodeText = `${node.id}: ${algorithmState.data.distances[node.id]}`;
       }
-      else{
-        nodeText =  `${node.id}: ∞`;
+      else {
+        nodeText = `${node.id}: ∞`;
       }
       if (node.id === algorithmState.data.starting_node) {
         nodeBold = true;
       }
-      
+
       switch (algorithmState.type) {
         case 'finding_min_unvisited':
           if (!algorithmState.data.visited.includes(node.id)) {
@@ -193,7 +188,7 @@ const Node: React.FC<{
 
   const handleClick = (event: React.MouseEvent) => {
     event.stopPropagation();
-    if (algorithmState.type === "pre_algorithm" || algorithmState.type === "finished"){
+    if (algorithmState.type === "pre_algorithm" || algorithmState.type === "finished") {
       setShowMenu(!showMenu);
     }
   };
@@ -201,13 +196,13 @@ const Node: React.FC<{
   return (
     <g
       transform={`translate(${node.x},${node.y})`}
-      onMouseDown={(e) => onDragStart(e, node)}
-      onMouseMove={(e) => onDragged(e, node)}
-      onMouseUp={(e) => onDragEnd(e, node)}
-      onMouseLeave={(e) => onDragEnd(e, node)}
-      
+    // onMouseDown={(e) => onDragStart(e, node)}
+    // onMouseMove={(e) => onDragged(e, node)}
+    // onMouseUp={(e) => onDragEnd(e, node)}
+    // onMouseLeave={(e) => onDragEnd(e, node)}
+
     >
-      <circle r="35" fill={nodeColor} stroke="black" strokeWidth="3" onClick={handleClick}/>
+      <circle r="35" fill={nodeColor} stroke="black" strokeWidth="3" onClick={handleClick} />
       <text
         textAnchor="middle"
         dominantBaseline="central"
@@ -235,10 +230,9 @@ const Node: React.FC<{
                         style={{ width: '100%', height: '100%', fontSize: '12px' }}
                         value={edgeLength}
                         onChange={(e) => {
-                          const newGraph = {...graph};
+                          const newGraph = { ...graph };
                           newGraph[node.id][neighbor] = Number(e.target.value);
                           setGraph(newGraph);
-                          setHaveRun(false);
                         }}
                       />
                     </foreignObject>
@@ -254,10 +248,9 @@ const Node: React.FC<{
                           cursor: 'pointer'
                         }}
                         onClick={() => {
-                          const newGraph = {...graph};
+                          const newGraph = { ...graph };
                           delete newGraph[node.id][neighbor];
                           setGraph(newGraph);
-                          setHaveRun(false);
                         }}
                       >
                         <span style={{ color: 'white', fontSize: '14px' }}>X</span>
@@ -274,7 +267,7 @@ const Node: React.FC<{
   );
 };
 
-const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmState, haveRun, setHaveRun }) => {
+const Graph: React.FC<GraphProps> = ({ graph, setGraph, algorithmState }) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [links, setLinks] = useState<Link[]>([]);
   const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
@@ -297,14 +290,14 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
     setLinks(linksData);
 
 
-    simulationRef.current = d3.forceSimulation(nodesData)
-      .force('link', d3.forceLink(linksData).id((d: any) => d.id).distance(200))
+    simulationRef.current = d3.forceSimulation<Node>(nodesData)
+      .force('link', d3.forceLink<Node, Link>(linksData).id(d => d.id).distance(200))
       .force('charge', d3.forceManyBody().strength(-500))
       .force('center', d3.forceCenter(width / 2, height / 2));
 
-      
-      simulationRef.current.stop();
-      simulationRef.current.tick(3000);
+
+    simulationRef.current.stop();
+    simulationRef.current.tick(3000);
 
 
     return () => {
@@ -314,22 +307,22 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
     };
   }, [graph]);
 
-  const dragStart = useCallback((event: any, d: any) => {
-    if (!event.active && simulationRef.current) simulationRef.current.alphaTarget(0.3).restart();
-    d.fx = d.x;
-    d.fy = d.y;
-  }, []);
+  // const dragStart = useCallback((event: React.MouseEvent, d: any) => {
+  //   if (!event.active && simulationRef.current) simulationRef.current.alphaTarget(0.3).restart();
+  //   d.fx = d.x;
+  //   d.fy = d.y;
+  // }, []);
 
-  const dragged = useCallback((event: any, d: any) => {
-    d.fx = event.x;
-    d.fy = event.y;
-  }, []);
+  // const dragged = useCallback((event: React.MouseEvent, d: any) => {
+  //   d.fx = event.x;
+  //   d.fy = event.y;
+  // }, []);
 
-  const dragEnd = useCallback((event: any, d: any) => {
-    if (!event.active && simulationRef.current) simulationRef.current.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
-  }, []);
+  // const dragEnd = useCallback((event: React.MouseEvent, d: any) => {
+  //   if (!event.active && simulationRef.current) simulationRef.current.alphaTarget(0);
+  //   d.fx = null;
+  //   d.fy = null;
+  // }, []);
 
   const handleSvgClick = () => {
     // Close all node menus when clicking on the svg
@@ -338,10 +331,10 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
 
   return (
     <svg ref={svgRef} width={width} height={height} onClick={handleSvgClick}>
-        {(() => {
-          return links.map((link, index) => {
+      {(() => {
+        return links.map((link, index) => {
 
-            return (
+          return (
             <g key={index}>
               <line
                 x1={(link.source as unknown as Node).x}
@@ -363,35 +356,32 @@ const Graph: React.FC<GraphProps> = ({ graph, setGraph, nodeColors, algorithmSta
                 dy="-5"
               >
                 {link.value}
-                </text>
+              </text>
             </g>
-          )});
-        })()}
-        {nodes.map((node) => (
-          <Node
-            key={node.id}
-            node={node}
-            color={nodeColors[node.id] || 'white'}
-            onDragStart={dragStart}
-            onDragged={dragged}
-            onDragEnd={dragEnd}
-            algorithmState={algorithmState}
-            graph={graph}
-            setGraph={setGraph}
-            haveRun={haveRun}
-            setHaveRun={setHaveRun}
-          />
-        ))}
+          )
+        });
+      })()}
+      {nodes.map((node) => (
+        <Node
+          key={node.id}
+          node={node}
+          // onDragStart={dragStart}
+          // onDragged={dragged}
+          // onDragEnd={dragEnd}
+          algorithmState={algorithmState}
+          graph={graph}
+          setGraph={setGraph}
+        />
+      ))}
     </svg>
   );
 };
 
 export default function Page() {
 
-  const [algorithmState, setAlgorithmState] = useState<AlgorithmSnapshot>({type:"pre_algorithm"});
+  const [algorithmState, setAlgorithmState] = useState<AlgorithmSnapshot>({ type: "pre_algorithm" });
   const [algorithmStateHistory, setAlgorithmStateHistory] = useState<Array<Array<AlgorithmSnapshot>>>([[]]);
-  const [nodeColors, setNodeColors] = useState<Record<string, string>>({});
-  const [complexWeightedGraph,setComplexWeightedGraph] = useState<Record<string,Record<string,number>>>(  {
+  const [complexWeightedGraph, setComplexWeightedGraph] = useState<Record<string, Record<string, number>>>({
     A: { B: 4, C: 2 },
     B: { A: 4, C: 1, D: 5 },
     C: { A: 2, B: 1, D: 8, E: 10 },
@@ -413,11 +403,12 @@ export default function Page() {
       const newHistory = structuredClone(prevHistory);
       //Group together algorithm steps from the same iteration
       if (payload.type === "finding_min_unvisited" && newHistory[newHistory.length - 1].length > 0) {
-        newHistory.push([]);      }
+        newHistory.push([]);
+      }
       newHistory[newHistory.length - 1].push(payload);
       return newHistory;
     });
-    if (payload.type !== "pre_algorithm" && payload.type !== "finished" && payload.data && "wait_time" in payload.data){
+    if (payload.type !== "pre_algorithm" && payload.type !== "finished" && payload.data && "wait_time" in payload.data) {
       await new Promise(resolve => setTimeout(resolve, payload.data.wait_time));
     }
   }
@@ -427,8 +418,8 @@ export default function Page() {
       <div key={groupIndex} className="mb-4 border-b pb-2">
         <h3 className="font-bold">
           Iteration {groupIndex + 1}
-          {stateGroup.find(state => state.type === "pre_minimize_neighbors") && 
-           ` - Minimum node: ${stateGroup.find(state => state.type === "pre_minimize_neighbors")?.data.current_node}`}
+          {stateGroup.find(state => state.type === "pre_minimize_neighbors") &&
+            ` - Minimum node: ${stateGroup.find(state => state.type === "pre_minimize_neighbors")?.data.current_node}`}
         </h3>
         {[...stateGroup].reverse().map((state, index) => {
           let stateString: JSX.Element;
@@ -439,15 +430,15 @@ export default function Page() {
             case "finding_min_unvisited":
               stateString = (
                 <span>
-                  Finding minimum unvisited node. Starting node: <span style={{backgroundColor: 'lightgreen'}}>{state.data.starting_node}</span>. 
-                  Visited nodes: {state.data.visited.map(node => <span key={node} style={{backgroundColor: 'lightblue'}}>{node} </span>)}
+                  Finding minimum unvisited node. Starting node: <span style={{ backgroundColor: 'lightgreen' }}>{state.data.starting_node}</span>.
+                  Visited nodes: {state.data.visited.map(node => <span key={node} style={{ backgroundColor: 'lightblue' }}>{node} </span>)}
                 </span>
               );
               break;
             case "minimize_neighbors_step":
               stateString = (
                 <span>
-                  Checking neighbor <span style={{backgroundColor: 'lightsalmon'}}>{state.data.neighbor}</span> of node <span style={{backgroundColor: 'yellow'}}>{state.data.current_node}</span>. 
+                  Checking neighbor <span style={{ backgroundColor: 'lightsalmon' }}>{state.data.neighbor}</span> of node <span style={{ backgroundColor: 'yellow' }}>{state.data.current_node}</span>.
                   New distance: {state.data.newdist}, Edge length: {state.data.edge_length}
                 </span>
               );
@@ -455,9 +446,9 @@ export default function Page() {
             case "finished":
               stateString = (
                 <span>
-                  No unvisited nodes left. Algorithm finished. Final distances from <span style={{backgroundColor: 'lightgreen'}}>{state.data.starting_node}</span>: {' '}
+                  No unvisited nodes left. Algorithm finished. Final distances from <span style={{ backgroundColor: 'lightgreen' }}>{state.data.starting_node}</span>: {' '}
                   {Object.entries(state.data.distances).map(([node, dist]) => (
-                    <span key={node} style={{backgroundColor: 'lightblue'}}>{node}:{dist} </span>
+                    <span key={node} style={{ backgroundColor: 'lightblue' }}>{node}:{dist} </span>
                   ))}
                 </span>
               );
@@ -471,12 +462,11 @@ export default function Page() {
     )).reverse();
   }
 
-  const [haveRun, setHaveRun] = useState(false);
 
   return (
     <div className="p-8">
       {/* <svg ref={svgRef}></svg> */}
-      <button 
+      <button
         onClick={() => {
           setAlgorithmStateHistory([[]]);
           djikstra(complexWeightedGraph, "A", update)
@@ -490,20 +480,17 @@ export default function Page() {
           <path d="M8 5v14l11-7z" />
         </svg>
       </button>
-      <Graph 
-        graph={complexWeightedGraph} 
+      <Graph
+        graph={complexWeightedGraph}
         setGraph={setComplexWeightedGraph}
-        nodeColors={nodeColors} 
-        algorithmState={algorithmState} 
-        haveRun={haveRun}
-        setHaveRun={setHaveRun}
+        algorithmState={algorithmState}
       />
       <div>
         <div className="text-lg font-semibold">Algorithm Log</div>
         <div>{generateLog(algorithmStateHistory)}</div>
       </div>
     </div>
-    
+
   );
 }
 
@@ -526,3 +513,4 @@ export default function Page() {
 
 //buy a domain for yourself
 //make a homepage for the algos site
+
