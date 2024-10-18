@@ -17,12 +17,6 @@ export type Frame = Array<FrameBubble>;
 
 export type Frames = Array<Frame>;
 
-export enum FrameBubbleColor {
-  REGULAR = "bg-blue-400 border-blue-600",
-  FOCUS = "bg-yellow-400 border-yellow-600",
-  FOUND = "bg-green-400 border-green-600",
-}
-
 export function binarySearch(
   arr: number[],
   target: number,
