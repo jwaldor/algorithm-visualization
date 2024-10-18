@@ -36,10 +36,51 @@ describe("Binary Search", () => {
   });
 });
 
+const binarySearchTestCases = [
+  { arr: [1, 3, 5, 7, 9, 11], target: 5, expected: 2 },
+  { arr: [2, 4, 6, 8, 10, 12, 14], target: 1, expected: -1 },
+  { arr: [1, 1, 2, 3, 3, 3, 4, 5, 5], target: 3, expected: 3 },
+  { arr: [100], target: 100, expected: 0 },
+  { arr: [], target: 42, expected: -1 },
+  { arr: [-5, -3, -1, 0, 2, 4, 6], target: -3, expected: 1 },
+  { arr: [1, 2, 3, 4, 5], target: 6, expected: -1 },
+];
+
+for (let i = 0; i < binarySearchTestCases.length; i++) {
+  const searchSteps: Array<CallbackArgs> = [];
+  const testCase = binarySearchTestCases[i];
+  // console.log(`Test case ${i + 1}:`);
+  // console.log(`  Array: [${testCase.arr}]`);
+  // console.log(`  Target: ${testCase.target}`);
+  // console.log(`  Expected: ${testCase.expected}`);
+
+  const result = binarySearch(testCase.arr, testCase.target, (args) => {
+    searchSteps.push(args);
+  });
+
+  console.log(`  Result: ${result}`);
+  console.log("  Search steps:");
+  searchSteps.forEach((step, index) => {
+    console.log(
+      `    Step ${index + 1}: compare=${step.compare}, leading=${
+        step.leading
+      }, index=${step.index}`
+    );
+  });
+  console.log("---");
+}
+
 describe("makeFrames", () => {
   test("should create correct frames for a simple search", () => {
     const searchSteps = [
-      { compare: 5, leading: 0, array: [1, 3, 5, 7, 9], index: 2, target: 5 },
+      {
+        compare: 5,
+        leading: 0,
+        array: [1, 3, 5, 7, 9],
+        index: 2,
+        target: 5,
+        right: 4,
+      },
     ];
     const frames = makeFrames(searchSteps);
     expect(frames).toEqual([
@@ -52,50 +93,4 @@ describe("makeFrames", () => {
       ],
     ]);
   });
-
-  // test("should create correct frames for multiple steps", () => {
-  //   const searchSteps = [
-  //     { compare: 5, leading: 0, array: [1, 3, 5, 7, 9], index: 2, target: 7 },
-  //     { compare: 7, leading: 3, array: [1, 3, 5, 7, 9], index: 3, target: 7 },
-  //   ];
-  //   const frames = makeFrames(searchSteps);
-  //   expect(frames).toEqual([
-  //     [
-  //       { value: 1, type: "regular" },
-  //       { value: 3, type: "regular" },
-  //       { value: 5, type: "focus" },
-  //       { value: 7, type: "regular" },
-  //       { value: 9, type: "regular" },
-  //     ],
-  //     [
-  //       { value: 1, type: "regular" },
-  //       { value: 3, type: "regular" },
-  //       { value: 5, type: "regular" },
-  //       { value: 7, type: "focus" },
-  //       { value: 9, type: "regular" },
-  //     ],
-  //   ]);
-  // });
-
-  // test("should handle empty array", () => {
-  //   const searchSteps: Array<CallbackArgs> = [];
-  //   const frames = makeFrames(searchSteps);
-  //   expect(frames).toEqual([]);
-  // });
-
-  // test("should handle target found", () => {
-  //   const searchSteps = [
-  //     { compare: 5, leading: 0, array: [1, 3, 5, 7, 9], index: 2, target: 5 },
-  //   ];
-  //   const frames = makeFrames(searchSteps);
-  //   expect(frames).toEqual([
-  //     [
-  //       { value: 1, type: "regular" },
-  //       { value: 3, type: "regular" },
-  //       { value: 5, type: "focus" },
-  //       { value: 7, type: "regular" },
-  //       { value: 9, type: "regular" },
-  //     ],
-  //   ]);
-  // });
 });

@@ -4,12 +4,13 @@ export type CallbackArgs = {
   array: Array<number>;
   index: number;
   target: number;
+  right: number;
 };
 type Callback = (props: CallbackArgs) => void;
 
 type FrameBubble = {
   value: number | undefined;
-  type: "regular" | "focus" | "found";
+  type: "regular" | "focus" | "found" | undefined;
 };
 
 type Frame = Array<FrameBubble>;
@@ -39,6 +40,7 @@ export function binarySearch(
         array: arr,
         index: mid,
         target: target,
+        right: right,
       });
     }
     if (arr[mid] === target) {
@@ -56,8 +58,11 @@ export function makeFrames(searchSteps: Array<CallbackArgs>) {
   const frames: Frames = [];
   for (let i = 0; i < searchSteps.length; i++) {
     const step = searchSteps[i];
-    const frame: Frame = [];
-    for (let j = 0; j < step.array.length; j++) {
+    const frame: Frame = Array(step.leading).fill({
+      value: undefined,
+      type: undefined,
+    });
+    for (let j = step.leading; j <= step.right; j++) {
       if (step.array[j] === step.target && j === step.index) {
         frame.push({ value: step.array[j], type: "found" });
       } else if (j === step.index) {
