@@ -153,15 +153,24 @@ export default function Page() {
                 ))}
                 <PlusButton onClick={handleAddNumber} />
             </div>
-            {showingframes.map((frame, index) => (
-                <div key={index} className="flex flex-row">
-                    {frame.map((item, index) => (
-                        <div key={index} className={`w-10 h-10 rounded-full ${FrameBubbleColor[item.type]} flex items-center justify-center text-white text-sm mr-2`}>
-                            {item.value}
+            <div className="mt-8">
+                <h2 className="text-xl font-bold mb-4">Search Steps</h2>
+                {showingframes.map((frame, frameIndex) => (
+                    <div key={frameIndex} className="flex flex-row items-center mb-4">
+                        <span className="mr-4 font-semibold">Step {frameIndex + 1}:</span>
+                        <div className="flex flex-row">
+                            {frame.map((item, itemIndex) => (
+                                <div
+                                    key={itemIndex}
+                                    className={`w-10 h-10 rounded-full ${FrameBubbleColor[item.type]} flex items-center justify-center text-white text-sm mr-2`}
+                                >
+                                    {item.value !== undefined ? item.value : ''}
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
-            ))}
+                    </div>
+                ))}
+            </div>
             {/* <div className="mt-8">
                 <h2 className="text-xl font-bold mb-4">Search Steps</h2>
                 {searchSteps.map((step, stepIndex) => {
