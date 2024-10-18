@@ -136,7 +136,7 @@ export default function Home() {
           </div>
         </div>
         <div
-          onClick={() => window.location.href = '/depthFirstSearch'}
+          onClick={() => window.location.href = '/depthfirst'}
           className="p-3 border border-gray-300 rounded-md w-[80%] sm:w-[50%] h-28 cursor-pointer"
         >
           <div className="mb-1">Depth First Search</div>
@@ -159,6 +159,41 @@ export default function Home() {
             </svg>
           </div>
         </div>
+        <div
+          onClick={() => window.location.href = '/dijkstra'}
+          className="p-3 border border-gray-300 rounded-md w-[80%] sm:w-[50%] h-28 cursor-pointer"
+        >
+          <div className="mb-1">Dijkstra&apos;s Algorithm</div>
+          <div className="flex justify-center h-full">
+            <svg width="250" height="70" viewBox="0 0 200 70">
+              <line x1="20" y1="20" x2="100" y2="20" stroke="black" strokeWidth="1" />
+              <line x1="20" y1="20" x2="60" y2="50" stroke="black" strokeWidth="1" />
+              <line x1="100" y1="20" x2="60" y2="50" stroke="black" strokeWidth="1" />
+              <line x1="100" y1="20" x2="160" y2="20" stroke="black" strokeWidth="1" />
+              <line x1="160" y1="20" x2="160" y2="50" stroke="black" strokeWidth="1" />
+              <line x1="60" y1="50" x2="160" y2="50" stroke="black" strokeWidth="1" />
+              <line x1="20" y1="20" x2="160" y2="50" stroke="black" strokeWidth="1" />
+              <circle cx="20" cy="20" r="10" fill="#4CAF50" stroke="black" strokeWidth="1" />
+              <circle cx="100" cy="20" r="10" fill="#2196F3" stroke="black" strokeWidth="1" />
+              <circle cx="160" cy="20" r="10" fill="#FFC107" stroke="black" strokeWidth="1" />
+              <circle cx="60" cy="50" r="10" fill="#9C27B0" stroke="black" strokeWidth="1" />
+              <circle cx="160" cy="50" r="10" fill="#FF5722" stroke="black" strokeWidth="1" />
+              <text x="20" y="24" fontSize="10" textAnchor="middle" fill="white">2</text>
+              <text x="100" y="24" fontSize="10" textAnchor="middle" fill="white">5</text>
+              <text x="160" y="24" fontSize="10" textAnchor="middle" fill="white">3</text>
+              <text x="60" y="54" fontSize="10" textAnchor="middle" fill="white">1</text>
+              <text x="160" y="54" fontSize="10" textAnchor="middle" fill="white">4</text>
+              <text x="60" y="15" fontSize="8" textAnchor="middle">4</text>
+              <text x="130" y="15" fontSize="8" textAnchor="middle">2</text>
+              <text x="38" y="42" fontSize="8" textAnchor="middle">3</text>
+              <text x="80" y="42" fontSize="8" textAnchor="middle">1</text>
+              <text x="165" y="37" fontSize="8" textAnchor="middle">5</text>
+              <text x="110" y="57" fontSize="8" textAnchor="middle">6</text>
+              <text x="90" y="42" fontSize="8" textAnchor="middle">7</text>
+            </svg>
+          </div>
+        </div>
+
 
 
       </div>
