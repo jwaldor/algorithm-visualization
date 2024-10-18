@@ -4,7 +4,7 @@ import { CallbackArgs } from "@/services/binarysearch/binarysearch";
 
 import React, { useState, forwardRef } from "react";
 
-export enum FrameBubbleColor {
+enum FrameBubbleColor {
     regular = "bg-blue-400 border-blue-600",
     focus = "bg-yellow-400 border-yellow-600",
     found = "bg-green-400 border-green-600",
