@@ -83,7 +83,7 @@ async function binarySearch(array: Array<number>, term: number, leading = 0, lay
     } else {
         console.log("completecallback")
         // complete({ compare: m + leading, layer: layer, leading: leading + m, array: [array[m]], index: m + leading, complete: true });
-        callback({ compare: m + leading, layer: layer, leading: leading + m, array: [array[m]], index: m + leading });
+        // callback({ compare: m + leading, layer: layer, leading: leading + m, array: [array[m]], index: m + leading });
         return;
     }
 }
@@ -107,6 +107,7 @@ export default function Page() {
     const circleRefs = numbers.map(() => createRef<HTMLDivElement>())
 
     const execute = () => {
+        setSearchSteps([])
 
         if (searchTerm !== null && !executing) {
 
