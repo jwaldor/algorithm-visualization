@@ -60,12 +60,14 @@ type Complete = (props: CompleteArgs) => void
 // get rid of cmplete and add return values.
 async function binarySearch(array: Array<number>, term: number, leading = 0, layer = 0, callback: Callback, complete: Complete) {
     const m = Math.floor((array.length - 1) / 2);
+    console.log("still searching")
     await callback({ compare: array[m], layer, leading: leading, array: array, index: m })
     if (array.length === 0) {
         return;
         // complete({ compare: undefined, layer: layer, leading: leading, array: [array[m + leading]], index: m + leading, complete: true });
     }
     if (array[m] < term) {
+        console.log("searching right")
         binarySearch(
             array.slice(m + 1, array.length),
             term,
@@ -75,12 +77,14 @@ async function binarySearch(array: Array<number>, term: number, leading = 0, lay
             complete
         );
     } else if (array[m] > term) {
+        console.log("searching left", array.slice(0, m + 1))
 
-        binarySearch(array.slice(0, m + 1), term, leading, layer + 1, callback, complete);
+        binarySearch(array.slice(0, m), term, leading, layer + 1, callback, complete);
     } else {
         console.log("completecallback")
         // complete({ compare: m + leading, layer: layer, leading: leading + m, array: [array[m]], index: m + leading, complete: true });
         callback({ compare: m + leading, layer: layer, leading: leading + m, array: [array[m]], index: m + leading });
+        return;
     }
 }
 
@@ -165,6 +169,7 @@ export default function Page() {
     // useEffect(()=>{
     //     console.log("searchSteps",searchSteps)
     // },[searchSteps])
+    console.log("searchSteps length", searchSteps.length)
 
     return (
         <div>
@@ -240,7 +245,7 @@ export default function Page() {
                                                 key={index}
                                                 className={`w-10 h-10 rounded-full ${!(step.array.length === 1 && number === searchTerm) && (step.index === index - step.leading ? 'bg-yellow-400 border-yellow-600' :
                                                     'bg-blue-400 border-blue-600'
-                                                )} ${step.array.length === 1 && number === searchTerm && 'bg-green-500 border-green-600'}border-2 flex items-center justify-center text-white text-sm mr-2`}
+                                                )} ${step.array.length === 1 && number === searchTerm && 'bg-green-500 border-green-600'} border-2 flex items-center justify-center text-white text-sm mr-2`}
                                             >
                                                 {number}
                                             </div>
