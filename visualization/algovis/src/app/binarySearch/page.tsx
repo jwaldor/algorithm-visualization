@@ -1,8 +1,8 @@
 "use client";
-import { binarySearch, Frame, Frames, makeFrames } from "@/services/binarysearch/binarysearch";
+import { binarySearch, Frames, makeFrames } from "@/services/binarysearch/binarysearch";
 import { CallbackArgs } from "@/services/binarysearch/binarysearch";
 
-import React, { createRef, useState, forwardRef } from "react";
+import React, { useState, forwardRef } from "react";
 
 export enum FrameBubbleColor {
     regular = "bg-blue-400 border-blue-600",
@@ -171,63 +171,9 @@ export default function Page() {
                     </div>
                 ))}
             </div>
-            {/* <div className="mt-8">
-                <h2 className="text-xl font-bold mb-4">Search Steps</h2>
-                {searchSteps.map((step, stepIndex) => {
-                    console.log(searchSteps[searchSteps.length - 1], searchSteps[searchSteps.length - 1].array, "searchSteps")
-                    console.log(searchSteps[searchSteps.length - 1].complete, "step.complete")
-                    return (
-                        <div key={stepIndex} className="flex flex-row items-center mb-4">
-                            <span className="mr-4 font-semibold">Step {stepIndex + 1}:</span>
-                            <div className="flex flex-row">
-                                {[...Array(step.leading).fill(undefined), ...step.array].map((number, index) => {
-                                    console.log("here6")
-                                    console.log(number, "number", step.compare, "step.compare", step.array, "step.array", index, "index", step.array.length, "step.array.length", step.complete, "step.complete")
-                                    // console.log(step.array.length === 1 && number === searchTerm, "step.array.length === 1 && number === searchTerm")
-                                    console.log(step.array.length === 1 && number === searchTerm ? 'bg-green-500 border-green-600' :
-                                        'bg-blue-400  border-blue-600')
-                                    console.log(`w-10 h-10 rounded-full ${!(step.array.length === 1 && number === searchTerm) && (!(step.array.length === 1 && number === searchTerm) && index === step.compare ? 'bg-yellow-400 border-yellow-600' : 'bg-blue-400  border-blue-600')}
-                                                ${step.array.length === 1 && number === searchTerm ? 'bg-green-500 border-green-600' :
-                                            'bg-blue-400  border-blue-600'
-                                        } border-2 flex items-center justify-center text-white text-sm mr-2 bg-transparent border-none`)
-                                    return (
-
-                                        number === undefined ? <div
-                                            key={index}
-                                            className={`w-10 h-10 rounded-full ${!(step.array.length === 1 && number === searchTerm) && (!(step.array.length === 1 && number === searchTerm) && index === step.compare ? 'bg-yellow-400 border-yellow-600' : 'bg-blue-400  border-blue-600')}
-                                                ${step.array.length === 1 && number === searchTerm ? 'bg-green-500 border-green-600' :
-                                                    'bg-blue-400  border-blue-600'
-                                                } border-2 flex items-center justify-center text-white text-sm mr-2 bg-transparent border-none`}
-                                        >
-                                            {number}
-                                        </div> :
-                                            <div
-                                                key={index}
-                                                className={`w-10 h-10 rounded-full ${!(step.array[step.index] === 1 && number === searchTerm) && (step.index === index - step.leading ? 'bg-yellow-400 border-yellow-600' :
-                                                    'bg-blue-400 border-blue-600'
-                                                )} ${step.array.length === 1 && number === searchTerm && 'bg-green-500 border-green-600'} border-2 flex items-center justify-center text-white text-sm mr-2`}
-                                            >
-                                                {number}
-                                            </div>
-                                    )
-                                }
-                                )}
-                            </div>
-                        </div>
-                    )
-                })}
-            </div> */}
 
 
         </div>
     )
 }
 
-//use compare to highlight found item + search focus?
-
-
-// add animations
-// add highlight for currently selected item
-//add set searchTerm entry
-// add "computer consciousness" area
-//make searcher change color when it finds
