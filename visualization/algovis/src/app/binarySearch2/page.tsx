@@ -1,5 +1,5 @@
 "use client";
-import { binarySearch } from "@/services/binarysearch/binarysearch";
+import { binarySearch, Frame, Frames, makeFrames } from "@/services/binarysearch/binarysearch";
 import { CallbackArgs } from "@/services/binarysearch/binarysearch";
 
 import React, { createRef, useState, forwardRef } from "react";
@@ -65,21 +65,39 @@ export default function Page() {
     const [numbers, setNumbers] = useState<number[]>([1, 3, 5, 7, 9, 11, 13, 15, 19]);
     const [searchTerm, setSearchTerm] = useState<number | null>(5);
     const [executing, setExecuting] = useState<boolean>(false);
-    const [found, setFound] = useState<number | undefined>();
-    const [searchSteps, setSearchSteps] = useState<Array<CallbackArgs>>([]);
+    // const [searchSteps, setSearchSteps] = useState<Array<CallbackArgs>>([]);
+    const [showingframes, setShowingFrames] = useState<Frames>([]);
 
-
-    const circleRefs = numbers.map(() => createRef<HTMLDivElement>())
 
     const execute = () => {
-        setSearchSteps([])
+        setShowingFrames([])
 
         if (searchTerm !== null && !executing) {
 
-
-            setFound(undefined);
             setExecuting(true);
-            binarySearch(numbers, searchTerm, (searchStep: CallbackArgs) => { setSearchSteps(searchSteps => [...searchSteps, searchStep]) })
+            const searchSteps: Array<CallbackArgs> = []
+            function addSearchStep(searchStep: CallbackArgs) {
+                searchSteps.push(searchStep)
+            }
+            binarySearch(numbers, searchTerm, (searchStep: CallbackArgs) => { addSearchStep(searchStep) })
+            const allFrames = makeFrames(searchSteps);
+            console.log(allFrames, "allFrames")
+            let frameIndex = 0;
+
+            const animateFrames = () => {
+                if (frameIndex < allFrames.length) {
+                    console.log(frameIndex, "frameIndex", allFrames[frameIndex], "allFrames[frameIndex]")
+
+                    setShowingFrames(allFrames.slice(0, frameIndex));
+                    frameIndex++;
+                    setTimeout(animateFrames, 1000); // Delay of 1 second between frames
+                } else {
+                    setExecuting(false);
+                }
+            };
+
+            animateFrames();
+
 
 
         }
@@ -96,7 +114,16 @@ export default function Page() {
 
     return (
         <div>
-            <h1>Binary Search</h1>
+            <button
+                onClick={execute}
+                className="w-16 h-16 rounded-full bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition-colors duration-200 flex items-center justify-center"
+                disabled={executing}
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                </svg>
+            </button>
+            {/* <h1>Binary Search</h1>
             <div className="flex flex-row justify-center gap-4 my-4">
                 <div className="flex items-center justify-center mb-4">
                     <input
@@ -142,7 +169,6 @@ export default function Page() {
                         <div key={stepIndex} className="flex flex-row items-center mb-4">
                             <span className="mr-4 font-semibold">Step {stepIndex + 1}:</span>
                             <div className="flex flex-row">
-                                {/* pad the array with undefined to the left to line up the array properly */}
                                 {[...Array(step.leading).fill(undefined), ...step.array].map((number, index) => {
                                     console.log("here6")
                                     console.log(number, "number", step.compare, "step.compare", step.array, "step.array", index, "index", step.array.length, "step.array.length", step.complete, "step.complete")
@@ -179,7 +205,7 @@ export default function Page() {
                         </div>
                     )
                 })}
-            </div>
+            </div> */}
 
 
         </div>

@@ -58,6 +58,7 @@ export function makeFrames(searchSteps: Array<CallbackArgs>) {
   const frames: Frames = [];
   for (let i = 0; i < searchSteps.length; i++) {
     const step = searchSteps[i];
+    //pad the frame with undefined values to make empty space in visualization
     const frame: Frame = Array(step.leading).fill({
       value: undefined,
       type: undefined,
